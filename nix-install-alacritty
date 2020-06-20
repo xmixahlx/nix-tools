@@ -53,7 +53,6 @@ sudo install -D -m644 "extra/linux/io.alacritty.Alacritty.appdata.xml" "/usr/loc
 sudo install -D -m644 "extra/logo/alacritty-term.svg" "/usr/local/share/pixmaps/Alacritty.svg"
 sudo install -D -m755 "target/release/alacritty" "/usr/local/bin/alacritty"
 
-
 ## EXIT
 exit
 

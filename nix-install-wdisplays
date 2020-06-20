@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-wdisplays
-### Version: v20200620.1100
+### Version: v20200620.1600
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: sway
@@ -36,16 +36,16 @@ git reset --hard
 git pull
 
 ## CLEAN
-rm -Rf pbp-build
+rm -Rf tmpbuild
 
 ## CONFIGURE
-meson pbp-build -Dprefix=/usr/local -Dbuildtype=release --libdir=/usr/local/lib/x86_64-linux-gnu
+meson tmpbuild -Dprefix=/usr/local -Dbuildtype=release --libdir=/usr/local/lib/x86_64-linux-gnu
 
 ## BUILD
-ninja -C pbp-build
+ninja -C tmpbuild
 
 ## INSTALL
-sudo ninja -C pbp-build install
+sudo ninja -C tmpbuild install
 sudo ldconfig
 
 ## EXIT

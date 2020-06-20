@@ -1,0 +1,54 @@
+#!/bin/sh
+
+### Package: nix-install-intel-vaapi-driver
+### Version: v20200620.1130
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## VARS
+RESDIR=`pwd`/resources
+DEVDIR=`pwd`/upstream
+GITREPO=https://github.com/intel
+GITTREE=intel-vaapi-driver
+GITBRANCH=master
+PKGDIR=$GITTREE\_$GITBRANCH
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS ]; then
+ if [ $INSTALLDEPS = debian ]; then
+  sudo apt-get -y install build-essential coreutils libc-bin git meson
+ fi
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## GIT
+[ -d $PKGDIR ] || git clone --depth=1 $GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -f
+git reset --hard
+git pull
+
+## CLEAN
+rm -Rf tmpbuild
+
+## CONFIGURE
+meson tmpbuild -Dprefix=/usr/local -Dbuildtype=release --libdir=/usr/local/lib/x86_64-linux-gnu/ \
+-Denable_hybrid_codec=true
+
+## BUILD
+ninja -C tmpbuild
+
+## INSTALL
+sudo ninja -C tmpbuild install
+sudo ldconfig
+
+## EXIT
+exit
+
+## ENJOY

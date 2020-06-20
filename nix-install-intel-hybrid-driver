@@ -1,0 +1,60 @@
+#!/bin/sh
+
+### Package: nix-install-intel-hybrid-driver
+### Version: v20200620.1100
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## VARS
+RESDIR=`pwd`/resources
+DEVDIR=`pwd`/upstream
+GITREPO=https://github.com/intel
+GITTREE=intel-hybrid-driver
+GITBRANCH=master
+PKGDIR=$GITTREE\_$GITBRANCH
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS ]; then
+ if [ $INSTALLDEPS = debian ]; then
+  sudo apt-get -y install build-essential coreutils libc-bin wget git make
+ fi
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## GET
+[ -f $GITTREE\_26.patch ] || wget https://patch-diff.githubusercontent.com/raw/intel/intel-hybrid-driver/pull/26.patch -O $GITTREE\_26.patch
+
+## GIT
+[ -d $PKGDIR ] || git clone --depth=1 $GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -f
+git reset --hard
+git pull
+
+## CLEAN
+rm -Rf tmpbuild
+
+## PATCH
+patch -p1 < $DEVDIR/$GITTREE\_26.patch
+
+## CONFIGURE
+./autogen.sh
+./configure --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu/
+
+## BUILD
+make -j `nproc`
+
+## INSTALL
+sudo make install
+sudo ldconfig
+
+## EXIT
+exit
+
+## ENJOY

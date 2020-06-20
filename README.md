@@ -4,6 +4,9 @@ tools for hardware acceleration, media, and wayland for x86_64.<br>
 
 ## hwaccel
 nix-install-alacritty<br>
+nix-install-gmmlib<br>
+nix-install-intel-hybrid-driver<br>
+nix-install-intel-vaapi-driver<br>
 nix-install-libva<br>
 nix-install-libva-utils<br>
 nix-install-mesa<br>

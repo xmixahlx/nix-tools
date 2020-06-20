@@ -1,0 +1,60 @@
+#!/bin/sh
+
+### Package: nix-install-alacritty
+### Version: v20200620.1100
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## VARS
+DEVDIR=`pwd`/upstream
+GITREPO=https://github.com/alacritty
+GITTREE=alacritty
+GITBRANCH=master
+PKGDIR=$GITTREE\_$GITBRANCH
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS ]; then
+ if [ $INSTALLDEPS = debian ]; then
+  sudo apt-get -y install build-essential coreutils libc-bin wget patch \
+  libfontconfig-dev libfreetype-dev libxcb1-dev libgcc-9-dev libc6-dev libexpat1-dev \
+  libuuid1 uuid-dev libpng-dev zlib1g-dev-dev libxau-dev libxdmcp-dev libbsd-dev \
+  ncurses-bin libncurses-dev fish cargo
+ fi
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## GIT
+[ -d $PKGDIR ] || git clone --depth=1 $GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -f
+git reset --hard HEAD
+git pull
+
+## CLEAN
+cargo clean
+
+## BUILD
+cargo build --release
+
+## INSTALL
+sudo desktop-file-install -m 644 --dir "/usr/local/share/applications/" "extra/linux/Alacritty.desktop"
+sudo install -D -m644 "alacritty.yml" "/usr/local/share/doc/alacritty/example/alacritty.yml"
+sudo install -D -m644 "extra/alacritty.man" "/usr/local/share/man/man1/alacritty.1"
+sudo install -D -m644 "extra/completions/alacritty.bash" "/usr/local/share/bash-completion/completions/alacritty"
+sudo install -D -m644 "extra/completions/_alacritty" "/usr/local/share/zsh/site-functions/_alacritty"
+sudo install -D -m644 "extra/completions/alacritty.fish" "/usr/local/share/fish/vendor_completions.d/alacritty.fish"
+sudo install -D -m644 "extra/linux/io.alacritty.Alacritty.appdata.xml" "/usr/local/share/appdata/io.alacritty.Alacritty.appdata.xml"
+sudo install -D -m644 "extra/logo/alacritty-term.svg" "/usr/local/share/pixmaps/Alacritty.svg"
+sudo install -D -m755 "target/release/alacritty" "/usr/local/bin/alacritty"
+
+
+## EXIT
+exit
+
+# ENJOY

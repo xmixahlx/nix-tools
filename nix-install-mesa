@@ -1,0 +1,63 @@
+#!/bin/sh
+
+### Package: nix-install-mesa
+### Version: v20200620.1100
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## VARS
+DEVDIR=`pwd`/upstream
+GITREPO=https://gitlab.freedesktop.org/mesa
+GITTREE=mesa
+
+## OVERRIDE master with GITBRANCH=(branch)
+if [ -z $GITBRANCH ];then
+ GITBRANCH=master
+fi
+echo "\n*** GITBRANCH selected is $GITBRANCH.\n"
+
+PKGDIR=$GITTREE\_$GITBRANCH
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS ]; then
+ if [ $INSTALLDEPS = debian ]; then
+  sudo apt-get -y build-dep mesa
+  sudo apt-get -y install build-essential coreutils libc-bin git meson \
+  libunwind-dev valgrind libxvmc-dev libxv-dev
+ fi
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## GIT
+[ -d $PKGDIR ] || git clone --depth=1 $GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -f
+git reset --hard
+git pull
+
+## CLEAN
+rm -Rf pbp-build
+
+## CONFIGURE
+meson pbp-build --prefix=/usr/local --buildtype=release \
+-Dplatforms=auto -Ddri-drivers=auto \
+-Dvulkan-drivers=auto -Dgallium-drivers=auto \
+-Dlibunwind=true -Dllvm=true
+
+## BUILD
+ninja -C pbp-build
+
+## INSTALL
+sudo ninja -C pbp-build install
+sudo ldconfig
+
+## EXIT
+exit
+
+# ENJOY

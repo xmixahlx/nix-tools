@@ -1,0 +1,15 @@
+## DEBIAN STABLE
+deb http://deb.debian.org/debian/ stable main contrib non-free
+deb-src http://deb.debian.org/debian/ stable main contrib non-free
+
+## DEBIAN TESTING
+deb http://deb.debian.org/debian/ testing main contrib non-free
+deb-src http://deb.debian.org/debian/ testing main contrib non-free
+
+## DEBIAN UNSTABLE
+deb http://deb.debian.org/debian/ unstable main contrib non-free
+deb-src http://deb.debian.org/debian/ unstable main contrib non-free
+
+## DEBIAN EXPERIMENTAL
+deb http://deb.debian.org/debian/ experimental main contrib non-free
+deb-src http://deb.debian.org/debian/ experimental main contrib non-free

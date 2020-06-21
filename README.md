@@ -2,6 +2,9 @@
 
 tools for hardware acceleration, media, and wayland for x86_64.<br>
 
+## desktop
+nix-install-desktop<br>
+
 ## hwaccel
 nix-install-alacritty<br>
 nix-install-intel-gmmlib<br>
@@ -23,3 +26,5 @@ nix-install-sway<br>
 nix-install-waybar<br>
 nix-install-wdisplays<br>
 nix-install-wlogout<br>
+nix-install-xdg-desktop-portal<br>
+nix-install-xdg-desktop-portal-wlr<br>

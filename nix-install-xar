@@ -1,0 +1,79 @@
+#!/bin/sh
+
+### Package: nix-install-xar
+### Version: v20200719.1200
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+fi
+
+## VARS
+DEVDIR=$NIXTOOLSDIR/upstream
+GITREPO=https://github.com/mackyle
+GITTREE=xar
+GITBRANCH=master
+PKGDIR=$GITTREE\_$GITBRANCH
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS ]; then
+ if [ $INSTALLDEPS = debian ]; then
+  sudo apt-get -y install build-essential coreutils libc-bin wget patch \
+  libssl-dev liblzma-dev libbz2-dev libext2fs-dev libxml2-dev \
+  zlib1g-dev libc6-dev libicu-dev
+ fi
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## GET PATCH
+[ -f xar_3.patch ] || wget https://patch-diff.githubusercontent.com/raw/mackyle/xar/pull/3.patch -O xar_3.patch
+[ -f xar_4.patch ] || wget https://patch-diff.githubusercontent.com/raw/mackyle/xar/pull/4.patch -O xar_4.patch
+[ -f xar_5.patch ] || wget https://patch-diff.githubusercontent.com/raw/mackyle/xar/pull/5.patch -O xar_5.patch
+[ -f xar_7.patch ] || wget https://patch-diff.githubusercontent.com/raw/mackyle/xar/pull/7.patch -O xar_7.patch
+[ -f xar_8.patch ] || wget https://patch-diff.githubusercontent.com/raw/mackyle/xar/pull/8.patch -O xar_8.patch
+[ -f xar_13.patch ] || wget https://patch-diff.githubusercontent.com/raw/mackyle/xar/pull/13.patch -O xar_13.patch
+[ -f xar_22.patch ] || wget https://patch-diff.githubusercontent.com/raw/mackyle/xar/pull/22.patch -O xar_22.patch
+[ -f xar_23.patch ] || wget https://patch-diff.githubusercontent.com/raw/mackyle/xar/pull/23.patch -O xar_23.patch
+
+## GIT
+rm -Rf $PKGDIR
+[ -d $PKGDIR ] || git clone --depth=1 $GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -f
+git reset --hard HEAD
+git pull
+
+## PATCH
+patch -p1 < $DEVDIR/xar_3.patch
+patch -p1 < $DEVDIR/xar_4.patch
+patch -p1 < $DEVDIR/xar_5.patch
+patch -p1 < $DEVDIR/xar_7.patch
+patch -p1 < $DEVDIR/xar_8.patch
+patch -p1 < $DEVDIR/xar_13.patch
+patch -p1 < $DEVDIR/xar_22.patch
+patch -p1 < $DEVDIR/xar_23.patch
+
+## CONFIGURE
+cd xar
+./autogen.sh
+./configure --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu \
+--with-bzip2 --with-lzma=/usr
+
+## MAKE
+make -j `nproc`
+
+## INSTALL
+sudo make install
+sudo ldconfig
+
+## EXIT
+exit
+
+## ENJOY

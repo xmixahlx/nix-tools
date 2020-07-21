@@ -1,14 +1,19 @@
 #!/bin/sh
 
 ### Package: nix-install-intel-hybrid-driver
-### Version: v20200620.1100
+### Version: v20200720.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
 
+## NIXTOOLS
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+fi
+
 ## VARS
-RESDIR=`pwd`/resources
-DEVDIR=`pwd`/upstream
+RESDIR=$NIXTOOLSDIR/resources
+DEVDIR=$NIXTOOLSDIR/upstream
 GITREPO=https://github.com/intel
 GITTREE=intel-hybrid-driver
 GITBRANCH=master
@@ -18,7 +23,8 @@ PKGDIR=$GITTREE\_$GITBRANCH
 # Provide INSTALLDEPS=debian to install dependencies.
 if [ $INSTALLDEPS ]; then
  if [ $INSTALLDEPS = debian ]; then
-  sudo apt-get -y install build-essential coreutils libc-bin wget git make
+  sudo apt-get -y install build-essential coreutils libc-bin wget git make \
+  libcmrt-dev libtool
  fi
 fi
 

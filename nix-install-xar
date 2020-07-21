@@ -1,11 +1,12 @@
 #!/bin/sh
 
 ### Package: nix-install-xar
-### Version: v20200719.1200
+### Version: v20200720.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
 
+## NIXTOOLS
 if [ -z $NIXTOOLSDIR ]; then
  NIXTOOLSDIR="`pwd`"
 fi
@@ -43,7 +44,6 @@ cd $DEVDIR
 [ -f xar_23.patch ] || wget https://patch-diff.githubusercontent.com/raw/mackyle/xar/pull/23.patch -O xar_23.patch
 
 ## GIT
-rm -Rf $PKGDIR
 [ -d $PKGDIR ] || git clone --depth=1 $GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
 cd $PKGDIR
 git clean -f

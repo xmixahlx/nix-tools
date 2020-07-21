@@ -1,10 +1,15 @@
 #!/bin/sh
 
 ### Package: nix-install-desktop
-### Version: v20200620.2100
+### Version: v20200720.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
-### Script Dependencies: (none)
+### Script Dependencies: linux
+
+## NIXTOOLS
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+fi
 
 ## VARS
 INSTALL="sudo apt-get -y install"
@@ -40,9 +45,9 @@ if [ -z $DEBMULTIMEDIA ]; then
 fi
 echo "\n*** DEBMULTIMEDIA selected is $DEBMULTIMEDIA.\n"
 
-# Override yes with no to NOT install sway, waybar and bash configs.
+# Override no with yes to install sway, waybar and bash configs.
 if [ -z $USERCONFIGS ]; then
- USERCONFIGS=yes
+ USERCONFIGS=no
 fi
 echo "\n*** USERCONFIGS selected is $USERCONFIGS.\n"
 
@@ -58,21 +63,21 @@ if [ -z $DESKTOP ]; then
 fi
 echo "\n*** DESKTOP selected is $DESKTOP.\n"
 
-# Override yes with no to NOT install hwaccel.
+# Override no with yes to install hwaccel.
 if [ -z $HWACCEL ]; then
- HWACCEL=yes
+ HWACCEL=no
 fi
 echo "\n*** HWACCEL selected is $HWACCEL.\n"
 
-# Override yes with no to NOT install media.
+# Override no with yes to install media.
 if [ -z $MEDIA ]; then
- MEDIA=yes
+ MEDIA=no
 fi
 echo "\n*** MEDIA selected is $MEDIA.\n"
 
-# Override yes with no to NOT install wayland.
+# Override no with yes to install wayland.
 if [ -z $WAYLAND ]; then
- WAYLAND=yes
+ WAYLAND=no
 fi
 echo "\n*** WAYLAND selected is $WAYLAND.\n"
 
@@ -96,7 +101,7 @@ if [ $DEBMULTIMEDIA = yes ]; then
  sudo mkdir -p /etc/apt/sources.list.d/
  sudo install -Dm644 resources/apt/deb-multimedia.list.$DEBRELEASE /etc/apt/sources.list.d/deb-multimedia.list
  sudo apt-get -y update -oAcquire::AllowInsecureRepositories=true
- sudo apt-get -y install deb-multimedia-keyring
+ sudo apt-get -y install deb-multimedia-keyring --allow-unauthenticated
  sudo apt-get -y update
  sudo apt-get -y dist-upgrade
 fi

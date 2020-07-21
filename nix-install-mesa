@@ -1,17 +1,37 @@
 #!/bin/sh
 
 ### Package: nix-install-mesa
-### Version: v20200620.1600
+### Version: v20200720.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
 
+## NIXTOOLS
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+fi
+
 ## VARS
-DEVDIR=`pwd`/upstream
+DEVDIR=$NIXTOOLSDIR/upstream
 GITREPO=https://gitlab.freedesktop.org/mesa
 GITTREE=mesa
 
 ## OVERRIDE master with GITBRANCH=(branch)
+if [ -z $DRIDRIVERS ];then
+ DRIDRIVERS=auto
+fi
+echo "\n*** DRIDRIVERS selected is $DRIDRIVERS.\n"
+
+if [ -z $VULKANDRIVERS ];then
+ VULKANDRIVERS=auto
+fi
+echo "\n*** VULKANDRIVERS selected is $VULKANDRIVERS.\n"
+
+if [ -z $GALLIUMDRIVERS ];then
+ GALLIUMDRIVERS=auto
+fi
+echo "\n*** GALLIUMDRIVERS selected is $GALLIUMDRIVERS.\n"
+
 if [ -z $GITBRANCH ];then
  GITBRANCH=master
 fi
@@ -45,10 +65,10 @@ git pull
 rm -Rf tmpbuild
 
 ## CONFIGURE
-meson tmpbuild --prefix=/usr/local --buildtype=release \
--Dplatforms=auto -Ddri-drivers=auto \
--Dvulkan-drivers=auto -Dgallium-drivers=auto \
--Dlibunwind=true -Dllvm=true
+meson tmpbuild --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu \
+--buildtype=release -Dplatforms=auto -Ddri-drivers=$DRIDRIVERS \
+-Dvulkan-drivers=$VULKANDRIVERS -Dgallium-drivers=$GALLIUMDRIVERS \
+-Dlibunwind=enabled -Dllvm=enabled
 
 ## BUILD
 ninja -C tmpbuild

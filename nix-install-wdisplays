@@ -1,14 +1,19 @@
 #!/bin/sh
 
 ### Package: nix-install-wdisplays
-### Version: v20200620.1600
+### Version: v20200720.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: sway
 
+## NIXTOOLS
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+fi
+
 ## VARS
-RESDIR=`pwd`/resources
-DEVDIR=`pwd`/upstream
+RESDIR=$NIXTOOLSDIR/resources
+DEVDIR=$NIXTOOLSDIR/upstream
 GITREPO=https://github.com/cyclopsian
 GITTREE=wdisplays
 GITBRANCH=master
@@ -19,7 +24,7 @@ PKGDIR=$GITTREE\_$GITBRANCH
 if [ $INSTALLDEPS ]; then
  if [ $INSTALLDEPS = debian ]; then
   sudo apt-get -y install build-essential coreutils libc-bin git meson \
-  scour
+  scour libgtk-3-dev
  fi
 fi
 

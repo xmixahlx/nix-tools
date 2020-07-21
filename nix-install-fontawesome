@@ -1,13 +1,18 @@
 #!/bin/sh
 
 ### Package: nix-install-fontawesome
-### Version: v20200620.1100
+### Version: v20200720.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
 
+## NIXTOOLS
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+fi
+
 ## VARS
-DEVDIR=`pwd`/upstream
+DEVDIR=$NIXTOOLSDIR/upstream
 GITREPO=https://github.com/fortawesome
 GITTREE=font-awesome
 GITBRANCH=master
@@ -42,3 +47,5 @@ echo "\n*** Install complete.\n"
 
 ## EXIT
 exit
+
+## ENJOY

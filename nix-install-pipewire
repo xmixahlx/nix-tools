@@ -1,13 +1,18 @@
 #!/bin/sh
 
 ### Package: nix-install-pipewire
-### Version: v20200620.1100
+### Version: v20200720.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
-### Script Dependencies: (none)
+### Script Dependencies: libcamera
+
+## NIXTOOLS
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+fi
 
 ## VARS
-DEVDIR=`pwd`/upstream
+DEVDIR=$NIXTOOLSDIR/upstream
 GITREPO=https://gitlab.freedesktop.org/pipewire
 GITTREE=pipewire
 GITBRANCH=master
@@ -52,4 +57,4 @@ sudo ldconfig
 ## EXIT
 exit
 
-# ENJOY
+## ENJOY

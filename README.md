@@ -19,12 +19,16 @@ nix-install-mesa<br>
 nix-install-libcamera<br>
 nix-install-pipewire<br>
 
+## misc
+nix-install-fontawesome<br>
+nix-install-pbzx<br>
+nix-install-xdg-desktop-portal<br>
+nix-install-xar<br>
+
 ## wayland
 nix-install-dmenu-wayland<br>
-nix-install-fontawesome<br>
 nix-install-sway<br>
 nix-install-waybar<br>
 nix-install-wdisplays<br>
 nix-install-wlogout<br>
-nix-install-xdg-desktop-portal<br>
 nix-install-xdg-desktop-portal-wlr<br>

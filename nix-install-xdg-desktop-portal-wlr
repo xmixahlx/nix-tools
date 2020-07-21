@@ -1,14 +1,19 @@
 #!/bin/sh
 
 ### Package: nix-install-xdg-desktop-portal-wlr
-### Version: v20200620.1600
+### Version: v20200720.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: sway
 
+## NIXTOOLS
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+fi
+
 ## VARS
-RESDIR=`pwd`/resources
-DEVDIR=`pwd`/upstream
+RESDIR=$NIXTOOLSDIR/resources
+DEVDIR=$NIXTOOLSDIR/upstream
 GITREPO=https://github.com/emersion
 GITTREE=xdg-desktop-portal-wlr
 GITBRANCH=master

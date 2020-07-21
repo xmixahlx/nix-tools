@@ -1,14 +1,19 @@
 #!/bin/sh
 
 ### Package: nix-install-sway
-### Version: v20200620.1600
+### Version: v20200720.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
 
+## NIXTOOLS
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+fi
+
 ## VARS
-RESDIR=`pwd`/resources
-DEVDIR=`pwd`/upstream
+RESDIR=$NIXTOOLSDIR/resources
+DEVDIR=$NIXTOOLSDIR/upstream
 GITREPO=https://github.com/swaywm
 GITBRANCH=master
 
@@ -16,6 +21,7 @@ GITBRANCH=master
 # Provide INSTALLDEPS=debian to install dependencies.
 if [ $INSTALLDEPS ]; then
  if [ $INSTALLDEPS = debian ]; then
+  sudo apt-get -y build-dep sway
   sudo apt-get -y install build-essential coreutils libc-bin git meson \
   wayland-protocols libwayland-dev libwayland-egl-backend-dev \
   libgles2-mesa-dev libegl1-mesa-dev libdrm-dev libgbm-dev libinput-dev libxkbcommon-dev \
@@ -23,7 +29,7 @@ if [ $INSTALLDEPS ]; then
   libxcb-composite0-dev libxcb-render0-dev libpcap-dev libsystemd-dev libxcb-icccm4-dev \
   libpng-dev libavutil-dev libavcodec-dev libavformat-dev libjson-c-dev libpcre3-dev \
   libcairo2-dev libpango1.0-dev libgdk-pixbuf2.0-dev libevdev-dev libinput-dev \
-  bash-completion fish scdoc libpam-dev libcrypt-dev pasystray network-manager-gnome blueman
+  bash-completion fish scdoc libpam-dev libcrypt-dev
  fi
 fi
 

@@ -1,14 +1,19 @@
 #!/bin/sh
 
 ### Package: nix-install-libva-utils
-### Version: v20200620.1600
+### Version: v20200720.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: libva
 
+## NIXTOOLS
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+fi
+
 ## VARS
-RESDIR=`pwd`/resources
-DEVDIR=`pwd`/upstream
+RESDIR=$NIXTOOLSDIR/resources
+DEVDIR=$NIXTOOLSDIR/upstream
 GITREPO=https://github.com/intel
 GITTREE=libva-utils
 GITBRANCH=master

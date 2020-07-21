@@ -1,14 +1,19 @@
 #!/bin/sh
 
 ### Package: nix-install-dmenu-wayland
-### Version: v20200620.1600
+### Version: v20200720.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: sway
 
+## NIXTOOLS
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+fi
+
 ## VARS
-RESDIR=`pwd`/resources
-DEVDIR=`pwd`/upstream
+RESDIR=$NIXTOOLSDIR/resources
+DEVDIR=$NIXTOOLSDIR/upstream
 GITREPO=https://github.com/nyyManni
 GITTREE=dmenu-wayland
 GITBRANCH=master
@@ -18,7 +23,8 @@ PKGDIR=$GITTREE\_$GITBRANCH
 # Provide INSTALLDEPS=debian to install dependencies.
 if [ $INSTALLDEPS ]; then
  if [ $INSTALLDEPS = debian ]; then
-  sudo apt-get -y install build-essential coreutils libc-bin git meson
+  sudo apt-get -y install build-essential coreutils libc-bin git meson \
+  libcairo2-dev libpango1.0-dev libwayland-dev wayland-protocols cmake libxkbcommon-dev
  fi
 fi
 

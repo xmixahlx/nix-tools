@@ -1,14 +1,19 @@
 #!/bin/sh
 
 ### Package: nix-install-waybar
-### Version: v20200620.1600
+### Version: v20200720.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: sway
 
+## NIXTOOLS
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+fi
+
 ## VARS
-RESDIR=`pwd`/resources
-DEVDIR=`pwd`/upstream
+RESDIR=$NIXTOOLSDIR/resources
+DEVDIR=$NIXTOOLSDIR/upstream
 GITREPO=https://github.com/alexays
 GITTREE=waybar
 GITBRANCH=master
@@ -20,7 +25,7 @@ if [ $INSTALLDEPS ]; then
  if [ $INSTALLDEPS = debian ]; then
   sudo apt-get -y install build-essential coreutils libc-bin git meson \
   clang-tidy libgtk-layer-shell-dev libnl-3-dev libpulse-dev libnl-genl-3-dev \
-  libmpdclient-dev libspdlog-dev
+  libmpdclient-dev libspdlog-dev libdbusmenu-gtk3-dev
  fi
 fi
 

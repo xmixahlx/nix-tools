@@ -1,11 +1,12 @@
 #!/bin/sh
 
 ### Package: nix-install-pbzx
-### Version: v20200719.1200
+### Version: v20200720.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: xar
 
+## NIXTOOLS
 if [ -z $NIXTOOLSDIR ]; then
  NIXTOOLSDIR="`pwd`"
 fi

@@ -24,7 +24,8 @@ PKGDIR=$GITTREE\_$GITBRANCH
 if [ $INSTALLDEPS ]; then
  if [ $INSTALLDEPS = debian ]; then
   sudo apt-get -y build-dep gegl
-  sudo apt-get -y install build-essential coreutils libc-bin git meson
+  sudo apt-get -y install build-essential coreutils libc-bin git meson \
+  libluajit-5.1-dev python-gi-dev enscript ruby librsvg2-bin
  fi
 fi
 

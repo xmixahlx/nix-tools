@@ -18,17 +18,17 @@ GITTREE=mesa
 
 ## OVERRIDE master with GITBRANCH=(branch)
 if [ -z $DRIDRIVERS ];then
- DRIDRIVERS=auto
+ DRIDRIVERS=" "
 fi
 echo "\n*** DRIDRIVERS selected is $DRIDRIVERS.\n"
 
 if [ -z $VULKANDRIVERS ];then
- VULKANDRIVERS=auto
+ VULKANDRIVERS=" "
 fi
 echo "\n*** VULKANDRIVERS selected is $VULKANDRIVERS.\n"
 
 if [ -z $GALLIUMDRIVERS ];then
- GALLIUMDRIVERS=auto
+ GALLIUMDRIVERS=" "
 fi
 echo "\n*** GALLIUMDRIVERS selected is $GALLIUMDRIVERS.\n"
 
@@ -68,7 +68,7 @@ rm -Rf tmpbuild
 meson tmpbuild --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu \
 --buildtype=release -Dplatforms=auto -Ddri-drivers=$DRIDRIVERS \
 -Dvulkan-drivers=$VULKANDRIVERS -Dgallium-drivers=$GALLIUMDRIVERS \
--Dlibunwind=enabled -Dllvm=enabled
+-Dlibunwind=disabled -Dllvm=disabled
 
 ## BUILD
 ninja -C tmpbuild

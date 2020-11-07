@@ -15,7 +15,7 @@ fi
 DEVDIR=$NIXTOOLSDIR/upstream
 GITREPO=https://github.com/alacritty
 GITTREE=alacritty
-GITBRANCH=master
+GITBRANCH=v0.5.0
 PKGDIR=$GITTREE\_$GITBRANCH
 
 ## DEPS

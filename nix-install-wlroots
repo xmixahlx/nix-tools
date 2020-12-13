@@ -1,10 +1,10 @@
 #!/bin/sh
 
-### Package: nix-install-sway
+### Package: nix-install-wlroots
 ### Version: v20201212.1200
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
-### Script Dependencies: wlroots
+### Script Dependencies: (none)
 
 ## OVERRIDES
 # NIXTOOLS
@@ -26,13 +26,13 @@ fi
 RESDIR=$NIXTOOLSDIR/resources
 DEVDIR=$NIXTOOLSDIR/upstream
 GITREPO=https://github.com/swaywm
-GITTREE=sway
+GITTREE=wlroots
 PKGDIR=$GITTREE\_$GITBRANCH
 
 ## INSTALLDEPS
 # Debian Dependencies
 if [ $INSTALLDEPS = debian ]; then
- sudo apt-get -y build-dep sway
+ sudo apt-get -y build-dep libwlroots-dev
  sudo apt-get -y install build-essential coreutils libc-bin git meson
 fi
 

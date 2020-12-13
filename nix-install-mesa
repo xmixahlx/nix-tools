@@ -1,52 +1,62 @@
 #!/bin/sh
 
 ### Package: nix-install-mesa
-### Version: v20200720.2300
+### Version: v20201212.1200
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
 
-## NIXTOOLS
+## OVERRIDES
+# NIXTOOLS
 if [ -z $NIXTOOLSDIR ]; then
  NIXTOOLSDIR="`pwd`"
 fi
 
-## VARS
-DEVDIR=$NIXTOOLSDIR/upstream
-GITREPO=https://gitlab.freedesktop.org/mesa
-GITTREE=mesa
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
 
-## OVERRIDE master with GITBRANCH=(branch)
+# GITBRANCH
+if [ -z $GITBRANCH ];then
+ GITBRANCH=master
+fi
+
+# DRIDRIVERS
 if [ -z $DRIDRIVERS ];then
  DRIDRIVERS=" "
 fi
 echo "\n*** DRIDRIVERS selected is $DRIDRIVERS.\n"
 
+# VULKANDRIVERS
 if [ -z $VULKANDRIVERS ];then
  VULKANDRIVERS=" "
 fi
 echo "\n*** VULKANDRIVERS selected is $VULKANDRIVERS.\n"
 
+# GALLIUMDRIVERS
 if [ -z $GALLIUMDRIVERS ];then
  GALLIUMDRIVERS=" "
 fi
 echo "\n*** GALLIUMDRIVERS selected is $GALLIUMDRIVERS.\n"
 
-if [ -z $GITBRANCH ];then
- GITBRANCH=master
+# LLVM
+if [ -z $LLVM ];then
+ LLVM=enabled
 fi
-echo "\n*** GITBRANCH selected is $GITBRANCH.\n"
+echo "\n*** LLVM selected is $LLVM.\n"
 
+## VARS
+DEVDIR=$NIXTOOLSDIR/upstream
+GITREPO=https://gitlab.freedesktop.org/mesa
+GITTREE=mesa
 PKGDIR=$GITTREE\_$GITBRANCH
 
-## DEPS
-# Provide INSTALLDEPS=debian to install dependencies.
-if [ $INSTALLDEPS ]; then
- if [ $INSTALLDEPS = debian ]; then
-  sudo apt-get -y build-dep mesa
-  sudo apt-get -y install build-essential coreutils libc-bin git meson \
-  libunwind-dev valgrind libxvmc-dev libxv-dev
- fi
+## INSTALLDEPS
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y build-dep mesa
+ sudo apt-get -y install build-essential coreutils libc-bin git meson \
+ libunwind-dev valgrind libxvmc-dev libxv-dev
 fi
 
 ## PREP
@@ -68,7 +78,7 @@ rm -Rf tmpbuild
 meson tmpbuild --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu \
 --buildtype=release -Dplatforms=auto -Ddri-drivers=$DRIDRIVERS \
 -Dvulkan-drivers=$VULKANDRIVERS -Dgallium-drivers=$GALLIUMDRIVERS \
--Dlibunwind=disabled -Dllvm=disabled
+-Dlibunwind=disabled -Dllvm=$LLVM
 
 ## BUILD
 ninja -C tmpbuild

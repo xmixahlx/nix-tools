@@ -1,31 +1,40 @@
 #!/bin/sh
 
 ### Package: nix-install-xar
-### Version: v20200720.2300
+### Version: v20201212.1200
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
 
-## NIXTOOLS
+## OVERRIDES
+# NIXTOOLSDIR
 if [ -z $NIXTOOLSDIR ]; then
  NIXTOOLSDIR="`pwd`"
+ PATH=$NIXTOOLSDIR:$PATH
+fi
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=master
 fi
 
 ## VARS
 DEVDIR=$NIXTOOLSDIR/upstream
 GITREPO=https://github.com/mackyle
 GITTREE=xar
-GITBRANCH=master
 PKGDIR=$GITTREE\_$GITBRANCH
 
 ## DEPS
 # Provide INSTALLDEPS=debian to install dependencies.
-if [ $INSTALLDEPS ]; then
- if [ $INSTALLDEPS = debian ]; then
-  sudo apt-get -y install build-essential coreutils libc-bin wget patch \
-  libssl-dev liblzma-dev libbz2-dev libext2fs-dev libxml2-dev \
-  zlib1g-dev libc6-dev libicu-dev
- fi
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y install build-essential coreutils libc-bin wget patch \
+ libssl-dev liblzma-dev libbz2-dev libext2fs-dev libxml2-dev \
+ zlib1g-dev libc6-dev libicu-dev
 fi
 
 ## PREP

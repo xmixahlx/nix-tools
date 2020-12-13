@@ -1,30 +1,39 @@
 #!/bin/sh
 
 ### Package: nix-install-libdrm
-### Version: v20200918.2300
+### Version: v20201212.1200
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
 
-## NIXTOOLS
+## OVERRIDES
+# NIXTOOLSDIR
 if [ -z $NIXTOOLSDIR ]; then
  NIXTOOLSDIR="`pwd`"
+ PATH=$NIXTOOLSDIR:$PATH
+fi
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=master
 fi
 
 ## VARS
 DEVDIR=$NIXTOOLSDIR/upstream
 GITREPO=https://gitlab.freedesktop.org/mesa
 GITTREE=drm
-GITBRANCH=master
 PKGDIR=$GITTREE\_$GITBRANCH
 
 ## DEPS
 # Provide INSTALLDEPS=debian to install dependencies.
-if [ $INSTALLDEPS ]; then
- if [ $INSTALLDEPS = debian ]; then
-  sudo apt-get -y build-dep libdrm
-  sudo apt-get -y install build-essential coreutils libc-bin git meson
- fi
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y build-dep libdrm
+ sudo apt-get -y install build-essential coreutils libc-bin git meson
 fi
 
 ## PREP

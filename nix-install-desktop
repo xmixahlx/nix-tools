@@ -1,14 +1,16 @@
 #!/bin/sh
 
 ### Package: nix-install-desktop
-### Version: v20200720.2300
+### Version: v20201212.1200
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: linux
 
-## NIXTOOLS
+## OVERRIDES
+# NIXTOOLSDIR
 if [ -z $NIXTOOLSDIR ]; then
  NIXTOOLSDIR="`pwd`"
+ PATH=$NIXTOOLSDIR:$PATH
 fi
 
 ## VARS

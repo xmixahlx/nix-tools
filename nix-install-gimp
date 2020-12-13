@@ -1,14 +1,26 @@
 #!/bin/sh
 
 ### Package: nix-install-gimp
-### Version: v20201106.2300
+### Version: v20201212.1200
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
 
-## NIXTOOLS
+## OVERRIDES
+# NIXTOOLSDIR
 if [ -z $NIXTOOLSDIR ]; then
  NIXTOOLSDIR="`pwd`"
+ PATH=$NIXTOOLSDIR:$PATH
+fi
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=master
 fi
 
 ## VARS
@@ -16,17 +28,14 @@ RESDIR=$NIXTOOLSDIR/resources
 DEVDIR=$NIXTOOLSDIR/upstream
 GITREPO=https://gitlab.gnome.org/gnome
 GITTREE=gimp
-GITBRANCH=master
 PKGDIR=$GITTREE\_$GITBRANCH
 
 ## DEPS
 # Provide INSTALLDEPS=debian to install dependencies.
-if [ $INSTALLDEPS ]; then
- if [ $INSTALLDEPS = debian ]; then
-  sudo apt-get -y build-dep gimp
-  sudo apt-get -y install build-essential coreutils libc-bin git meson \
-  libappstream-glib-dev libwebkit2gtk-4.0-dev gjs luajit appstream-util xvfb
- fi
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y build-dep gimp
+ sudo apt-get -y install build-essential coreutils libc-bin git meson \
+ libappstream-glib-dev libwebkit2gtk-4.0-dev gjs luajit appstream-util xvfb
 fi
 
 ## PREP

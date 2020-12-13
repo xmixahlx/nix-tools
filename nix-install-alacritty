@@ -1,32 +1,41 @@
 #!/bin/sh
 
 ### Package: nix-install-alacritty
-### Version: v20200720.2300
+### Version: v20201212.1200
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
 
-## NIXTOOLS
+## OVERRIDES
+# NIXTOOLSDIR
 if [ -z $NIXTOOLSDIR ]; then
  NIXTOOLSDIR="`pwd`"
+ PATH=$NIXTOOLSDIR:$PATH
+fi
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=master
 fi
 
 ## VARS
 DEVDIR=$NIXTOOLSDIR/upstream
 GITREPO=https://github.com/alacritty
 GITTREE=alacritty
-GITBRANCH=v0.5.0
 PKGDIR=$GITTREE\_$GITBRANCH
 
 ## DEPS
 # Provide INSTALLDEPS=debian to install dependencies.
-if [ $INSTALLDEPS ]; then
- if [ $INSTALLDEPS = debian ]; then
-  sudo apt-get -y install build-essential coreutils libc-bin wget patch \
-  libfontconfig-dev libfreetype-dev libxcb1-dev libgcc-9-dev libc6-dev libexpat1-dev \
-  libuuid1 uuid-dev libpng-dev zlib1g-dev libxau-dev libxdmcp-dev libbsd-dev \
-  ncurses-bin libncurses-dev fish cargo libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
- fi
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y install build-essential coreutils libc-bin wget patch \
+ libfontconfig-dev libfreetype-dev libxcb1-dev libgcc-9-dev libc6-dev libexpat1-dev \
+ libuuid1 uuid-dev libpng-dev zlib1g-dev libxau-dev libxdmcp-dev libbsd-dev \
+ ncurses-bin libncurses-dev fish cargo libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
 fi
 
 ## PREP
@@ -57,6 +66,11 @@ sudo install -D -m644 "extra/completions/alacritty.fish" "/usr/local/share/fish/
 sudo install -D -m644 "extra/linux/io.alacritty.Alacritty.appdata.xml" "/usr/local/share/appdata/io.alacritty.Alacritty.appdata.xml"
 sudo install -D -m644 "extra/logo/alacritty-term.svg" "/usr/local/share/pixmaps/Alacritty.svg"
 sudo install -D -m755 "target/release/alacritty" "/usr/local/bin/alacritty"
+
+## X-TERMINAL-EMULATOR
+if [ $INSTALLDEPS = debian ]; then
+ sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/local/bin/alacritty 90
+fi
 
 ## EXIT
 exit

@@ -1,10 +1,10 @@
 #!/bin/sh
 
 ### Package: nix-install-gimp
-### Version: v20201212.1200
+### Version: v20201220.1200
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
-### Script Dependencies: (none)
+### Script Dependencies: gegl, babl
 
 ## OVERRIDES
 # NIXTOOLSDIR

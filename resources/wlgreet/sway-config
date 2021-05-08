@@ -1,0 +1,7 @@
+exec "wlgreet --command sway-run.sh; swaymsg exit"
+
+bindsym Mod4+shift+e exec wlogout
+
+include /etc/sway/config.d/*
+include /usr/local/etc/sway/config.d/*
+

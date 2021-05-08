@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-libdrm
-### Version: v20201212.1200
+### Version: v20210109.1200
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -33,7 +33,8 @@ PKGDIR=$GITTREE\_$GITBRANCH
 # Provide INSTALLDEPS=debian to install dependencies.
 if [ $INSTALLDEPS = debian ]; then
  sudo apt-get -y build-dep libdrm
- sudo apt-get -y install build-essential coreutils libc-bin git meson
+ sudo apt-get -y install build-essential coreutils libc-bin git meson \
+ libcunit1-dev python3-cairo
 fi
 
 ## PREP

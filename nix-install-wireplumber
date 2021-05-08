@@ -1,0 +1,71 @@
+#!/bin/sh
+
+### Package: nix-install-wireplumber
+### Version: v20210309.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: pipewire
+
+## OVERRIDES
+# NIXTOOLSDIR
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+ PATH=$NIXTOOLSDIR:$PATH
+fi
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=master
+fi
+
+## VARS
+DEVDIR=$NIXTOOLSDIR/upstream
+GITREPO=https://gitlab.freedesktop.org/pipewire
+GITTREE=wireplumber
+PKGDIR=$GITTREE\_$GITBRANCH
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y build-dep pipewire
+ sudo apt-get -y install build-essential coreutils libc-bin git meson \
+ libbluetooth-dev libsdl2-dev libjack-jackd2-dev libcamera-dev \
+ libldacbt-enc-dev libldacbt-abr-dev libopenaptx-dev libfdk-aac-dev \
+ libavcodec-dev
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## GIT
+[ -d $PKGDIR ] || git clone --depth=1 $GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -f
+git reset --hard HEAD
+git pull
+
+## CLEAN
+rm -Rf tmpbuild
+
+## CONFIGURE
+meson tmpbuild --buildtype=release --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu \
+-Ddocs=enabled -Dffmpeg=enabled -Dvolume=enabled -Dlibcamera=enabled
+
+## BUILD
+ninja -C tmpbuild
+
+## INSTALL
+sudo ninja -C tmpbuild install
+sudo ldconfig
+
+## EXIT
+exit
+
+## ENJOY

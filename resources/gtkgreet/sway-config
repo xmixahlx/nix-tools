@@ -1,0 +1,6 @@
+exec "gtkgreet -l -s /usr/local/etc/greetd/gtkgreet.css; swaymsg exit"
+
+bindsym Mod4+shift+e exec wlogout
+
+include /etc/sway/config.d/*
+include /usr/local/etc/sway/config.d/*

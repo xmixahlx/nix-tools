@@ -35,7 +35,7 @@ PKGDIR=$GITTREE\_$GITBRANCH
 if [ $INSTALLDEPS = debian ]; then
  sudo apt-get -y install build-essential coreutils libc-bin git meson \
  clang-tidy libgtk-layer-shell-dev libnl-3-dev libpulse-dev libnl-genl-3-dev \
- libmpdclient-dev libspdlog-dev libdbusmenu-gtk3-dev
+ libmpdclient-dev libspdlog-dev libdbusmenu-gtk3-dev libgtkmm-3.0-dev libjsoncpp-dev
 fi
 
 ## PREP

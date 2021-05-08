@@ -1,0 +1,102 @@
+#!/bin/sh
+
+### Package: nix-install-x265
+### Version: v20210424.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: svt-hevc
+
+## OVERRIDES
+# NIXTOOLS
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+fi
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=master
+fi
+
+# SVTHEVC
+if [ -z $SVTHEVC ]; then
+ SVTHEVC=no
+fi
+
+if [ $SVTHEVC = yes ]; then
+ SVTHEVCOPTS="-DENABLE_SVT_HEVC=1 -DSVT_HEVC_INCLUDE_DIR=/usr/local/include/svt-hevc-1.4.1 -DSVT_HEVC_LIBRARY_DIR=/usr/local/svt-hevc-1.4.1/lib/"
+fi
+
+## VARS
+RESDIR=$NIXTOOLSDIR/resources
+DEVDIR=$NIXTOOLSDIR/upstream
+GITURL=https://bitbucket.org
+GITREPO=multicoreware
+GITTREE=x265_git
+PKGDIR=$GITTREE\_$GITBRANCH
+
+## INSTALLDEPS
+# Debian Dependencies
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y build-dep x265
+ sudo apt-get -y install build-essential coreutils libc-bin git cmake
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## GIT
+[ -d $PKGDIR ] || git clone --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -f
+git reset --hard
+git pull
+git submodule init
+git submodule update
+
+## CLEAN
+rm -Rf tmpbuild
+
+## PREP MULTILIB
+mkdir tmpbuild
+cd tmpbuild
+mkdir 8bit 10bit 12bit
+
+## 12BIT
+cd 12bit
+cmake ../../source -DENABLE_PIC=ON -DENABLE_ASSEMBLY=ON -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+-DHIGH_BIT_DEPTH=ON -DEXPORT_C_API=OFF -DENABLE_SHARED=OFF -DENABLE_CLI=OFF -DMAIN12=ON $SVTHEVCOPTS
+make -j `nproc`
+cp libx265.a ../8bit/libx265_main12.a
+cd ..
+
+## 10BIT
+cd 10bit
+cmake ../../source -DENABLE_PIC=ON -DENABLE_ASSEMBLY=ON -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+-DHIGH_BIT_DEPTH=ON -DEXPORT_C_API=OFF -DENABLE_SHARED=OFF -DENABLE_CLI=OFF $SVTHEVCOPTS
+make -j `nproc`
+cp libx265.a ../8bit/libx265_main10.a
+cd ..
+
+# 8BIT
+cd 8bit
+cmake ../../source -DENABLE_PIC=ON -DENABLE_ASSEMBLY=ON -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+-DEXTRA_LIB="x265_main10.a;x265_main12.a" -DEXTRA_LINK_FLAGS=-L. \
+-DLINKED_10BIT=ON -DLINKED_12BIT=ON -DENABLE_SHARED=ON \
+-DLIB_INSTALL_DIR=lib/x86_64-linux-gnu $SVTHEVCOPTS
+make -j `nproc`
+
+## INSTALL
+sudo make install
+sudo ldconfig
+
+## EXIT
+exit
+
+## ENJOY

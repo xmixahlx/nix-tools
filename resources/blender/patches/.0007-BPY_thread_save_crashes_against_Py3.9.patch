@@ -1,0 +1,32 @@
+From: Campbell Burton <ideasman42@gmail.com>
+Date: Wed, 9 Dec 2020 14:59:13 +0100
+Subject: BPY_thread_save_crashes_against_Py3.9
+Forwarded: not-needed
+
+---
+ source/blender/python/generic/bpy_threads.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
+
+diff --git a/source/blender/python/generic/bpy_threads.c b/source/blender/python/generic/bpy_threads.c
+index 1aa36a0..bd707f7 100644
+--- a/source/blender/python/generic/bpy_threads.c
++++ b/source/blender/python/generic/bpy_threads.c
+@@ -29,14 +29,11 @@
+ /* analogue of PyEval_SaveThread() */
+ BPy_ThreadStatePtr BPY_thread_save(void)
+ {
+-  PyThreadState *tstate = PyThreadState_Swap(NULL);
+-  /* note: tstate can be NULL when quitting Blender */
+-
+-  if (tstate && PyEval_ThreadsInitialized()) {
+-    PyEval_ReleaseLock();
++  /* The thread-state can be NULL when quitting Blender. */
++  if (_PyThreadState_UncheckedGet()) {
++    return (BPy_ThreadStatePtr)PyEval_SaveThread();
+   }
+-
+-  return (BPy_ThreadStatePtr)tstate;
++  return NULL;
+ }
+ 
+ /* analogue of PyEval_RestoreThread() */

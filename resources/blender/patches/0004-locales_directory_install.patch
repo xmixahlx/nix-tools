@@ -1,0 +1,98 @@
+From: "Matteo F. Vescovi" <mfv@debian.org>
+Date: Sun, 28 Jun 2020 21:27:49 +0200
+Subject: locales_directory_install
+
+Change where locales are installed.
+
+Contributions by:
+ Antonio Ospite <ao2@ao2.it>
+ Gleb Fotengauer-Malinovskiy <glebfm@altlinux.org>
+---
+ source/blender/blenkernel/BKE_appdir.h           |  1 +
+ source/blender/blenkernel/intern/appdir.c        |  3 +++
+ source/blender/blentranslation/intern/blt_lang.c | 10 +++++-----
+ source/creator/CMakeLists.txt                    |  2 +-
+ 4 files changed, 10 insertions(+), 6 deletions(-)
+
+diff --git a/source/blender/blenkernel/BKE_appdir.h b/source/blender/blenkernel/BKE_appdir.h
+index e49fc26..b04cf39 100644
+--- a/source/blender/blenkernel/BKE_appdir.h
++++ b/source/blender/blenkernel/BKE_appdir.h
+@@ -82,6 +82,7 @@ enum {
+   BLENDER_SYSTEM_DATAFILES = 52,
+   BLENDER_SYSTEM_SCRIPTS = 53,
+   BLENDER_SYSTEM_PYTHON = 54,
++  BLENDER_SYSTEM_LOCALE = 55,
+ };
+ 
+ /* for BKE_appdir_folder_id_version only */
+diff --git a/source/blender/blenkernel/intern/appdir.c b/source/blender/blenkernel/intern/appdir.c
+index 4071cc0..966e4f8 100644
+--- a/source/blender/blenkernel/intern/appdir.c
++++ b/source/blender/blenkernel/intern/appdir.c
+@@ -512,6 +512,9 @@ const char *BKE_appdir_folder_id_ex(const int folder_id,
+       }
+       return NULL;
+ 
++    case BLENDER_SYSTEM_LOCALE:
++      BLI_strncpy(path, "/usr/share/locale", FILE_MAX); break;
++
+     default:
+       BLI_assert(0);
+       break;
+diff --git a/source/blender/blentranslation/intern/blt_lang.c b/source/blender/blentranslation/intern/blt_lang.c
+index bcbffe5..0df8dc7 100644
+--- a/source/blender/blentranslation/intern/blt_lang.c
++++ b/source/blender/blentranslation/intern/blt_lang.c
+@@ -85,9 +85,9 @@ static void free_locales(void)
+   num_locales = num_locales_menu = 0;
+ }
+ 
+-static void fill_locales(void)
++static void fill_locales(char *locale_path)
+ {
+-  const char *const languages_path = BKE_appdir_folder_id(BLENDER_DATAFILES, "locale");
++  const char * const languages_path = locale_path;
+   char languages[FILE_MAX];
+   LinkNode *lines = NULL, *line;
+   char *str;
+@@ -95,7 +95,7 @@ static void fill_locales(void)
+ 
+   free_locales();
+ 
+-  BLI_join_dirfile(languages, FILE_MAX, languages_path, "languages");
++  BLI_join_dirfile(languages, FILE_MAX, locale_path, "languages");
+   line = lines = BLI_file_read_as_lines(languages);
+ 
+   /* This whole "parsing" code is a bit weak, in that it expects strictly formatted input file...
+@@ -202,7 +202,7 @@ EnumPropertyItem *BLT_lang_RNA_enum_properties(void)
+ void BLT_lang_init(void)
+ {
+ #ifdef WITH_INTERNATIONAL
+-  const char *const messagepath = BKE_appdir_folder_id(BLENDER_DATAFILES, "locale");
++  const char * const messagepath = BKE_appdir_folder_id(BLENDER_SYSTEM_LOCALE, NULL);
+ #endif
+ 
+   /* Make sure LANG is correct and wouldn't cause std::rumtime_error. */
+@@ -235,7 +235,7 @@ void BLT_lang_init(void)
+ #ifdef WITH_INTERNATIONAL
+   if (messagepath) {
+     bl_locale_init(messagepath, TEXT_DOMAIN_NAME);
+-    fill_locales();
++    fill_locales(messagepath);
+   }
+   else {
+     printf("%s: 'locale' data path for translations not found, continuing\n", __func__);
+diff --git a/source/creator/CMakeLists.txt b/source/creator/CMakeLists.txt
+index 4e98d66..6506592 100644
+--- a/source/creator/CMakeLists.txt
++++ b/source/creator/CMakeLists.txt
+@@ -395,7 +395,7 @@ install(
+ # localization
+ if(WITH_INTERNATIONAL)
+   set(_locale_dir "${CMAKE_SOURCE_DIR}/release/datafiles/locale")
+-  set(_locale_target_dir ${TARGETDIR_VER}/datafiles/locale)
++  set(_locale_target_dir ${CMAKE_INSTALL_PREFIX}/share/locale)
+ 
+   file(GLOB _po_files "${_locale_dir}/po/*.po")
+   foreach(_po_file ${_po_files})

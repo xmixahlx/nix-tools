@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-xdg-desktop-portal-wlr
-### Version: v20201212.1200
+### Version: v20210316.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: sway
@@ -33,7 +33,9 @@ PKGDIR=$GITTREE\_$GITBRANCH
 ## DEPS
 # Provide INSTALLDEPS=debian to install dependencies.
 if [ $INSTALLDEPS = debian ]; then
- sudo apt-get -y install build-essential coreutils libc-bin git meson
+ sudo apt-get -y build-dep xdg-desktop-portal-wlr
+ sudo apt-get -y install build-essential coreutils libc-bin git meson \
+ libiniparser-dev libinih-dev
 fi
 
 ## PREP
@@ -48,11 +50,15 @@ git clean -f
 git reset --hard
 git pull
 
+## PATCH
+sed -i 's/werror=true/werror=false/' meson.build
+
 ## CLEAN
 rm -Rf tmpbuild
 
 ## CONFIGURE
-meson tmpbuild -Dprefix=/usr/local -Dbuildtype=release --libdir=/usr/local/lib/x86_64-linux-gnu
+meson tmpbuild -Dprefix=/usr/local -Dbuildtype=release --libdir=/usr/local/lib/x86_64-linux-gnu \
+-Dsd-bus-provider=libsystemd
 
 ## BUILD
 ninja -C tmpbuild

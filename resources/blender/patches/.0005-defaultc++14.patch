@@ -1,0 +1,29 @@
+From: Mathieu Malaterre <malat@debian.org>
+Date: Wed, 4 Nov 2020 22:23:04 +0100
+Subject: Fix compilation issue with OpenVDB.
+
+Bug-Debian: https://bugs.debian.org/970271
+Forwarded: no
+Last-Update: 2020-09-14
+
+Also Debian mandates that package be build using default gcc -std=c++XY
+version
+Technically we could simply remove the whole -std=c++14 here in this patch,
+but make it overly explicit we want -std=c++14 and not -std=gnu++14
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 83f547e..a6cc699 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1552,7 +1552,7 @@ elseif(
+   CMAKE_C_COMPILER_ID MATCHES "Intel"
+ )
+   # TODO(sergey): Do we want c++11 or gnu-c++11 here?
+-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
++  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+ else()
+   message(FATAL_ERROR "Unknown compiler ${CMAKE_C_COMPILER_ID}, can't enable C++11 build")
+ endif()

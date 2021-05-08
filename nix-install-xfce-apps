@@ -1,0 +1,88 @@
+### Package: nix-install-xfce-apps
+### Version: v20210427.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: xfce-core
+
+## OVERRIDES
+# NIXTOOLSDIR
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+ PATH=$NIXTOOLSDIR:$PATH
+fi
+echo "*** NIXTOOLSDIR selected is $NIXTOOLSDIR"
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS"
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=master
+fi
+echo "*** GITBRANCH selected is $GITBRANCH"
+
+## VARS
+RESDIR=$NIXTOOLSDIR/resources
+DEVDIR=$NIXTOOLSDIR/upstream
+GITURL=https://gitlab.xfce.org
+GITREPO=apps
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y build-dep gigolo mousepad parole ristretto xfburn xfce4-dict xfce4-notifyd \
+ xfce4-screensaver xfce4-screenshooter xfce4-taskmanager xfce4-terminal
+ sudo apt-get -y install build-essential coreutils libc-bin git\
+ libkeybinder-3.0-dev libmpd-dev
+fi
+
+# build: catfish xfce4-panel-profiles
+# missing: xfce4-mixer xfce4-panel-profiles xfce4-volumed-pulse xfdashboard xfmpc
+
+## PREP
+set -e
+mkdir -p $DEVDIR/xfce/$GITREPO
+cd $DEVDIR/xfce/$GITREPO
+
+## LOG
+LOG=$DEVDIR/xfce/$GITREPO.log
+echo start > $LOG
+
+## GIT
+for GITTREE in gigolo mousepad parole ristretto xfburn xfce4-dict xfce4-mixer xfce4-notifyd \
+xfce4-screensaver xfce4-screenshooter xfce4-taskmanager xfce4-terminal xfce4-volumed-pulse \
+xfdashboard xfmpc; do
+ PKGDIR=$GITTREE\_$GITBRANCH
+ echo $PKGDIR >> $LOG
+ [ -d $PKGDIR ] || git clone --depth=1 --recursive $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+ cd $PKGDIR
+ git clean -f
+ git reset --hard
+ git pull
+ git submodule update --init --recursive --depth=1
+
+ ## CLEAN
+ [ ! -f Makefile ] || make clean
+
+ ## CONFIGURE
+ [ -f autogen.sh ] && ./autogen.sh --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu --enable-shared --enable-debug --with-pic
+
+ ## BUILD
+ make -j `nproc`
+
+ ## INSTALL
+ sudo make install
+ sudo ldconfig
+ echo done >> $LOG
+
+ ## DONE
+ cd $DEVDIR/xfce/$GITREPO
+ done
+
+## EXIT
+exit
+
+## ENJOY

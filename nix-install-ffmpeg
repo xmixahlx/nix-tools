@@ -1,0 +1,141 @@
+#!/bin/sh
+
+### Package: nix-install-ffmpeg
+### Version: v20210411.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: svt-hevc, x265, x264, vmaf, lensfun
+
+## OVERRIDES
+# NIXTOOLSDIR
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+ PATH=$NIXTOOLSDIR:$PATH
+fi
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "\n*** INSTALLDEPS selected is $INSTALLDEPS.\n"
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=master
+fi
+echo "\n*** GITBRANCH selected is $GITBRANCH.\n"
+
+## OVERRIDES
+# Override basic with standard or full
+if [ -z $BUILDCONFIG ]; then
+ BUILDCONFIG=full
+fi
+echo "\n*** BUILDCONFIG selected is $BUILDCONFIG.\n"
+
+# Override 4.3 with 4.2 to apply 4.2 patch. NOTE: 4.3 patch also applies to master.
+#if [ -z $FFMPEGREL ]; then
+# FFMPEGREL=4.3
+#fi
+#echo "\n*** FFMPEGREL selected is $FFMPEGREL.\n"
+
+# Override stable with testing.
+#if [ -z $FFMPEGVER ]; then
+# FFMPEGVER=stable
+#fi
+#echo "\n*** FFMPEGVER selected is $FFMPEGVER.\n"
+
+## VARS
+DATE=`date +%Y%m%d%H%M%S`
+RESDIR=$NIXTOOLSDIR/resources
+DEVDIR=$NIXTOOLSDIR/upstream
+GITREPO=https://github.com/ffmpeg
+GITTREE=ffmpeg
+PKGDIR=$GITTREE\_$GITBRANCH
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS = debian ]; then
+  sudo apt-get -y build-dep ffmpeg
+  sudo apt-get -y install build-essential coreutils libc-bin wget tar bzip2 patch make \
+  libudev-dev libdrm-dev
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## GIT
+[ -d $PKGDIR ] || git clone --depth=1 $GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -f
+git reset --hard HEAD
+git pull
+git submodule init
+git submodule update
+
+## PATCH
+# V4L2-REQUEST PATCH disabled
+# patch -p1 < $RESDIR/ffmpeg/$FFMPEGREL/current_diff_$FFMPEGVER
+# ./configure --enable-v4l2-request --enable-libdrm --enable-libudev
+
+## UPSTREAM REMOVAL
+# --enable-avresample
+
+## CONFIGURE
+if [ $BUILDCONFIG = basic ]; then
+ echo "\n*** Using basic BUILDCONFIG.\n"
+ ./configure --enable-pic --enable-shared --enable-vaapi --enable-libmfx --enable-libvmaf \
+ --enable-avfilter --enable-postproc --enable-pthreads --enable-gpl \
+ --enable-nonfree --enable-version3 --toolchain=hardened --prefix=/usr/local \
+ --libdir=/usr/local/lib/x86_64-linux-gnu --shlibdir=/usr/local/lib/x86_64-linux-gnu
+fi
+if [ $BUILDCONFIG = standard ]; then
+ echo "\n*** Using standard BUILDCONFIG.\n"
+ ./configure --enable-pic --enable-shared --enable-vaapi --enable-libmfx --enable-libvmaf \
+ --enable-avfilter --enable-postproc --enable-pthreads --enable-gpl \
+ --enable-nonfree --enable-version3  --toolchain=hardened --prefix=/usr/local \
+ --libdir=/usr/local/lib/x86_64-linux-gnu --shlibdir=/usr/local/lib/x86_64-linux-gnu \
+ --enable-avfilter --enable-gcrypt --enable-libass --enable-libbluray --enable-libdav1d \
+ --enable-libfdk-aac --enable-libfontconfig --enable-libfreetype --enable-libmp3lame \
+ --enable-libopenh264 --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-libpulse \
+ --enable-librsvg --enable-libspeex --enable-libsrt --enable-libtheora --enable-libtwolame \
+ --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx265 \
+ --enable-libxml2 --enable-libxvid --enable-opengl --enable-openssl --enable-libx264
+fi
+if [ $BUILDCONFIG = full ]; then
+ echo "\n*** Using full BUILDCONFIG.\n"
+ ./configure --enable-pic --enable-shared --enable-vaapi --enable-libmfx --enable-libvmaf \
+ --enable-avfilter --enable-postproc --enable-pthreads --enable-gpl \
+ --enable-nonfree --enable-version3 --toolchain=hardened --prefix=/usr/local \
+ --libdir=/usr/local/lib/x86_64-linux-gnu --shlibdir=/usr/local/lib/x86_64-linux-gnu \
+ --enable-avfilter --enable-gcrypt --enable-libass --enable-libbluray --enable-libdav1d \
+ --enable-libfdk-aac --enable-libfontconfig --enable-libfreetype --enable-libmp3lame \
+ --enable-libopenh264 --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-libpulse \
+ --enable-librsvg --enable-libspeex --enable-libsrt --enable-libtheora --enable-libtwolame \
+ --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx265 \
+ --enable-libxml2 --enable-libxvid --enable-opengl --enable-openssl --enable-libx264 \
+ --enable-ladspa --enable-libaom --enable-libaribb24 --enable-libbs2b --enable-libcaca \
+ --enable-libcdio --enable-libcodec2 --enable-libflite --enable-libfribidi \
+ --enable-libgme --enable-libgsm --enable-libilbc --enable-libjack --enable-libkvazaar --enable-liblensfun \
+ --enable-libmysofa --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-librubberband \
+ --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libtesseract --enable-libvidstab \
+ --enable-libvo-amrwbenc --enable-libwebp --enable-libzimg --enable-libzmq --enable-libzvbi \
+ --enable-lv2 --enable-openal --enable-opencl --enable-chromaprint --enable-frei0r \
+ --enable-libiec61883 --enable-libdc1394 --enable-libsvtav1
+fi
+
+## CLEAN
+make clean
+
+## BUILD
+make -j `nproc`
+
+## INSTALL
+sudo make install
+sudo ldconfig
+
+## EXIT
+exit
+
+## ENJOY

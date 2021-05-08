@@ -1,0 +1,42 @@
+From: "Matteo F. Vescovi" <mfv@debian.org>
+Date: Sun, 28 Jul 2019 15:09:17 +0200
+Subject: do_not_use_version_number_in_system_path
+
+Global installation expects system path to be
+something like /usr/share/blender/scripts/
+without version numbers.
+
+Contributions by:
+ Antonio Ospite <ospite@studenti.unina.it>
+---
+ intern/ghost/intern/GHOST_SystemPathsUnix.cpp | 3 +++
+ source/creator/CMakeLists.txt                 | 2 +-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/intern/ghost/intern/GHOST_SystemPathsUnix.cpp b/intern/ghost/intern/GHOST_SystemPathsUnix.cpp
+index ad3d490..9a4d82f 100644
+--- a/intern/ghost/intern/GHOST_SystemPathsUnix.cpp
++++ b/intern/ghost/intern/GHOST_SystemPathsUnix.cpp
+@@ -54,6 +54,9 @@ GHOST_SystemPathsUnix::~GHOST_SystemPathsUnix()
+ 
+ const GHOST_TUns8 *GHOST_SystemPathsUnix::getSystemDir(int, const char *versionstr) const
+ {
++  /* XXX On Debian ignore versionstr when building the system path */
++  versionstr = "";
++
+   /* no prefix assumes a portable build which only uses bundled scripts */
+   if (static_path) {
+     static string system_path = string(static_path) + "/blender/" + versionstr;
+diff --git a/source/creator/CMakeLists.txt b/source/creator/CMakeLists.txt
+index ef7b882..4e98d66 100644
+--- a/source/creator/CMakeLists.txt
++++ b/source/creator/CMakeLists.txt
+@@ -324,7 +324,7 @@ if(UNIX AND NOT APPLE)
+     if(WITH_INSTALL_PORTABLE)
+       set(TARGETDIR_VER ${BLENDER_VERSION})
+     else()
+-      set(TARGETDIR_VER share/blender/${BLENDER_VERSION})
++      set(TARGETDIR_VER share/blender)
+     endif()
+   endif()
+ 

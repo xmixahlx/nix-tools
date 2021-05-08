@@ -1,0 +1,11 @@
+window {
+   background-image: url("file:///usr/local/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png");
+   background-size: cover;
+   background-position: center;
+}
+
+box#body {
+   background-color: rgba(50, 50, 50, 0.5);
+   border-radius: 10px;
+   padding: 50px;
+}

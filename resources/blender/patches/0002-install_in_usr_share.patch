@@ -1,0 +1,25 @@
+From: "Matteo F. Vescovi" <mfv@debian.org>
+Date: Sun, 28 Jul 2019 14:54:30 +0200
+Subject: install_in_usr_share
+
+* Arch-specific files go to /usr/share
+* Make blender look for systemdir into /usr/share
+---
+ source/creator/CMakeLists.txt | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/source/creator/CMakeLists.txt b/source/creator/CMakeLists.txt
+index cbba976..ef7b882 100644
+--- a/source/creator/CMakeLists.txt
++++ b/source/creator/CMakeLists.txt
+@@ -371,8 +371,8 @@ if(WITH_PYTHON)
+   endif()
+ 
+   install(
+-    DIRECTORY ${CMAKE_SOURCE_DIR}/release/scripts
+-    DESTINATION ${TARGETDIR_VER}
++    DIRECTORY ${CMAKE_SOURCE_DIR}/release/scripts/
++    DESTINATION ${CMAKE_INSTALL_PREFIX}/share/blender/scripts/
+     PATTERN ".git" EXCLUDE
+     PATTERN ".gitignore" EXCLUDE
+     PATTERN ".arcconfig" EXCLUDE

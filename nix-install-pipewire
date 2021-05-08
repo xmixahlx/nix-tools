@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-pipewire
-### Version: v20201212.1200
+### Version: v20210309.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: libcamera
@@ -34,7 +34,9 @@ PKGDIR=$GITTREE\_$GITBRANCH
 if [ $INSTALLDEPS = debian ]; then
  sudo apt-get -y build-dep pipewire
  sudo apt-get -y install build-essential coreutils libc-bin git meson \
- libbluetooth-dev libsdl2-dev libjack-jackd2-dev libcamera-dev
+ libbluetooth-dev libsdl2-dev libjack-jackd2-dev libcamera-dev \
+ libldacbt-enc-dev libldacbt-abr-dev libopenaptx-dev libfdk-aac-dev \
+ libavcodec-dev
 fi
 
 ## PREP
@@ -54,7 +56,7 @@ rm -Rf tmpbuild
 
 ## CONFIGURE
 meson tmpbuild --buildtype=release --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu \
--Ddocs=true -Dffmpeg=true -Dlibcamera=true -Dvolume=true
+-Ddocs=enabled -Dffmpeg=enabled -Dvolume=enabled -Dlibcamera=enabled
 
 ## BUILD
 ninja -C tmpbuild

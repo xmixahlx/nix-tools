@@ -33,7 +33,8 @@ PKGDIR=$GITTREE\_$GITBRANCH
 # Debian Dependencies
 if [ $INSTALLDEPS = debian ]; then
  sudo apt-get -y build-dep sway
- sudo apt-get -y install build-essential coreutils libc-bin git meson
+ sudo apt-get -y install build-essential coreutils libc-bin git meson \
+ fish
 fi
 
 ## PREP
@@ -52,7 +53,8 @@ git pull
 rm -Rf tmpbuild
 
 ## CONFIGURE
-meson tmpbuild -Dprefix=/usr/local -Dbuildtype=release --libdir=/usr/local/lib/x86_64-linux-gnu
+meson tmpbuild -Dprefix=/usr/local -Dbuildtype=release --libdir=/usr/local/lib/x86_64-linux-gnu \
+-Dlibseat=true
 
 ## BUILD
 ninja -C tmpbuild

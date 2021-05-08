@@ -1,0 +1,229 @@
+Description: Debian doesn't have newer indicators, use the ayatana fork instead.
+Author: Unit 193 <unit193@debian.org>
+
+---
+ configure.ac                    |    8 ++++----
+ panel-plugin/indicator-box.c    |    6 +++---
+ panel-plugin/indicator-box.h    |    2 +-
+ panel-plugin/indicator-button.c |    4 ++--
+ panel-plugin/indicator-button.h |    2 +-
+ panel-plugin/indicator-dialog.c |   40 ++++++++++++++++++++--------------------
+ panel-plugin/indicator.c        |   18 +++++++++---------
+ 7 files changed, 40 insertions(+), 40 deletions(-)
+
+--- a/configure.ac	2021-01-12 20:23:48.349923226 -0500
++++ b/configure.ac	2021-01-12 20:23:48.313923645 -0500
+@@ -90,8 +90,8 @@
+         AC_DEFINE([XFCONF_LEGACY], [], [Use dbus-glib provided by xfconf 4.12 to obtain array type])
+         XDT_CHECK_PACKAGE([XFCONF], [libxfconf-0], [4.6.0])
+ ])
+-INDICATOR_PKGNAME=indicator3-0.4
+-XDT_CHECK_PACKAGE([INDICATOR], [${INDICATOR_PKGNAME}], [12.10.1])
++INDICATOR_PKGNAME=ayatana-indicator3-0.4
++XDT_CHECK_PACKAGE([INDICATOR], [${INDICATOR_PKGNAME}], [0.5.0])
+ 
+ dnl ********************************************************************
+ dnl *** Check if libindicator has indicator-ng.h headery             ***
+@@ -99,13 +99,13 @@
+ dnl ********************************************************************
+ AC_LANG_PUSH([C])
+ CPPFLAGS=`$PKG_CONFIG --cflags ${INDICATOR_PKGNAME}`
+-AC_CHECK_HEADERS([libindicator/indicator-ng.h], [HAVE_INDICATOR_NG_H=yes], [HAVE_INDICATOR_NG_H=no])
++AC_CHECK_HEADERS([libayatana-indicator/indicator-ng.h], [HAVE_INDICATOR_NG_H=yes], [HAVE_INDICATOR_NG_H=no])
+ AC_LANG_POP
+ 
+ dnl ****************************
+ dnl *** Optional IDO library ***
+ dnl ****************************
+-XDT_CHECK_OPTIONAL_PACKAGE([IDO], [libido3-0.1], [13.10.0], [ido], [IDO library])
++XDT_CHECK_OPTIONAL_PACKAGE([IDO], [libayatana-ido3-0.4], [0.4.0], [ido], [IDO library])
+ 
+ dnl ***********************************
+ dnl *** Check for debugging support ***
+--- a/panel-plugin/indicator-box.c	2021-01-12 20:23:48.349923226 -0500
++++ b/panel-plugin/indicator-box.c	2021-01-12 20:23:48.313923645 -0500
+@@ -27,7 +27,7 @@
+ #include <glib.h>
+ #include <gtk/gtk.h>
+ #include <libxfce4panel/libxfce4panel.h>
+-#include <libindicator/indicator-object.h>
++#include <libayatana-indicator/indicator-object.h>
+ 
+ #include "indicator-box.h"
+ #include "indicator-button.h"
+@@ -184,7 +184,7 @@
+ 
+   /* special case for Application indicators (unreliable ordering) */
+   /* always compare by name and ignore location field */
+-  if (a_io != NULL && g_strcmp0 (a_io, "libapplication.so") == 0)
++  if (a_io != NULL && g_strcmp0 (a_io, "libayatana-application.so") == 0)
+     result = g_strcmp0 (xfce_indicator_button_get_entry(a0)->name_hint,
+                         xfce_indicator_button_get_entry(b0)->name_hint);
+ 
+@@ -223,7 +223,7 @@
+   io_name = xfce_indicator_button_get_io_name (button);
+   li = g_hash_table_lookup (box->children, io_name);
+   // printf ("   +++ %s %s\n", io_name, xfce_indicator_button_get_entry (button)->name_hint);
+-  if (g_strcmp0 (io_name, "libapplication.so") != 0 &&
++  if (g_strcmp0 (io_name, "libayatana-application.so") != 0 &&
+       xfce_indicator_button_get_pos (button) == 0)
+     li = g_list_append (li, button);
+   else
+--- a/panel-plugin/indicator-box.h	2021-01-12 20:23:48.349923226 -0500
++++ b/panel-plugin/indicator-box.h	2021-01-12 20:23:48.313923645 -0500
+@@ -20,7 +20,7 @@
+ 
+ #include <glib.h>
+ #include <gtk/gtk.h>
+-#include <libindicator/indicator-object.h>
++#include <libayatana-indicator/indicator-object.h>
+ #include <libxfce4panel/libxfce4panel.h>
+ #include "indicator-config.h"
+ 
+--- a/panel-plugin/indicator-button.c	2021-01-12 20:23:48.349923226 -0500
++++ b/panel-plugin/indicator-button.c	2021-01-12 20:23:48.313923645 -0500
+@@ -28,13 +28,13 @@
+ #include <glib.h>
+ #include <gtk/gtk.h>
+ #include <libxfce4panel/libxfce4panel.h>
+-#include <libindicator/indicator-object.h>
++#include <libayatana-indicator/indicator-object.h>
+ 
+ #include "indicator-button.h"
+ #include "indicator-button-box.h"
+ 
+ 
+-#include <libindicator/indicator-object.h>
++#include <libayatana-indicator/indicator-object.h>
+ 
+ #define ICON_SIZE 22
+ #define SPACING 2
+--- a/panel-plugin/indicator-button.h	2021-01-12 20:23:48.349923226 -0500
++++ b/panel-plugin/indicator-button.h	2021-01-12 20:23:48.313923645 -0500
+@@ -20,7 +20,7 @@
+ 
+ #include <glib.h>
+ #include <gtk/gtk.h>
+-#include <libindicator/indicator-object.h>
++#include <libayatana-indicator/indicator-object.h>
+ 
+ #include "indicator-config.h"
+ #include "indicator-box.h"
+--- a/panel-plugin/indicator.c	2021-01-12 20:23:48.349923226 -0500
++++ b/panel-plugin/indicator.c	2021-01-12 20:23:48.317923598 -0500
+@@ -24,7 +24,7 @@
+  */
+ 
+ 
+-#define INDICATOR_SERVICE_DIR "/usr/share/unity/indicators"
++#define INDICATOR_SERVICE_DIR "/usr/share/ayatana/indicators"
+ 
+ 
+ #ifdef HAVE_CONFIG_H
+@@ -37,9 +37,9 @@
+ #include <gtk/gtk.h>
+ #include <libxfce4util/libxfce4util.h>
+ #include <libxfce4panel/xfce-panel-plugin.h>
+-#include <libindicator/indicator-object.h>
+-#ifdef HAVE_LIBINDICATOR_INDICATOR_NG_H
+-#include <libindicator/indicator-ng.h>
++#include <libayatana-indicator/indicator-object.h>
++#ifdef HAVE_LIBAYATANA_INDICATOR_INDICATOR_NG_H
++#include <libayatana-indicator/indicator-ng.h>
+ #endif
+ 
+ #include "indicator.h"
+@@ -48,7 +48,7 @@
+ #include "indicator-dialog.h"
+ 
+ #ifdef HAVE_IDO
+-#include <libido/libido.h>
++#include <libayatana-ido/libayatana-ido.h>
+ #endif
+ 
+ /* prototypes */
+@@ -65,7 +65,7 @@
+                                                                     const gchar           *name);
+ static gboolean         indicator_load_module                      (IndicatorPlugin       *indicator,
+                                                                     const gchar           *name);
+-#ifdef HAVE_LIBINDICATOR_INDICATOR_NG_H
++#ifdef HAVE_LIBAYATANA_INDICATOR_INDICATOR_NG_H
+ static gboolean         indicator_load_service                     (IndicatorPlugin       *indicator,
+                                                                     const gchar           *name);
+ static void             indicator_load_services                    (IndicatorPlugin       *indicator);
+@@ -310,7 +310,7 @@
+ 
+   /* load 'em */
+   indicator_load_modules (indicator);
+-#ifdef HAVE_LIBINDICATOR_INDICATOR_NG_H
++#ifdef HAVE_LIBAYATANA_INDICATOR_INDICATOR_NG_H
+   indicator_load_services (indicator);
+ #endif
+ 
+@@ -433,7 +433,7 @@
+     return FALSE;
+ 
+ #ifdef DISABLE_APPLICATION
+-  if (!g_strcmp0 (name, "libapplication.so"))
++  if (!g_strcmp0 (name, "libayatana-application.so"))
+     return FALSE;
+ #endif
+ 
+@@ -446,7 +446,7 @@
+   return indicator_load_indicator (indicator, io, name);
+ }
+ 
+-#ifdef HAVE_LIBINDICATOR_INDICATOR_NG_H
++#ifdef HAVE_LIBAYATANA_INDICATOR_INDICATOR_NG_H
+ static gboolean
+ indicator_load_service (IndicatorPlugin *indicator,
+                         const gchar     *name)
+--- a/panel-plugin/indicator-dialog.c	2021-01-12 20:23:48.349923226 -0500
++++ b/panel-plugin/indicator-dialog.c	2021-01-12 20:23:48.317923598 -0500
+@@ -53,26 +53,26 @@
+ static const gchar *pretty_names[][3] =
+ {
+   /* raw name,                           pretty name,                                 icon-name(?) */
+-  { "libapplication.so",                 N_("Application Indicators"),               "application-default-icon" },
+-  { "libsoundmenu.so",                   N_("Sound Menu"),                           "preferences-desktop-sound" },
+-  { "com.canonical.indicator.sound",     N_("Sound Menu"),                           "preferences-desktop-sound" },
+-  { "libprintersmenu.so",                N_("Printers Menu"),                        "printer" },
+-  { "libpower.so",                       N_("Power Management"),                     NULL },
+-  { "com.canonical.indicator.power",     N_("Power Management"),                     NULL },
+-  { "libappmenu.so",                     N_("Application Menus (Global Menu)"),      "menu-editor" },
+-  { "libsession.so",                     N_("Session Management"),                   NULL },
+-  { "com.canonical.indicator.session",   N_("Session Management"),                   NULL },
+-  { "libmessaging.so",                   N_("Messaging Menu"),                       "indicator-messages-new" },
+-  { "com.canonical.indicator.messages",  N_("Messaging Menu"),                       "indicator-messages-new" },
+-  { "libdatetime.so",                    N_("Date and Time"),                        "time-admin" },
+-  { "com.canonical.indicator.datetime",  N_("Date and Time"),                        "time-admin" },
+-  { "libbluetooth.so",                   N_("Bluetooth"),                            "bluetooth-active" },
+-  { "com.canonical.indicator.bluetooth", N_("Bluetooth"),                            "bluetooth-active" },
+-  { "libsyncindicator.so",               N_("Sync Menu"),                            "sync-client-updating" },
+-  { "com.canonical.indicator.keyboard",  N_("Keyboard"),                             NULL },
+-  { "com.canonical.indicator.location",  N_("Location"),                             NULL },
+-  { "com.canonical.indicator.network",   N_("Network"),                              NULL },
+-  { "libworkrave.so",                    N_("Workrave"),                             "workrave" },
++  { "libayatana-application.so",         N_("Application Indicators"),               "application-default-icon" },
++  { "libayatana-soundmenu.so",           N_("Sound Menu"),                           "preferences-desktop-sound" },
++  { "org.ayatana.indicator.sound",       N_("Sound Menu"),                           "preferences-desktop-sound" },
++  { "libayatana-printersmenu.so",        N_("Printers Menu"),                        "printer" },
++  { "libayatana-power.so",               N_("Power Management"),                     NULL },
++  { "org.ayatana.indicator.power",       N_("Power Management"),                     NULL },
++  { "libayatana-appmenu.so",             N_("Application Menus (Global Menu)"),      "menu-editor" },
++  { "libayatana-session.so",             N_("Session Management"),                   NULL },
++  { "org.ayatana.indicator.session",     N_("Session Management"),                   NULL },
++  { "libayatana-messaging.so",           N_("Messaging Menu"),                       "indicator-messages-new" },
++  { "org.ayatana.indicator.messages",    N_("Messaging Menu"),                       "indicator-messages-new" },
++  { "libayatana-datetime.so",            N_("Date and Time"),                        "time-admin" },
++  { "org.ayatana.indicator.datetime",    N_("Date and Time"),                        "time-admin" },
++  { "libayatana-bluetooth.so",           N_("Bluetooth"),                            "bluetooth-active" },
++  { "org.ayatana.indicator.bluetooth",   N_("Bluetooth"),                            "bluetooth-active" },
++  { "libayatana-syncindicator.so",       N_("Sync Menu"),                            "sync-client-updating" },
++  { "org.ayatana.indicator.keyboard",    N_("Keyboard"),                             NULL },
++  { "org.ayatana.indicator.location",    N_("Location"),                             NULL },
++  { "org.ayatana.indicator.network",     N_("Network"),                              NULL },
++  { "libayatana-workrave.so",            N_("Workrave"),                             "workrave" },
+ };
+ 
+ 

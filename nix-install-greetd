@@ -1,0 +1,89 @@
+#!/bin/sh
+
+### Package: nix-install-greetd
+### Version: v20210411.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# NIXTOOLS
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+fi
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=master
+fi
+
+## VARS
+RESDIR=$NIXTOOLSDIR/resources
+DEVDIR=$NIXTOOLSDIR/upstream
+GITURL=https://git.sr.ht
+GITREPO=~kennylevinsen
+GITTREE=greetd
+PKGDIR=$GITTREE\_$GITBRANCH
+
+## INSTALLDEPS
+# Debian Dependencies
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y install build-essential coreutils libc-bin git meson
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## GIT
+[ -d $PKGDIR ] || git clone --depth=1 $GITURL/$GITREPO/$GITTREE --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -f
+git reset --hard
+git pull
+git submodule init
+git submodule update
+
+## CLEAN
+cargo clean
+
+## BUILD
+cargo build --release
+
+## MAN
+cd man
+for file in *.scd;do scdoc < $file > $file.roff;done
+cd ..
+
+## INSTALL
+# Put things into place
+sudo mkdir -p /usr/local/bin
+sudo install -m 755 target/release/greetd /usr/local/bin/
+sudo install -m 755 target/release/agreety /usr/local/bin/
+sudo mkdir -p /usr/local/share/man/man1
+sudo mkdir -p /usr/local/share/man/man5
+sudo mkdir -p /usr/local/share/man/man7
+sudo install -m 755 man/agreety-1.scd.roff /usr/local/share/man/man1/agreety.1
+sudo install -m 755 man/greetd-1.scd.roff /usr/local/share/man/man1/greetd.1
+sudo install -m 755 man/greetd-5.scd.roff /usr/local/share/man/man5/greetd.5
+sudo install -m 755 man/greetd-ipc-7.scd.roff /usr/local/share/man/man7/greetd-ipc.7
+sudo mkdir -p /usr/local/etc/systemd/system
+sudo install -m 755 greetd.service /usr/local/etc/systemd/system/greetd.service
+sudo mkdir -p /usr/local/etc/greetd
+[ -f /usr/local/etc/greetd/config.toml ] || sudo install -m 644 config.toml /usr/local/etc/greetd/config.toml
+[ -f /usr/local/etc/greetd/environments ] || sudo install -m 644 $RESDIR/greetd/environments /usr/local/etc/greetd/environments
+sudo mkdir -p /usr/local/etc/pam.d
+sudo install -m 644 $RESDIR/greetd/pam /usr/local/etc/pam.d/greetd
+sudo useradd -M -G video greeter
+sudo chown -R greeter:greeter /usr/local/etc/greetd
+
+## EXIT
+exit
+
+## ENJOY

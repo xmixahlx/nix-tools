@@ -1,0 +1,44 @@
+#!/bin/sh
+
+### Package: nix-alternatives-llvm
+### Version: v20210411.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# NIXTOOLS
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+fi
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+
+## INSTALLDEPS
+# Debian Dependencies
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y install build-essential coreutils libc-bin
+ sudo apt-get -y install -t experimental llvm*11 *llvm*11*dev llvm*12 *llvm*12*dev \
+ llvm*13 *llvm*13*dev clang*11 *clang*11*dev clang*12 *clang*12*dev clang*13 *clang*13*dev
+fi
+
+## INSTALL
+if [ $INSTALLDEPS = debian ]; then
+ # LLVM
+ sudo rm /usr/bin/llvm-config
+ sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-11 11
+ sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-12 12
+ sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-13 13
+
+ # ALTERNATIVES
+ sudo update-alternatives --config llvm-config
+fi
+
+## EXIT
+exit
+
+## ENJOY
+

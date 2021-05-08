@@ -1,0 +1,35 @@
+From: "Matteo F. Vescovi" <mfv@debian.org>
+Date: Sun, 28 Jul 2019 14:52:33 +0200
+Subject: blender_thumbnailer
+
+* Add blender.thumbnailer file
+* Move thumbnailer script to an appropriate destination
+---
+ blender.thumbnailer           | 4 ++++
+ source/creator/CMakeLists.txt | 2 +-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+ create mode 100644 blender.thumbnailer
+
+diff --git a/blender.thumbnailer b/blender.thumbnailer
+new file mode 100644
+index 0000000..05d4fae
+--- /dev/null
++++ b/blender.thumbnailer
+@@ -0,0 +1,4 @@
++[Thumbnailer Entry]
++TryExec=/usr/share/blender/scripts/blender-thumbnailer.py
++Exec=/usr/share/blender/scripts/blender-thumbnailer.py %i %o
++MimeType=application/x-blender;
+diff --git a/source/creator/CMakeLists.txt b/source/creator/CMakeLists.txt
+index 126256e..cbba976 100644
+--- a/source/creator/CMakeLists.txt
++++ b/source/creator/CMakeLists.txt
+@@ -549,7 +549,7 @@ if(UNIX AND NOT APPLE)
+     )
+     install(
+       PROGRAMS ${CMAKE_SOURCE_DIR}/release/bin/blender-thumbnailer.py
+-      DESTINATION bin
++      DESTINATION share/blender/scripts
+     )
+     set(BLENDER_TEXT_FILES_DESTINATION share/doc/blender)
+   endif()

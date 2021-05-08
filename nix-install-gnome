@@ -1,0 +1,162 @@
+#!/bin/sh
+
+### Package: nix-install-gnome
+### Version: v20210501.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# NIXTOOLSDIR
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+fi
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+
+## VARS
+RESDIR=$NIXTOOLSDIR/resources
+DEVDIR=$NIXTOOLSDIR/upstream
+GITURL=https://gitlab.gnome.org
+GITREPO=gnome
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y build-dep gvfs
+ sudo apt-get -y install build-essential coreutils libc-bin git meson
+ sudo apt-get -y install libgraphviz-dev python3-typogrify \
+ libwebkit2gtk-4.0-dev python3-libxml2 yelp-xsl libseccomp-dev librest-dev \
+ libgoa-1.0-dev libuhttpmock-0.0-dev libtelepathy-glib-dev libebook1.2-dev gperf \
+ libavahi-client-dev libavahi-glib-dev libfuse3-dev libcanberra-gtk3-dev \
+ libsoup2.4-dev python3-dbusmock libpango1.0-dev libxml2-dev libxml++2.6-dev \
+ libxslt1-dev rustc libsigc++-2.0-dev libmm-glib-dev libclutter-gst-3.0-dev \
+ libgstreamer-plugins-bad1.0-dev libcolord-dev libcolord-gtk-dev libgsound-dev \
+ libpwquality-dev liboauth-dev check libkeyutils-dev libplymouth-dev \
+ libsubunit-dev libwrap0-dev sysprof winbind libenchant-2-dev libcairomm-1.0-dev \
+ libmediaart-2.0-dev libosinfo-1.0-dev libvirt-glib-1.0-dev freerdp2-dev \
+ libspice-client-gtk-3.0-dev libappstream-dev libpackagekit-glib2-dev \
+ libfwupd-dev fwupd libxmlb-dev libytnef-dev highlight libpst-dev libgit2-dev \
+ libgusb-dev libsane-dev libunity-dev libgstrtspserver-1.0-dev dblatex \
+ libpoppler-dev libtdb-dev libmpc-dev libexempi-dev libgfbgraph-0.2-dev \
+ libvncserver-dev libepub-dev libgepub-0.6-dev libpoppler-private-dev \
+ libparted-dev libedataserverui1.2-dev
+fi
+
+#from debian: libsoup libxslt gsound glib gnome-common
+#broken: shotwell vinagre totem gucharmap
+#link error: pango pangomm gio
+
+for GITTREE in \
+gtk-doc vala librsvg glib-networking atk \
+pango gegl glade libgda libdazzle libhandy libwnck gdk-pixbuf json-glib gcr \
+gsettings-desktop-schemas libsecret librest gtk vte yelp yelp-xsl yelp-tools totem-pl-parser \
+dconf dconf-editor geocode-glib gjs gnome-desktop gnome-menus gnome-video-effects \
+libchamplain libgdata libgee libgtop libpeas libwnck libgfbgraph tracker libgrss \
+tracker-miners gnome-backgrounds gvfs gexiv2 gnome-bluetooth gnome-keyring \
+gnome-autoar gnome-online-accounts libgweather evolution-data-server folks \
+libpeas gjs babl mm-common glibmm gnome-settings-daemon libnma cheese \
+gnome-control-center mutter grilo gnome-shell gnome-shell-extensions \
+gnome-session nautilus zenity gdm gtksourceview adwaita-icon-theme libadwaita gspell \
+gedit epiphany gnome-terminal evince pygobject gnome-todo gnome-music \
+gnome-calendar gtk-vnc gnome-boxes gnome-tweaks gnome-packagekit \
+gimp gnome-software evolution pitivi polari gnome-usage libgit2-glib \
+gitg simple-scan gnome-maps libmanette retro-gtk gnome-games \
+gnome-network-displays libchamplain gthumb seahorse \
+gnome-weather gnome-text-editor rhythmbox gnome-sound-recorder recipes \
+gnome-disk-utility gnome-system-monitor gnome-calculator \
+eog gnome-screenshot gnome-photos gtranslator libdazzle gnome-notes \
+gnome-remote-desktop gnome-settings-daemon connections \
+libgepub baobab gnome-books dia gparted gnome-clocks gnome-contacts \
+gnome-color-manager gnome-nettool gnome-power-manager shotwell \
+file-roller;do
+
+ ## VARS
+ GITTREE=$GITTREE
+ GITBRANCH=master
+
+ #[ $GITTREE = glib ] && GITBRANCH=2.67.6
+ [ $GITTREE = vala ] && GITBRANCH=0.52
+ [ $GITTREE = librsvg ] && GITBRANCH=librsvg-2.50
+ [ $GITTREE = libadwaita ] && GITBRANCH=main
+ [ $GITTREE = gtksourceview ] && GITBRANCH=gtksourceview-4-8
+ #[ $GITTREE = tracker ] && GITBRANCH=tracker-3.1
+ #[ $GITTREE = tracker-miners ] && GITBRANCH=tracker-miners-3.1
+ [ $GITTREE = nautilus ] && GITBRANCH=40.0
+ #[ $GITTREE = yelp ] && GITBRANCH=40.0
+ #[ $GITTREE = yelp-tools ] && GITBRANCH=40.0
+
+ PKGDIR=$GITTREE\_$GITBRANCH
+
+ ## PREP
+ set -e
+ mkdir -p $DEVDIR
+ cd $DEVDIR/gnome
+
+ ## GIT
+ [ -d $PKGDIR ] || git clone --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+ cd $PKGDIR
+ git clean -f
+ git reset --hard
+ git pull
+ git submodule update --init --recursive
+
+ ## CLEAN
+ if [ -d tmpbuild ]; then
+  sudo rm -Rf tmpbuild
+ else
+  if  [ -f Makefile ]; then
+  make clean
+  fi
+ fi
+
+ ## CONFIGURE
+ if [ -f meson.build ]; then
+  meson tmpbuild -Dprefix=/usr/local -Dbuildtype=release --libdir=/usr/local/lib/x86_64-linux-gnu \
+  -Dgtk4=true -Ddocs=false -Denable-gtk-doc=disabled -Dman=true -Dgdm-xsession=true -Dipv6=true \
+  -Dgtk_doc=false -Dbrowser_plugin=true -Dps=true
+ else
+  if [ -f autogen.sh ]; then
+  ./autogen.sh --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu
+  fi
+  if [ -f CMakeLists.txt ]; then
+   mkdir tmpbuild
+   cd tmpbuild
+   cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_INSTALL_LIBDIR=/usr/local/lib/x86_64-linux-gnu \
+   -DCMAKE_BUILD_TYPE=Release ..
+  fi
+ fi
+
+ ## BUILD
+ if [ -f meson.build ]; then
+  ninja -C tmpbuild
+ else
+  if [ -f autogen.sh -o CMakeLists.txt ]; then
+  make -j `nproc`
+  fi
+#  if [ -f CMakeLists.txt ]; then
+#   make -j `nproc`
+#  fi
+ fi
+
+ ## INSTALL
+ if [ -f meson.build ]; then
+  sudo ninja -C tmpbuild install
+ else
+  if [ -f autogen.sh -o CMakeLists.txt ]; then
+   sudo make install
+  fi
+ fi
+ sudo ldconfig
+
+ ## RETURN
+ cd $DEVDIR/gnome
+done
+
+## EXIT
+exit
+
+## ENJOY

@@ -73,10 +73,11 @@ sudo install -m 755 man/greetd-5.scd.roff /usr/local/share/man/man5/greetd.5
 sudo install -m 755 man/greetd-ipc-7.scd.roff /usr/local/share/man/man7/greetd-ipc.7
 sudo mkdir -p /usr/local/etc/systemd/system
 sudo install -m 755 greetd.service /usr/local/etc/systemd/system/greetd.service
-sudo mkdir -p /usr/local/etc/greetd
 grep -qw ^greeter /etc/group || sudo useradd -M -G video greeter
-[ -f /usr/local/etc/greetd/config.toml ] || sudo install -m 644 -o greeter -g greeter config.toml /usr/local/etc/greetd/config.toml
+sudo mkdir -p /usr/local/etc/greetd
+sudo install -m 644 -o greeter -g greeter config.toml /usr/local/etc/greetd/greetd-config.toml
 [ -f /usr/local/etc/greetd/environments ] || sudo install -m 644 -o greeter -g greeter $RESDIR/greetd/environments /usr/local/etc/greetd/environments
+[ -L /usr/local/etc/greetd/config.toml ] || sudo ln -s /usr/local/etc/greetd/greetd-config.toml /usr/local/etc/greetd/config.toml
 [ -L /etc/greetd ] || sudo ln -s /usr/local/etc/greetd /etc/greetd
 [ -L /etc/systemd/system/greetd.service ] || sudo ln -s /usr/local/etc/systemd/system/greetd.service /etc/systemd/system/greetd.service
 sudo mkdir -p /usr/local/etc/pam.d

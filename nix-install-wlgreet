@@ -1,10 +1,10 @@
 #!/bin/sh
 
 ### Package: nix-install-wlgreet
-### Version: v20210509.2300
+### Version: v20210510.1600
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
-### Script Dependencies: (none)
+### Script Dependencies: greetd
 
 ## OVERRIDES
 # NIXTOOLS
@@ -36,7 +36,7 @@ PKGDIR=$GITTREE\_$GITBRANCH
 ## INSTALLDEPS
 # Debian Dependencies
 if [ $INSTALLDEPS = debian ]; then
- sudo apt-get -y install build-essential coreutils libc-bin git meson
+ sudo apt-get -y install build-essential coreutils libc-bin git meson cargo
 fi
 
 ## PREP

@@ -36,7 +36,7 @@ PKGDIR=$GITTREE\_$GITBRANCH
 ## INSTALLDEPS
 # Debian Dependencies
 if [ $INSTALLDEPS = debian ]; then
- sudo apt-get -y install build-essential coreutils libc-bin git meson
+ sudo apt-get -y install build-essential coreutils libc-bin git meson cargo
 fi
 
 ## PREP

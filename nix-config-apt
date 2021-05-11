@@ -26,20 +26,14 @@ echo "*** INSTALLDEPS selected is $INSTALLDEPS.\n"
 ## DEBIAN OPTIONS LOOP
 if [ $INSTALLDEPS = debian ]; then
  # Provide buster, bullseye, or sid.
- if [ $DEBRELEASE ]; then
-  if [ $DEBRELEASE = buster ]; then
-   echo "\n*** DEBRELEASE selected is buster.\n"
-  elif [ $DEBRELEASE = bullseye ]; then
-   echo "\n*** DEBRELEASE selected is bullseye.\n"
-  elif [ $DEBRELEASE = sid ]; then
-   echo "\n*** DEBRELEASE selected is sid.\n"
+ if [ $DEBRELEASE = stable -o testing -o unstable ]; then
+   echo "\n*** DEBRELEASE selected is $DEBRELEASE.\n"
   else
-   echo "\n*** DEBRELEASE must be passed on commandline as buster, bullseye, or sid.\n"
+   echo "\n*** DEBRELEASE must be passed on commandline as stable, testing, or unstable.\n"
    exit
-  fi
  fi
  if [ -z $DEBRELEASE ]; then
-  echo "\n*** DEBRELEASE must be passed on commandline as buster, bullseye, or sid.\n"
+  echo "\n*** DEBRELEASE must be passed on commandline as stable, testing, or unstable.\n"
   exit
  fi
 
@@ -59,7 +53,7 @@ if [ $INSTALLDEPS = debian ]; then
  ## DEBIAN MULTIMEDIA
  if [ $DEBMULTIMEDIA = yes ]; then
   sudo mkdir -p /etc/apt/sources.list.d/
-  sudo install -Dm644 $RESDIR/apt/deb-multimedia-$DEBRELEASE.list /etc/apt/sources.list.d/deb-multimedia-$DEBRELEASE.list
+  sudo install -Dm644 $RESDIR/apt/deb-multimedia.list.$DEBRELEASE /etc/apt/sources.list.d/deb-multimedia-$DEBRELEASE.list
   sudo apt-get -y update -oAcquire::AllowInsecureRepositories=true
   sudo apt-get -y install deb-multimedia-keyring --allow-unauthenticated
  fi

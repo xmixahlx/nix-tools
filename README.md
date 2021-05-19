@@ -44,12 +44,17 @@ nix-install-wlgreet<br>
 
 ## wayland
 nix-install-dmenu-wayland<br>
+nix-install-grim<br>
+nix-install-kanshi<br>
+nix-install-mako<br>
+nix-install-slurp<br>
 nix-install-waybar<br>
 nix-install-wayland<br>
 nix-install-wayland-protocols<br>
 nix-install-wdisplays<br>
 nix-install-wlogout<br>
 nix-install-wlroots<br>
+nix-install-wlr-randr<br>
 nix-install-wlsunset<br>
 nix-install-xdg-desktop-portal-wlr<br>
 nix-install-xwayland<br>
@@ -86,6 +91,7 @@ nix-install-xournalpp<br>
 ## other apps
 nix-install-pbzx<br>
 nix-install-xar<br>
+nix-install-zstd<br>
 
 ## xorg
 nix-install-libpciaccess<br>

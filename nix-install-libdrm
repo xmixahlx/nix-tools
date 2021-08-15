@@ -12,20 +12,24 @@ if [ -z $NIXTOOLSDIR ]; then
  NIXTOOLSDIR="`pwd`"
  PATH=$NIXTOOLSDIR:$PATH
 fi
+echo "*** NIXTOOLSDIR selected is $NIXTOOLSDIR."
 
 # INSTALLDEPS
 if [ -z $INSTALLDEPS ]; then
  INSTALLDEPS=debian
 fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
 
 # GITBRANCH
 if [ -z $GITBRANCH ]; then
  GITBRANCH=master
 fi
+echo "*** GITBRANCH selected is $GITBRANCH."
 
 ## VARS
 DEVDIR=$NIXTOOLSDIR/upstream
-GITREPO=https://gitlab.freedesktop.org/mesa
+GITURL=https://gitlab.freedesktop.org
+GITREPO=mesa
 GITTREE=drm
 PKGDIR=$GITTREE\_$GITBRANCH
 
@@ -34,7 +38,7 @@ PKGDIR=$GITTREE\_$GITBRANCH
 if [ $INSTALLDEPS = debian ]; then
  sudo apt-get -y build-dep libdrm
  sudo apt-get -y install build-essential coreutils libc-bin git meson \
- libcunit1-dev python3-cairo
+ libcunit1-dev python3-cairo python3-setuptools
 fi
 
 ## PREP
@@ -43,18 +47,19 @@ mkdir -p $DEVDIR
 cd $DEVDIR
 
 ## GIT
-[ -d $PKGDIR ] || git clone --depth=1 $GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
 cd $PKGDIR
-git clean -f
+git clean -dfx
 git reset --hard
 git pull
+git submodule update --init --recursive --depth=1
 
 ## CLEAN
 rm -Rf tmpbuild
 
 ## CONFIGURE
-meson tmpbuild --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu \
---buildtype=release -Dudev=true
+meson tmpbuild --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu --buildtype=release \
+-Dudev=true
 
 ## BUILD
 ninja -C tmpbuild

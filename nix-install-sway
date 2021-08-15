@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-sway
-### Version: v20210509.2300
+### Version: v20210813.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: wlroots
@@ -36,7 +36,7 @@ PKGDIR=$GITTREE\_$GITBRANCH
 ## INSTALLDEPS
 # Debian Dependencies
 if [ $INSTALLDEPS = debian ]; then
- sudo apt-get -y build-dep sway
+ sudo apt-get -y -t experimental build-dep sway
  sudo apt-get -y install build-essential coreutils libc-bin git meson \
  fish
 fi
@@ -49,7 +49,7 @@ cd $DEVDIR
 ## GIT
 [ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
 cd $PKGDIR
-git clean -f
+git clean -dfx
 git reset --hard
 git pull
 git submodule update --init --recursive --depth=1
@@ -58,7 +58,7 @@ git submodule update --init --recursive --depth=1
 rm -Rf tmpbuild
 
 ## CONFIGURE
-meson tmpbuild -Dprefix=/usr/local -Dbuildtype=release --libdir=/usr/local/lib/x86_64-linux-gnu \
+meson tmpbuild --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu --buildtype=release \
 -Dlibseat=true
 
 ## BUILD

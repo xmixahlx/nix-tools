@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-wayland
-### Version: v20201212.1200
+### Version: v20210813.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -12,21 +12,25 @@ if [ -z $NIXTOOLSDIR ]; then
  NIXTOOLSDIR="`pwd`"
  PATH=$NIXTOOLSDIR:$PATH
 fi
+echo "*** NIXTOOLSDIR selected is $NIXTOOLSDIR."
 
 # INSTALLDEPS
 if [ -z $INSTALLDEPS ]; then
  INSTALLDEPS=debian
 fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
 
 # GITBRANCH
 if [ -z $GITBRANCH ]; then
- GITBRANCH=master
+ GITBRANCH=main
 fi
+echo "*** GITBRANCH selected is $GITBRANCH."
 
 ## VARS
 RESDIR=$NIXTOOLSDIR/resources
 DEVDIR=$NIXTOOLSDIR/upstream
-GITREPO=https://gitlab.freedesktop.org/wayland
+GITURL=https://gitlab.freedesktop.org
+GITREPO=wayland
 GITTREE=wayland
 PKGDIR=$GITTREE\_$GITBRANCH
 
@@ -43,17 +47,18 @@ mkdir -p $DEVDIR
 cd $DEVDIR
 
 ## GIT
-[ -d $PKGDIR ] || git clone --depth=1 $GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
 cd $PKGDIR
-git clean -f
+git clean -dfx
 git reset --hard
 git pull
+git submodule update --init --recursive --depth=1
 
 ## CLEAN
 rm -Rf tmpbuild
 
 ## CONFIGURE
-meson tmpbuild -Dprefix=/usr/local -Dbuildtype=release --libdir=/usr/local/lib/x86_64-linux-gnu/
+meson tmpbuild --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu --buildtype=release
 
 ## BUILD
 ninja -C tmpbuild

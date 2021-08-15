@@ -1,0 +1,73 @@
+#!/bin/sh
+
+### Package: nix-install-bluez
+### Version: v20210813.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# NIXTOOLSDIR
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+fi
+echo "*** NIXTOOLSDIR selected is $NIXTOOLSDIR."
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=master
+fi
+echo "*** GITBRANCH selected is $GITBRANCH."
+
+## VARS
+RESDIR=$NIXTOOLSDIR/resources
+DEVDIR=$NIXTOOLSDIR/upstream
+GITURL=https://github.com
+GITREPO=bluez
+GITTREE=bluez
+PKGDIR=$GITTREE\_$GITBRANCH
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y build-dep bluez
+ sudo apt-get -y install build-essential coreutils libc-bin make
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## GIT
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -dfx
+git reset --hard
+git pull
+git submodule update --init --recursive --depth=1
+
+## CONFIGURE
+./bootstrap
+./configure --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu \
+--enable-library --enable-tools --enable-cups --enable-monitor --enable-client --enable-systemd \
+--enable-a2dp --enable-network --enable-hid --enable-testing --enable-experimental --enable-deprecated \
+--enable-nfc --enable-sap --enable-health --enable-midi
+
+## BUILD
+make -j `nproc`
+
+## INSTALL
+sudo make install
+sudo ldconfig
+
+## EXIT
+exit
+
+## ENJOY

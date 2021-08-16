@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-blender
-### Version: v20210813.2300
+### Version: v20210815.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -39,7 +39,7 @@ PKGDIR=$GITTREE\_$GITBRANCH
 if [ $INSTALLDEPS = debian ]; then
  sudo apt-get -y build-dep blender
  sudo apt-get -y install build-essential coreutils libc-bin git cmake \
- libembree-dev freeglut-dev libopencolorio-dev openimageio-tools libpotrace.dev \
+ libembree-dev freeglut-dev libopencolorio-dev openimageio-tools libpotrace-dev \
  libhpdf-dev
 fi
 

@@ -1,0 +1,95 @@
+#!/bin/sh
+
+### Package: nix-alternatives-clang
+### Version: v20210815.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# NIXTOOLS
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+ PATH=$NIXTOOLSDIR:$PATH
+fi
+echo "*** NIXTOOLSDIR selected is $NIXTOOLSDIR."
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
+
+# DEBIANREPO
+if [ -z $DEBIANREPO ]; then
+ DEBIANREPO=experimental
+fi
+echo "*** DEBIANREPO selected is $DEBIANREPO."
+
+## INSTALLDEPS
+# Debian Dependencies
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y install build-essential coreutils libc-bin
+ sudo apt-get -y -t $DEBIANREPO install clang clang-format clang-tidy clang-tools libclang-dev libclang-cpp-dev \
+ clang-12 clang-tidy-12 clang-format-12 clang-tools-12 libclang-12-dev libclang-cpp12-dev \
+ clang-13 clang-tidy-13 clang-format-13 clang-tools-13 libclang-13-dev libclang-cpp13-dev \
+ clang-14 clang-tidy-14 clang-format-14 clang-tools-14 libclang-14-dev libclang-cpp14-dev
+fi
+
+## UPDATE-ALTERNATIVES
+if [ $INSTALLDEPS = debian ]; then
+ # CLANG
+ sudo rm /usr/bin/clang
+ sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-11 11
+ sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-12 12
+ sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-13 13
+ sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-14 14
+
+ # CLANG++
+ sudo rm /usr/bin/clang++
+ sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-11 11
+ sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-12 12
+ sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-13 13
+ sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-14 14
+
+ # CLANG-FORMAT
+ sudo rm /usr/bin/clang-format
+ sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-11 11
+ sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-12 12
+ sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-13 13
+ sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-14 14
+
+ # CLANG-FORMAT-DIFF
+ sudo rm /usr/bin/clang-format-diff
+ sudo update-alternatives --install /usr/bin/clang-format-diff clang-format-diff /usr/bin/clang-format-diff-11 11
+ sudo update-alternatives --install /usr/bin/clang-format-diff clang-format-diff /usr/bin/clang-format-diff-12 12
+ sudo update-alternatives --install /usr/bin/clang-format-diff clang-format-diff /usr/bin/clang-format-diff-13 13
+ sudo update-alternatives --install /usr/bin/clang-format-diff clang-format-diff /usr/bin/clang-format-diff-14 14
+
+ # CLANG-TIDY
+ sudo rm /usr/bin/clang-tidy
+ sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-11 11
+ sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-12 12
+ sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-13 13
+ sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-14 14
+
+ # CLANG-TIDY-DIFF
+ sudo rm /usr/bin/clang-tidy-diff
+ sudo update-alternatives --install /usr/bin/clang-tidy-diff clang-tidy-diff /usr/bin/clang-tidy-diff-11.py 11
+ sudo update-alternatives --install /usr/bin/clang-tidy-diff clang-tidy-diff /usr/bin/clang-tidy-diff-12.py 12
+ sudo update-alternatives --install /usr/bin/clang-tidy-diff clang-tidy-diff /usr/bin/clang-tidy-diff-13.py 13
+ sudo update-alternatives --install /usr/bin/clang-tidy-diff clang-tidy-diff /usr/bin/clang-tidy-diff-14.py 14
+
+ # ALTERNATIVES
+ sudo update-alternatives --config clang
+ sudo update-alternatives --config clang++
+ sudo update-alternatives --config clang-format
+ sudo update-alternatives --config clang-format-diff
+ sudo update-alternatives --config clang-tidy
+ sudo update-alternatives --config clang-tidy-diff
+fi
+
+## EXIT
+exit
+
+## ENJOY

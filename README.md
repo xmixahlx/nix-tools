@@ -2,7 +2,7 @@
 
 tools for hardware acceleration, media, and wayland for x86_64.<br>
 
-intended for debian bullseye+, but should* work on any linux distro.<br>
+intended for debian bullseye+ as base, but should* work on any linux distro. recommend debian unstable with experimental. see nix-config-apt.<br>
 
 ## hwaccel
 nix-install-alacritty<br>
@@ -18,13 +18,28 @@ nix-install-mesa<br>
 nix-install-vkmark<br>
 
 ## system
+nix-install-babl<br>
 nix-install-fontawesome<br>
-nix-install-libcamera<br>
+nix-install-gegl<br>
+nix-install-seatd<br>
+nix-install-xdg-desktop-portal<br>
+nix-install-zstd<br>
+
+## audio
+nix-install-helvum<br>
+nix-install-libfreeaptx<br>
 nix-install-pipewire<br>
+nix-install-wireplumber<br>
+
+## video
+nix-install-guvcview<br>
+nix-install-libcamera<br>
 nix-install-v4l2loopback<br>
 nix-install-v4l-utils<br>
-nix-install-wireplumber<br>
-nix-install-xdg-desktop-portal<br>
+
+## wireless
+nix-install-blueman<br>
+nix-install-bluez<br>
 
 ## ffmpeg
 nix-install-lensfun<br>
@@ -37,7 +52,6 @@ nix-install-x265<br>
 nix-install-ffmpeg<br>
 
 ## greetd
-nix-install-seatd<br>
 nix-install-greetd<br>
 nix-install-gtkgreet<br>
 nix-install-wlgreet<br>
@@ -64,6 +78,7 @@ nix-install-sway<br>
 nix-install-swaybg<br>
 nix-install-swayidle<br>
 nix-install-swaylock<br>
+nix-install-swaylock-effects<br>
 
 ## wayfire
 nix-install-wayfire<br>
@@ -72,32 +87,25 @@ nix-install-wcm<br>
 nix-install-wf-config<br>
 nix-install-wf-shell<br>
 
-## gnome
-nix-install-babl<br>
-nix-install-gegl<br>
-nix-install-gnome<br>
-
 ## obs
 nix-install-obs-studio<br>
 nix-install-obs-xdg-portal<br>
 nix-install-wlrobs<br>
 
-## media apps
+## design
 nix-install-gimp<br>
-nix-install-guvcview<br>
 nix-install-blender<br>
-nix-install-xournalpp<br>
 
-## other apps
-nix-install-pbzx<br>
-nix-install-xar<br>
-nix-install-zstd<br>
+## productivity
+nix-install-xournalpp<br>
 
 ## xorg
 nix-install-libpciaccess<br>
 nix-install-libsigcpp<br>
 nix-install-libxcursor<br>
+nix-install-libxcvt<br>
 nix-install-xserver-xorg<br>
+nix-install-xcbproto<br>
 nix-install-xinit<br>
 nix-install-xf86-input-evdev<br>
 nix-install-xf86-input-libinput<br>
@@ -105,12 +113,13 @@ nix-install-xf86-video-amdgpu<br>
 nix-install-xf86-video-fbdev<br>
 nix-install-xf86-video-intel<br>
 nix-install-xf86-video-nouveau<br>
+nix-install-xorgproto<br>
 
 ## i3
 nix-install-i3<br>
+nix-install-i3-gaps<br>
 nix-install-i3blocks<br>
 nix-install-i3blocks-contrib<br>
-nix-install-i3-gaps<br>
 nix-install-i3lock<br>
 nix-install-i3status<br>
 
@@ -120,9 +129,18 @@ nix-install-xfce-core<br>
 nix-install-xfce-panel-plugins<br>
 nix-install-xfce-thunar-plugins<br>
 
-## desktop
-nix-install-desktop<br>
-
 ## debian alternatives
+nix-alternatives-clang<br>
 nix-alternatives-gcc<br>
 nix-alternatives-llvm<br>
+
+## debian config
+nix-config-apt<br>
+
+## debian on mac
+nix-install-bcwc-pcie<br>
+nix-install-facetimehd-firmware<br>
+nix-install-pbzx<br>
+nix-install-xar<br>
+
+## enjoy

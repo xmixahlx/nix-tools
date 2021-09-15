@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-alternatives-llvm
-### Version: v20210815.2300
+### Version: v20210912.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -22,15 +22,21 @@ echo "*** INSTALLDEPS selected is $INSTALLDEPS."
 
 # DEBIANREPO
 if [ -z $DEBIANREPO ]; then
- DEBIANREPO=experimental
+ DEBIANREPO=unstable
 fi
 echo "*** DEBIANREPO selected is $DEBIANREPO."
+
+# LLVMVER
+if [ -z $LLVMVER ]; then
+ LLVMVER=13
+fi
+echo "*** LLVMVER selected is $LLVMVER."
 
 ## INSTALLDEPS
 # Debian Dependencies
 if [ $INSTALLDEPS = debian ]; then
  sudo apt-get -y install build-essential coreutils libc-bin
- sudo apt-get -y -t $DEBIANREPO install llvm llvm-11 llvm-11-dev llvm-12 llvm-12-dev llvm-13 llvm-13-dev llvm-14 llvm-14-dev
+ sudo apt-get -y -t $DEBIANREPO install llvm llvm-$LLVMVER llvm-$LLVMVER-dev
 fi
 
 ## INSTALL

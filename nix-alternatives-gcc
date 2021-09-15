@@ -10,24 +10,33 @@
 # NIXTOOLS
 if [ -z $NIXTOOLSDIR ]; then
  NIXTOOLSDIR="`pwd`"
+ PATH=$NIXTOOLSDIR:$PATH
 fi
+echo "*** NIXTOOLSDIR selected is $NIXTOOLSDIR."
 
 # INSTALLDEPS
 if [ -z $INSTALLDEPS ]; then
  INSTALLDEPS=debian
 fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
 
 # DEBIANREPO
 if [ -z $DEBIANREPO ]; then
- DEBIANREPO=experimental
+ DEBIANREPO=unstable
 fi
-echo "*** DEBIANREPO selected is $DEBIANREPO.\n"
+echo "*** DEBIANREPO selected is $DEBIANREPO."
+
+# GCCVER
+if [ -z $GCCVER ]; then
+ GCCVER=11
+fi
+echo "*** GCCVER selected is $GCCVER."
 
 ## INSTALLDEPS
 # Debian Dependencies
 if [ $INSTALLDEPS = debian ]; then
  sudo apt-get -y install build-essential coreutils libc-bin
- sudo apt-get -y install -t $DEBIANREPO gcc gcc-10 gcc-11 g++ g++-10 g++-11
+ sudo apt-get -y install -t $DEBIANREPO gcc gcc-$GCCVER g++ g++-$GCCVER
 fi
 
 ## INSTALL

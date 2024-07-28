@@ -1,0 +1,17 @@
+--- 60-persistent-storage.rules.orig	2023-03-19 15:31:18.327723820 -0700
++++ 60-persistent-storage.rules	2023-03-19 15:33:32.924201685 -0700
+@@ -111,10 +111,12 @@
+ 
+ # probe filesystem metadata of optical drives which have a media inserted
+ KERNEL=="sr*", ENV{DISK_EJECT_REQUEST}!="?*", ENV{ID_CDROM_MEDIA_TRACK_COUNT_DATA}=="?*", ENV{ID_CDROM_MEDIA_SESSION_LAST_OFFSET}=="?*", \
+-  IMPORT{builtin}="blkid --hint=session_offset=$env{ID_CDROM_MEDIA_SESSION_LAST_OFFSET}"
++##  IMPORT{builtin}="blkid --hint=session_offset=$env{ID_CDROM_MEDIA_SESSION_LAST_OFFSET}"
++  GOTO="persistent_storage_end"
+ # single-session CDs do not have ID_CDROM_MEDIA_SESSION_LAST_OFFSET
+ KERNEL=="sr*", ENV{DISK_EJECT_REQUEST}!="?*", ENV{ID_CDROM_MEDIA_TRACK_COUNT_DATA}=="?*", ENV{ID_CDROM_MEDIA_SESSION_LAST_OFFSET}=="", \
+-  IMPORT{builtin}="blkid --noraid"
++##  IMPORT{builtin}="blkid --noraid"
++  GOTO="persistent_storage_end"
+ 
+ # probe filesystem metadata of disks
+ KERNEL!="sr*|mmcblk[0-9]boot[0-9]", IMPORT{builtin}="blkid"

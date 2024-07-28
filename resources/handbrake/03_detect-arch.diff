@@ -1,0 +1,38 @@
+--- a/make/configure.py
++++ b/make/configure.py
+@@ -504,7 +504,7 @@ class BuildTupleProbe( ShellProbe, list
+     GNU_TUPLE_RE = '([^-]+)-?([^-]*)-([^0-9-]+)([^-]*)-?([^-]*)'
+ 
+     def __init__( self ):
+-        super( BuildTupleProbe, self ).__init__( 'build tuple', '%s/config.guess' % (cfg.dir), abort=True, head=True )
++        super( BuildTupleProbe, self ).__init__( 'build tuple', 'dpkg-architecture -q DEB_HOST_GNU_TYPE', abort=True, head=True )
+ 
+     def _parseSession( self ):
+         self.spec = self.session[0].decode('utf-8') if self.session else ''
+@@ -524,7 +524,7 @@ class BuildTupleProbe( ShellProbe, list
+         ## for clarity
+         self.machine = self[0]
+         self.vendor  = self[1]
+-        self.system  = self[2]
++        self.system  = self[1]
+         self.release = self[3]
+         self.extra   = self[4]
+ 
+@@ -587,7 +587,7 @@ class HostTupleAction( Action, list ):
+         ## for clarity
+         self.machine = self[0]
+         self.vendor  = self[1]
+-        self.system  = self[2]
++        self.system  = self.vendor
+         self.release = self[3]
+         self.extra   = self[4]
+         self.systemf = build_tuple.systemf
+@@ -693,7 +693,7 @@ class ArchAction( Action ):
+         elif host_tuple.match( '*-*-darwin*' ):
+             self.mode['arm64']  =  'arm64-apple-darwin%s' % (host_tuple.release)
+             self.mode['x86_64'] = 'x86_64-apple-darwin%s' % (host_tuple.release)
+-        elif host_tuple.match( '*-*-linux*' ):
++        elif host_tuple.match( '*-linux*' ):
+             pass
+         elif host_tuple.match( '*-*-solaris*' ):
+             pass

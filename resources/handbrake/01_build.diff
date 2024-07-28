@@ -1,0 +1,81 @@
+--- a/make/include/main.defs
++++ b/make/include/main.defs
+@@ -36,23 +36,7 @@ ifeq (1,$(FEATURE.flatpak))
+     MODULES += contrib/x264
+ endif
+ 
+-ifeq (1,$(FEATURE.fdk_aac))
+-    MODULES += contrib/fdk-aac
+-endif
+-
+-ifeq (1,$(FEATURE.x265))
+-    MODULES += contrib/x265
+-    MODULES += contrib/x265_8bit
+-    MODULES += contrib/x265_10bit
+-    MODULES += contrib/x265_12bit
+-endif
+-
+-MODULES += contrib/libdav1d
+-MODULES += contrib/zimg
+ MODULES += contrib/ffmpeg
+-MODULES += contrib/libdvdread
+-MODULES += contrib/libdvdnav
+-MODULES += contrib/libbluray
+ 
+ ifeq (1,$(FEATURE.qsv))
+ ifeq (,$(filter $(HOST.system),freebsd))
+--- a/test/module.defs
++++ b/test/module.defs
+@@ -11,7 +11,11 @@ TEST.exe = $(BUILD/)$(call TARGET.exe,$(
+ 
+ TEST.GCC.L = $(CONTRIB.build/)lib
+ 
+-TEST.libs = $(LIBHB.a)
++ifeq (1,$(FEATURE.qsv))
++    MFX.lib = -lmfx
++endif
++
++TEST.libs = $(LIBHB.a) -lfdk-aac -lvpx -lx265 $(MFX.lib)
+ 
+ TEST.GCC.l = \
+         ass avformat avfilter avcodec avutil swresample postproc mp3lame dvdnav \
+--- a/libhb/module.defs
++++ b/libhb/module.defs
+@@ -1,7 +1,7 @@
+ __deps__ := A52DEC BZIP2 LIBVPX FFMPEG FREETYPE LAME LIBASS LIBDCA \
+     LIBDVDREAD LIBDVDNAV LIBICONV LIBSAMPLERATE LIBTHEORA LIBVORBIS LIBOGG \
+-    LIBXML2 X264 X265 ZLIB LIBBLURAY FDKAAC LIBMFX LIBGNURX JANSSON \
+-    HARFBUZZ LIBOPUS LIBSPEEX LIBDAV1D LIBJPEGTURBO
++    LIBXML2 X264 X265 ZLIB LIBBLURAY FDKAAC LIBGNURX JANSSON \
++    HARFBUZZ LIBOPUS LIBSPEEX LIBJPEGTURBO
+ 
+ ifeq (,$(filter $(HOST.system),darwin cygwin mingw))
+     __deps__ += FONTCONFIG
+@@ -122,11 +122,7 @@ LIBHB.dll.libs += $(CONTRIB.build/)lib/l
+ endif
+ 
+ ifeq (1,$(FEATURE.qsv))
+-LIBHB.dll.libs += $(CONTRIB.build/)lib/libmfx.a
+-endif
+-
+-ifeq (1,$(FEATURE.x265))
+-LIBHB.dll.libs += $(CONTRIB.build/)lib/libx265.a
++LIBHB.dll.libs += -lmfx
+ endif
+ 
+ ifneq ($(HAS.iconv),1)
+--- a/contrib/ffmpeg/module.defs
++++ b/contrib/ffmpeg/module.defs
+@@ -2,12 +2,6 @@ __deps__ := BZIP2 ZLIB FDKAAC LIBDAV1D L
+ ifeq (1,$(FEATURE.qsv))
+ __deps__ += LIBMFX
+ endif
+-ifeq (1,$(FEATURE.vce))
+-__deps__ += AMF
+-endif
+-ifeq (1,$(FEATURE.nvenc))
+-__deps__ += NVENC
+-endif
+ 
+ $(eval $(call import.MODULE.defs,FFMPEG,ffmpeg,$(__deps__)))
+ $(eval $(call import.CONTRIB.defs,FFMPEG))

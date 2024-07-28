@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-blueman
-### Version: v20210813.2300
+### Version: v2021111.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -21,7 +21,7 @@ echo "*** INSTALLDEPS selected is $INSTALLDEPS."
 
 # GITBRANCH
 if [ -z $GITBRANCH ]; then
- GITBRANCH=master
+ GITBRANCH=main
 fi
 echo "*** GITBRANCH selected is $GITBRANCH."
 
@@ -36,9 +36,9 @@ PKGDIR=$GITTREE\_$GITBRANCH
 ## DEPS
 # Provide INSTALLDEPS=debian to install dependencies.
 if [ $INSTALLDEPS = debian ]; then
- sudo apt-get -y build-dep blueman
+# sudo apt-get -y build-dep blueman
  sudo apt-get -y install build-essential coreutils libc-bin meson ninja-build \
- python3-caja nemo-python python3-nautilus cython
+ python3-caja nemo-python python3-nautilus cython3 python3
 fi
 
 ## PREP
@@ -57,14 +57,36 @@ git submodule update --init --recursive --depth=1
 ## CLEAN
 rm -Rf tmpbuild
 
+## PATCH
+#for file in $RESDIR/blueman/iptables*patch;do patch -p1 < $file;done
+
 ## CONFIGURE
-meson tmpbuild --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu --buildtype=release
+PYTHON=/usr/bin/python3 CYTHONEXEC=/usr/bin/cython3 ./autogen.sh --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu \
+--exec-prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+--with-dhcp-config=/etc/dhcp/dhcpd.conf --with-systemdsystemunitdir=/lib/systemd/system \
+--enable-shared --enable-polkit --enable-caja-sendto --enable-nemo-sendto --enable-nautilus-sendto \
+--enable-thunar-sendto --enable-settings-integration \
+--disable-runtime-deps-check
+
+#meson tmpbuild --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu --buildtype=release
+
+#--sysconfdir=/etc
+#meson tmpbuild --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu --buildtype=release
+#\
+#--datadir=/usr/local/share --sysconfdir=/usr/local/etc
+#\
+#-Ddisable-runtime-deps-check=true -Dwith-dhcp-config=/etc/dhcp/dhcpd.conf \
+#-Dwith-systemdsystemunitdir=/lib/systemd/system
 
 ## BUILD
-ninja -C tmpbuild
+#ninja -C tmpbuild
+make -j `nproc`
 
 ## INSTALL
-sudo ninja -C tmpbuild install
+#sudo ninja -C tmpbuild install
+sudo make install
+sudo install -m 644 $RESDIR/blueman/blueman.rules /usr/share/polkit-1/rules.d/
+sudo install -m 644 $RESDIR/blueman/org.blueman.pkla /var/lib/polkit-1/localauthority/10-vendor.d/
 sudo ldconfig
 
 ## EXIT

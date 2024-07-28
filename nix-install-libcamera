@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-libcamera
-### Version: v20210813.2300
+### Version: v20220626.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -35,18 +35,21 @@ PKGDIR=$GITTREE\_$GITBRANCH
 ## DEPS
 # Provide INSTALLDEPS=debian to install dependencies.
 if [ $INSTALLDEPS = debian ]; then
- sudo apt-get -y build-dep libcamera
  sudo apt-get -y install build-essential coreutils libc-bin git meson \
  python3-sphinx libgstreamer-plugins-base1.0-dev libtiff-dev \
  libgnutls28-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
  qttools5-dev-tools libboost-dev graphviz python3-ply libevent-dev \
- liblttng-ust-dev
+ liblttng-ust-dev libgtest-dev qtbase5-private-dev \
+ libsdl-dev libsdl2-image-dev
 fi
 
 ## PREP
 set -e
 mkdir -p $DEVDIR
 cd $DEVDIR
+
+## CLEAN
+sudo rm -Rf $PKGDIR/tmpbuild
 
 ## GIT
 [ -d $PKGDIR ] || git clone --recursive --depth=1 $GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
@@ -56,15 +59,13 @@ git reset --hard
 git pull
 git submodule update --init --recursive --depth=1
 
-## CLEAN
-rm -Rf tmpbuild
 
 ## PATCH
 sed -i 's/werror=true/werror=false/' meson.build
 
 ## CONFIGURE
 meson tmpbuild --buildtype=release --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu \
--Ddocumentation=enabled -Dgstreamer=enabled -Dv4l2=true
+-Ddocumentation=enabled -Dgstreamer=enabled -Dv4l2=true -Dpycamera=enabled
 
 ## BUILD
 ninja -C tmpbuild

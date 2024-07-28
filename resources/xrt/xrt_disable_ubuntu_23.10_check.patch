@@ -1,0 +1,26 @@
+--- cpackLin.cmake.orig	2024-06-04 21:40:18.696599826 -0700
++++ cpackLin.cmake	2024-06-04 21:40:34.634035125 -0700
+@@ -91,7 +91,7 @@
+       uuid-dev (>= 2.27.1)")
+   endif()
+ 
+-  if ((${LINUX_FLAVOR} MATCHES "^(ubuntu)") AND (${LINUX_VERSION} STREQUAL "23.10"))
++#  if ((${LINUX_FLAVOR} MATCHES "^(ubuntu)") AND (${LINUX_VERSION} STREQUAL "23.10"))
+     # Workaround for the following class of cpack build failure on Ubuntu 23.10
+     # CMake Error at /usr/share/cmake-3.27/Modules/Internal/CPack/CPackDeb.cmake:348 (message):
+     #   CPackDeb: dpkg-shlibdeps: 'dpkg-shlibdeps: error: no dependency information
+@@ -104,10 +104,10 @@
+     # build/Release/_CPack_Packages/Linux/DEB/xrt_202410.2.17.0_23.10-amd64/xrt directory
+     # Adding an empty DEBIAN directory somehow convinces dpkg-shlibdeps to behave sanely.
+ 
+-    message("-- Enable Ubuntu 23.10 cpack dpkg-shlibdeps failure workaround")
+-    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/please-mantic.txt" "Workaround for cpack bug on Ubuntu 23.10")
+-    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/please-mantic.txt" DESTINATION "${XRT_INSTALL_DIR}/DEBIAN")
+-  endif()
++#    message("-- Enable Ubuntu 23.10 cpack dpkg-shlibdeps failure workaround")
++#    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/please-mantic.txt" "Workaround for cpack bug on Ubuntu 23.10")
++#    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/please-mantic.txt" DESTINATION "${XRT_INSTALL_DIR}/DEBIAN")
++#  endif()
+ 
+   if (DEFINED CROSS_COMPILE)
+     if (${aarch} STREQUAL "aarch64")

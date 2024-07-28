@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-xar
-### Version: v20201212.1200
+### Version: v20211128.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -25,7 +25,8 @@ fi
 
 ## VARS
 DEVDIR=$NIXTOOLSDIR/upstream
-GITREPO=https://github.com/mackyle
+GITURL=https://github.com
+GITREPO=mackyle
 GITTREE=xar
 PKGDIR=$GITTREE\_$GITBRANCH
 
@@ -53,11 +54,12 @@ cd $DEVDIR
 [ -f xar_23.patch ] || wget https://patch-diff.githubusercontent.com/raw/mackyle/xar/pull/23.patch -O xar_23.patch
 
 ## GIT
-[ -d $PKGDIR ] || git clone --depth=1 $GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+[ -d $PKGDIR ] || git clone --depth=1 --recursive $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
 cd $PKGDIR
-git clean -f
-git reset --hard HEAD
+git clean -dfx
+git reset --hard
 git pull
+git submodule update --init --depth=1
 
 ## PATCH
 patch -p1 < $DEVDIR/xar_3.patch

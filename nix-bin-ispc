@@ -1,0 +1,19 @@
+#!/bin/sh
+
+## PREP
+set -e
+
+## DOWNLOAD
+[ ! -f /tmp/ispc.tar.gz ] && wget https://github.com/ispc/ispc/releases/download/v1.16.1/ispc-v1.16.1-linux.tar.gz -O /tmp/ispc.tar.gz
+
+## UNPACK
+cd /tmp
+[ ! -d ispc-v1.16.1-linux ] && tar xf ispc.tar.gz
+
+## INSTALL
+sudo install -m755 /tmp/ispc-v1.16.1-linux/bin/ispc /usr/local/bin/ispc
+
+## EXIT
+exit
+
+## ENJOY

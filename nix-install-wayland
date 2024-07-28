@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-wayland
-### Version: v20210813.2300
+### Version: v20210912.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -37,14 +37,19 @@ PKGDIR=$GITTREE\_$GITBRANCH
 ## DEPS
 # Provide INSTALLDEPS=debian to install dependencies.
 if [ $INSTALLDEPS = debian ]; then
- sudo apt-get -y build-dep wayland
- sudo apt-get -y install build-essential coreutils libc-bin git meson
+# sudo apt-get -y build-dep libwayland
+ sudo apt-get -y install build-essential coreutils libc-bin git meson \
+ libffi-dev libexpat-dev libxml2-dev python3 binutils libc6-dev sed \
+ graphviz doxygen xsltproc xmlto pkg-config
 fi
 
 ## PREP
 set -e
 mkdir -p $DEVDIR
 cd $DEVDIR
+
+## CLEAN
+sudo rm -Rf $PKGDIR/tmpbuild
 
 ## GIT
 [ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
@@ -53,9 +58,6 @@ git clean -dfx
 git reset --hard
 git pull
 git submodule update --init --recursive --depth=1
-
-## CLEAN
-rm -Rf tmpbuild
 
 ## CONFIGURE
 meson tmpbuild --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu --buildtype=release

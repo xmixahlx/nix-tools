@@ -1,5 +1,7 @@
+#!/bin/sh
+
 ### Package: nix-install-v4l2loopback
-### Version: v20210423.2300
+### Version: v20210912.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -35,8 +37,8 @@ PKGDIR=$GITTREE\_$GITBRANCH
 ## DEPS
 # Provide INSTALLDEPS=debian to install dependencies.
 if [ $INSTALLDEPS = debian ]; then
- sudo apt-get -y build-dep v4l2loopback-dkms
- sudo apt-get -y install build-essential coreutils libc-bin git cmake
+ sudo apt-get -y install build-essential coreutils libc-bin git cmake \
+ help2man
  sudo apt-get -y --purge remove v4l2loopback-dkms
 fi
 
@@ -46,9 +48,9 @@ mkdir -p $DEVDIR
 cd $DEVDIR
 
 ## GIT
-[ -d $PKGDIR ] || git clone --depth=1 --recursive $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
 cd $PKGDIR
-git clean -f
+git clean -dfx
 git reset --hard
 git pull
 git submodule update --init --recursive --depth=1

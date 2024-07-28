@@ -1,5 +1,7 @@
+#!/bin/sh
+
 ### Package: nix-install-xfce-thunar-plugins
-### Version: v20210427.2300
+### Version: v20210627.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: xfce-core

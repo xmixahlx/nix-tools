@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-x265
-### Version: v20210424.2300
+### Version: v20240504.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: svt-hevc
@@ -18,17 +18,32 @@ if [ -z $INSTALLDEPS ]; then
 fi
 
 # GITBRANCH
+# Upstream branch is master
 if [ -z $GITBRANCH ]; then
  GITBRANCH=master
 fi
+echo "*** GITBRANCH selected is $GITBRANCH."
+
+# CC
+if [ -z $CC ]; then
+ CC="ccache gcc-13"
+fi
+echo "*** CC selected is $CC."
+
+# CXX
+if [ -z $CXX ]; then
+ CXX="ccache g++-13"
+fi
+echo "*** CXX selected is $CXX."
 
 # SVTHEVC
 if [ -z $SVTHEVC ]; then
- SVTHEVC=no
+ SVTHEVC=yes
 fi
+echo "*** SVTHEVC selected is $SVTHEVC."
 
 if [ $SVTHEVC = yes ]; then
- SVTHEVCOPTS="-DENABLE_SVT_HEVC=1 -DSVT_HEVC_INCLUDE_DIR=/usr/local/include/svt-hevc-1.4.1 -DSVT_HEVC_LIBRARY_DIR=/usr/local/svt-hevc-1.4.1/lib/"
+ SVTHEVCOPTS="-DENABLE_SVT_HEVC=1 -DSVT_HEVC_INCLUDE_DIR=/usr/local/svt-hevc_v1.4.1/include/svt-hevc/ -DSVT_HEVC_LIBRARY_DIR=/usr/local/svt-hevc_v1.4.1/lib/x86_64-linux-gnu/"
 fi
 
 ## VARS
@@ -54,11 +69,10 @@ cd $DEVDIR
 ## GIT
 [ -d $PKGDIR ] || git clone --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
 cd $PKGDIR
-git clean -f
-git reset --hard
+git clean -dfx
+git reset --hard HEAD
 git pull
-git submodule init
-git submodule update
+git submodule update --init --depth=1
 
 ## CLEAN
 rm -Rf tmpbuild
@@ -68,7 +82,7 @@ mkdir tmpbuild
 cd tmpbuild
 mkdir 8bit 10bit 12bit
 
-## 12BIT
+# 12BIT
 cd 12bit
 cmake ../../source -DENABLE_PIC=ON -DENABLE_ASSEMBLY=ON -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
 -DHIGH_BIT_DEPTH=ON -DEXPORT_C_API=OFF -DENABLE_SHARED=OFF -DENABLE_CLI=OFF -DMAIN12=ON $SVTHEVCOPTS
@@ -76,7 +90,7 @@ make -j `nproc`
 cp libx265.a ../8bit/libx265_main12.a
 cd ..
 
-## 10BIT
+# 10BIT
 cd 10bit
 cmake ../../source -DENABLE_PIC=ON -DENABLE_ASSEMBLY=ON -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
 -DHIGH_BIT_DEPTH=ON -DEXPORT_C_API=OFF -DENABLE_SHARED=OFF -DENABLE_CLI=OFF $SVTHEVCOPTS
@@ -94,6 +108,17 @@ make -j `nproc`
 
 ## INSTALL
 sudo make install
+
+# Not installing shared library with master ?
+if [ $GITBRANCH = master ]; then
+ sudo install -D libx265.so.* /usr/local/lib/x86_64-linux-gnu/
+fi
+
+# Not installing shared library with stable ?
+if [ $GITBRANCH = stable ]; then
+ sudo install -D libx265.so.* /usr/local/lib/x86_64-linux-gnu/
+fi
+
 sudo ldconfig
 
 ## EXIT

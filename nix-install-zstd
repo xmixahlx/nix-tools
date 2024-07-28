@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-zstd
-### Version: v20210517.2300
+### Version: v20210912.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -20,14 +20,22 @@ fi
 echo "*** INSTALLDEPS selected is $INSTALLDEPS."
 
 # GITBRANCH
+# default branch is dev
 if [ -z $GITBRANCH ]; then
  GITBRANCH=dev
 fi
 echo "*** GITBRANCH selected is $GITBRANCH."
 
+# DESTDIR
+if [ -z $DESTDIR ]; then
+ DESTDIR=/usr
+fi
+echo "*** DESTDIR selected is $DESTDIR."
+
 ## VARS
 RESDIR=$NIXTOOLSDIR/resources
 DEVDIR=$NIXTOOLSDIR/upstream
+MULTILIBDIR=`gcc -dumpmachine`
 GITURL=https://github.com/
 GITREPO=facebook
 GITTREE=zstd
@@ -36,8 +44,8 @@ PKGDIR=$GITTREE\_$GITBRANCH
 ## INSTALLDEPS
 # Debian Dependencies
 if [ $INSTALLDEPS = debian ]; then
- sudo apt-get -y build-dep zstd
- sudo apt-get -y install build-essential coreutils libc-bin git meson
+ sudo apt-get -y install build-essential coreutils libc-bin git meson \
+ zlib1g-dev liblz4-dev liblzma-dev
 fi
 
 ## PREP
@@ -45,22 +53,21 @@ set -e
 mkdir -p $DEVDIR
 cd $DEVDIR
 
+## CLEAN
+rm -Rf $PKGDIR/build/meson/tmpbuild
+
 ## GIT
 [ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
 cd $PKGDIR
-git clean -f
+git clean -dfx
 git reset --hard
 git pull
 git submodule update --init --recursive --depth=1
 
-##
-cd build/meson
-
-## CLEAN
-rm -Rf tmpbuild
-
 ## CONFIGURE
-meson tmpbuild -Dprefix=/usr/local -Dbuildtype=release --libdir=/usr/local/lib/x86_64-linux-gnu
+cd build/meson
+meson tmpbuild --prefix=$DESTDIR --libdir=$DESTDIR/lib/$MULTILIBDIR --buildtype=release \
+-Dlegacy_level=1
 
 ## BUILD
 ninja -C tmpbuild

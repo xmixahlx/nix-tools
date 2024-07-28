@@ -1,0 +1,87 @@
+#!/bin/sh
+
+### Package: nix-install-dragonfly-reverb
+### Version: v20211111.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# NIXTOOLSDIR
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+ PATH=$NIXTOOLSDIR:$PATH
+fi
+echo "*** NIXTOOLSDIR selected is $NIXTOOLSDIR."
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=master
+fi
+echo "*** GITBRANCH selected is $GITBRANCH."
+
+## VARS
+RESDIR=$NIXTOOLSDIR/resources
+DEVDIR=$NIXTOOLSDIR/upstream
+DESTDIR=/usr/local
+MULTILIBDIR=`gcc -dumpmachine`
+GITURL=https://github.com
+GITREPO=michaelwillis
+GITTREE=dragonfly-reverb
+PKGDIR=$GITTREE\_$GITBRANCH
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y install build-essential coreutils libc-bin git make cmake
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## CLEAN
+sudo rm -Rf $PKGDIR/tmpbuild
+
+## GIT
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -dfx
+git reset --hard
+git pull
+git submodule update --init --recursive --depth=1
+
+## CONFIGURE
+
+## BUILD
+make -j `nproc`
+
+## INSTALL
+sudo install -m 755 bin/DragonflyEarlyReflections $DESTDIR/bin/
+sudo install -m 755 bin/DragonflyHallReverb $DESTDIR/bin/
+sudo install -m 755 bin/DragonflyPlateReverb $DESTDIR/bin/
+sudo install -m 755 bin/DragonflyRoomReverb $DESTDIR/bin/
+
+sudo install -m 755 bin/DragonflyEarlyReflections-vst.so $DESTDIR/lib/$MULTILIBDIR/
+sudo install -m 755 bin/DragonflyHallReverb-vst.so $DESTDIR/lib/$MULTILIBDIR/
+sudo install -m 755 bin/DragonflyPlateReverb-vst.so $DESTDIR/lib/$MULTILIBDIR/
+sudo install -m 755 bin/DragonflyRoomReverb-vst.so $DESTDIR/lib/$MULTILIBDIR/
+
+sudo install -d -m 755 bin/DragonflyEarlyReflections.lv2 $DESTDIR/lib/$MULTILIBDIR/lv2/DragonflyEarlyReflections.lv2
+sudo install -d -m 755 bin/DragonflyHallReverb.lv2 $DESTDIR/lib/$MULTILIBDIR/lv2/DragonflyHallReverb.lv2
+sudo install -d -m 755 bin/DragonflyPlateReverb.lv2 $DESTDIR/lib/$MULTILIBDIR/lv2/DragonflyPlateReverb.lv2
+sudo install -d -m 755 bin/DragonflyRoomReverb.lv2 $DESTDIR/lib/$MULTILIBDIR/lv2/DragonflyRoomReverb.lv2
+
+sudo ldconfig
+
+## EXIT
+exit
+
+## ENJOY

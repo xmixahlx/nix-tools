@@ -68,7 +68,7 @@ sudo ldconfig
 ## UPDATE-ALTERNATIVES
 if [ $INSTALLDEPS = debian ]; then
  sudo update-alternatives --install /usr/bin/x-window-manager x-window-manager /usr/local/bin/i3 999
- sudo update-alternatives --config x-window-manager
+ sudo update-alternatives --set x-window-manager /usr/local/bin/i3
 fi
 
 ## EXIT

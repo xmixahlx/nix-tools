@@ -1,5 +1,7 @@
+#!/bin/sh
+
 ### Package: nix-install-xfce-panel-plugins
-### Version: v20210427.2300
+### Version: v20210627.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: xfce-core
@@ -35,32 +37,30 @@ if [ $INSTALLDEPS = debian ]; then
  sudo apt-get -y install build-essential coreutils libc-bin git
 fi
 
-# missing from debian: calculator embed stopwatch time-out windowck generic-slider
-# old: embed generic-slider
+# build-deps missing from debian: calculator embed stopwatch time-out windowck generic-slider
 # need patching: indicator
-# whiskermenu uses cmake and main branch
+# whiskermenu uses cmake and main git branch
+# broken: wavelan
 
 ## PREP
 set -e
 mkdir -p $DEVDIR/xfce/$GITREPO
 cd $DEVDIR/xfce/$GITREPO
 
-## LOG
-LOG=$DEVDIR/xfce/$GITREPO.log
-echo start > $LOG
-
-## GIT
-for GITTREE in xfce4-{battery,calculator,clipman,cpufreq,cpugraph,datetime,diskperf,eyes,fsguard}-plugin \
-xfce4-{genmon,indicator,mailwatch,mount,mpc,netload,notes,places,pulseaudio,sensors,smartbookmark}-plugin \
-xfce4-{statusnotifier,stopwatch,systemload,time-out,timer,verve,wavelan,weather,whiskermenu,windowck,xkb}-plugin; do
- # whiskermenu uses main branch
+## GIT LOOP
+for GITTREE in xfce4-{battery,calculator,clipman,cpufreq,cpugraph,datetime,diskperf,eyes,fsguard,\
+genmon,indicator,mailwatch,mount,mpc,netload,notes,places,pulseaudio,sensors,smartbookmark,\
+statusnotifier,stopwatch,systemload,time-out,timer,verve,wavelan,weather,whiskermenu,windowck,xkb}-plugin; do
+ # VARS
  if [ $GITTREE = xfce4-whiskermenu-plugin ]; then
   GITBRANCH=main
  else
-   GITBRANCH=master 
+  GITBRANCH=master 
  fi
+ 
  PKGDIR=$GITTREE\_$GITBRANCH
- echo $PKGDIR >> $LOG
+
+ # GIT 
  [ -d $PKGDIR ] || git clone --depth=1 --recursive $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
  cd $PKGDIR
  git clean -f
@@ -68,8 +68,7 @@ xfce4-{statusnotifier,stopwatch,systemload,time-out,timer,verve,wavelan,weather,
  git pull
  git submodule update --init --recursive --depth=1
 
- ## PATCH
- # xfce4-indicator-plugin needs ayatana
+ # XFCE4-INDICATOR-PLUGIN
  if [ $GITTREE = xfce4-indicator-plugin ]; then
   patch -p1 < $RESDIR/xfce4-indicator-plugin/patches/00_ayatana_configure_git.patch
   patch -p1 < $RESDIR/xfce4-indicator-plugin/patches/01_ayatana_git.patch
@@ -93,7 +92,6 @@ xfce4-{statusnotifier,stopwatch,systemload,time-out,timer,verve,wavelan,weather,
  ## INSTALL
  sudo make install
  sudo ldconfig
- echo done >> $LOG
 
  ## DONE
  cd $DEVDIR/xfce/$GITREPO

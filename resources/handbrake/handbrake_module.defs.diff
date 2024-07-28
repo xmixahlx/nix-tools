@@ -1,0 +1,11 @@
+--- test/module.defs.orig	2021-12-03 17:52:04.593260801 -0800
++++ test/module.defs	2021-12-03 17:52:42.015159609 -0800
+@@ -11,7 +11,7 @@
+ 
+ TEST.GCC.L = $(CONTRIB.build/)lib
+ 
+-TEST.libs = $(LIBHB.a)
++TEST.libs = $(LIBHB.a) -lfdk-aac -lvpx -lx265 -lmfx
+ 
+ TEST.GCC.l = \
+         ass avformat avfilter avcodec avutil swresample postproc mp3lame dvdnav \

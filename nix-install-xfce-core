@@ -1,5 +1,7 @@
+#!/bin/sh
+
 ### Package: nix-install-xfce-core
-### Version: v20210501.2300
+### Version: v20210627.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -33,8 +35,8 @@ GITREPO=xfce
 ## DEPS
 # Provide INSTALLDEPS=debian to install dependencies.
 if [ $INSTALLDEPS = debian ]; then
- sudo apt-get -y build-dep xfce4-dev-tools xfce4-settings exo garcon libxfce4ui libxfce4util thunar \
- thunar-volman tumbler xfce4-appfinder xfce4-panel xfce4-power-manager xfce4-session xfconf xfdesktop4 xfwm4
+ #sudo apt-get -y build-dep xfce4-dev-tools xfce4-settings exo garcon libxfce4ui libxfce4util thunar \
+ #thunar-volman tumbler xfce4-appfinder xfce4-panel xfce4-power-manager xfce4-session xfconf xfdesktop4 xfwm4
  sudo apt-get -y install build-essential coreutils libc-bin git
 fi
 

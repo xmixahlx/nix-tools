@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-libpciaccess
-### Version: v20210813.2300
+### Version: v20210912.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: xserver-xorg
@@ -37,8 +37,8 @@ PKGDIR=$GITTREE\_$GITBRANCH
 ## DEPS
 # Provide INSTALLDEPS=debian to install dependencies.
 if [ $INSTALLDEPS = debian ]; then
- sudo apt-get -y build-dep libpciaccess
- sudo apt-get -y install build-essential coreutils libc-bin git
+ sudo apt-get -y install build-essential coreutils libc-bin git \
+ xutils-dev libtool
 fi
 
 ## PREP

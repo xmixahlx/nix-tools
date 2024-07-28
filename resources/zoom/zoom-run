@@ -1,0 +1,10 @@
+#! /bin/sh
+
+### Name: zoom-run
+### Version: v20211111.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: zoom
+
+QT_QPA_PLATFORM=xcb zoom
+exit

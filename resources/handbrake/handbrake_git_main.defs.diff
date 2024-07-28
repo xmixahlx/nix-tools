@@ -1,0 +1,42 @@
+--- main.defs.orig	2022-07-01 18:36:05.399418966 -0700
++++ main.defs	2022-07-01 18:37:13.906094191 -0700
+@@ -37,39 +37,6 @@
+     MODULES += contrib/x264
+ endif
+ 
+-ifeq (1,$(FEATURE.fdk_aac))
+-    MODULES += contrib/fdk-aac
+-endif
+-
+-ifeq (1,$(FEATURE.x265))
+-    MODULES += contrib/x265
+-    MODULES += contrib/x265_8bit
+-    MODULES += contrib/x265_10bit
+-    MODULES += contrib/x265_12bit
+-endif
+-
+-MODULES += contrib/libdav1d
+-MODULES += contrib/svt-av1
+-MODULES += contrib/zimg
+-MODULES += contrib/ffmpeg
+-MODULES += contrib/libdvdread
+-MODULES += contrib/libdvdnav
+-MODULES += contrib/libbluray
+-
+-ifeq (1,$(FEATURE.qsv))
+-ifeq (,$(filter $(HOST.system),freebsd))
+-    MODULES += contrib/libvpl
+-endif
+-endif
+-
+-ifeq (1,$(FEATURE.vce))
+-    MODULES += contrib/amf
+-endif
+-
+-ifeq (1,$(FEATURE.nvenc))
+-    MODULES += contrib/nvenc
+-endif
+-
+ ifneq (,$(filter $(HOST.system),darwin))
+     MODULES += contrib/xz
+ endif

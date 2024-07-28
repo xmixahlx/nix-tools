@@ -1,0 +1,8 @@
+SATA to USB3 Enclosures require a persistent storage udev change.
+
+Copy 60-persistent-storage.rules to /etc/udev/rules.d/
+Apply patch
+Reboot
+
+Reference:
+https://forum.makemkv.com/forum/viewtopic.php?t=25357

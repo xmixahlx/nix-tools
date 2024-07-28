@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-bluez
-### Version: v20210813.2300
+### Version: v20211111.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -20,6 +20,7 @@ fi
 echo "*** INSTALLDEPS selected is $INSTALLDEPS."
 
 # GITBRANCH
+# Upstream branch is master
 if [ -z $GITBRANCH ]; then
  GITBRANCH=master
 fi
@@ -36,7 +37,7 @@ PKGDIR=$GITTREE\_$GITBRANCH
 ## DEPS
 # Provide INSTALLDEPS=debian to install dependencies.
 if [ $INSTALLDEPS = debian ]; then
- sudo apt-get -y build-dep bluez
+# sudo apt-get -y build-dep bluez
  sudo apt-get -y install build-essential coreutils libc-bin make
 fi
 
@@ -55,10 +56,16 @@ git submodule update --init --recursive --depth=1
 
 ## CONFIGURE
 ./bootstrap
-./configure --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu \
---enable-library --enable-tools --enable-cups --enable-monitor --enable-client --enable-systemd \
---enable-a2dp --enable-network --enable-hid --enable-testing --enable-experimental --enable-deprecated \
---enable-nfc --enable-sap --enable-health --enable-midi
+#./configure --prefix=/usr/local --exec-prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu \
+#--sysconfdir=/etc \
+./configure --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu \
+--exec-prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+--enable-threads --enable-library --enable-test --enable-nfc --enable-sap --enable-a2dp \
+--enable-avrcp --enable-network --enable-hid --enable-hog --enable-health \
+--enable-tools --enable-monitor --enable-udev --enable-cups --enable-mesh --enable-midi \
+--enable-obex --enable-btpclient --enable-external-ell --enable-client \
+--enable-systemd --enable-datafiles --enable-manpages --enable-testing \
+--enable-experimental --enable-deprecated --enable-sixaxis --enable-hid2hci --enable-logger --enable-admin
 
 ## BUILD
 make -j `nproc`
@@ -66,6 +73,14 @@ make -j `nproc`
 ## INSTALL
 sudo make install
 sudo ldconfig
+
+## RESTART
+sudo systemctl daemon-reload
+sudo systemctl stop bluetooth
+sudo systemctl disable bluetooth
+sudo systemctl enable bluetooth
+sudo systemctl start bluetooth
+sudo systemctl daemon-reload
 
 ## EXIT
 exit

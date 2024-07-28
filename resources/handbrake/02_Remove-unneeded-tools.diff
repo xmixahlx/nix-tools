@@ -1,0 +1,18 @@
+--- a/make/configure.py
++++ b/make/configure.py
+@@ -1651,12 +1651,12 @@ try:
+ 
+         autoconf   = ToolProbe( 'AUTOCONF.exe',   'autoconf',   'autoconf', abort=True, minversion=[2,69,0] )
+         automake   = ToolProbe( 'AUTOMAKE.exe',   'automake',   'automake', abort=True, minversion=[1,13,0] )
+-        libtool    = ToolProbe( 'LIBTOOL.exe',    'libtool',    'libtool', abort=True )
++        libtool    = ToolProbe( 'LIBTOOL.exe',    'libtool',    'libtool', abort=False )
+         lipo       = ToolProbe( 'LIPO.exe',       'lipo',       'lipo', abort=False )
+         pkgconfig  = ToolProbe( 'PKGCONFIG.exe',  'pkgconfig',  'pkg-config', abort=True, minversion=[0,27,0] )
+-        meson      = ToolProbe( 'MESON.exe',      'meson',      'meson', abort=True, minversion=[0,47,0] )
++        meson      = ToolProbe( 'MESON.exe',      'meson',      'meson', abort=False, minversion=[0,47,0] )
+         nasm       = ToolProbe( 'NASM.exe',       'asm',        'nasm', abort=True, minversion=[2,13,0] )
+-        ninja      = ToolProbe( 'NINJA.exe',      'ninja',      'ninja-build', 'ninja', abort=True )
++        ninja      = ToolProbe( 'NINJA.exe',      'ninja',      'ninja-build', 'ninja', abort=False )
+ 
+         xcodebuild = ToolProbe( 'XCODEBUILD.exe', 'xcodebuild', 'xcodebuild', abort=(True if (not xcode_opts['disabled'] and (build_tuple.match('*-*-darwin*') and cross is None)) else False), versionopt='-version', minversion=[10,3,0] )
+ 

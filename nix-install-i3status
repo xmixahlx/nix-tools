@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-i3status
-### Version: v20210411.2300
+### Version: v20240326.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -19,7 +19,7 @@ fi
 
 # GITBRANCH
 if [ -z $GITBRANCH ]; then
- GITBRANCH=master
+ GITBRANCH=main
 fi
 
 ## VARS
@@ -34,7 +34,7 @@ PKGDIR=$GITTREE\_$GITBRANCH
 # Debian Dependencies
 if [ $INSTALLDEPS = debian ]; then
  sudo apt-get -y build-dep i3status
- sudo apt-get -y install build-essential coreutils libc-bin git meson
+ sudo apt-get -y install build-essential coreutils libc-bin git meson ninja-build
 fi
 
 ## PREP
@@ -55,16 +55,13 @@ git submodule update
 rm -Rf tmpbuild
 
 ## CONFIGURE
-autoreconf --force --install
-mkdir -p tmpbuild
-cd tmpbuild
-../configure --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu --disable-sanitizers
+meson tmpbuild --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu --buildtype=release
 
 ## BUILD
-make -j `nproc`
+ninja -C tmpbuild
 
 ## INSTALL
-sudo make install
+sudo ninja -C tmpbuild install
 sudo ldconfig
 
 ## EXIT

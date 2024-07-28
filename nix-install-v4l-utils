@@ -1,3 +1,5 @@
+#!/bin/sh
+
 ### Package: nix-install-v4l-utils
 ### Version: v20210423.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com

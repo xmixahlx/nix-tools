@@ -1,0 +1,78 @@
+#!/bin/sh
+
+### Package: nix-install-rav1e
+### Version: v2021128.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# NIXTOOLSDIR
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+ PATH=$NIXTOOLSDIR:$PATH
+fi
+echo "*** NIXTOOLSDIR selected is $NIXTOOLSDIR."
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=master
+fi
+echo "*** GITBRANCH selected is $GITBRANCH."
+
+## VARS
+DEVDIR=$NIXTOOLSDIR/upstream
+GITURL=https://github.com
+DESTDIR=/usr/local
+MULTILIBDIR=`gcc -dumpmachine`
+GITREPO=xiph
+GITTREE=rav1e
+PKGDIR=$GITTREE\_$GITBRANCH
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y install build-essential coreutils libc-bin wget cargo
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## GIT
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+# Not using -d to retain cargo build directory for faster builds.
+git clean -fx
+git reset --hard
+git pull
+git submodule update --init --recursive --depth=1
+
+## BUILD
+RUSTFLAGS="-C target-cpu=native" cargo build --release --features channel-api,unstable
+
+## INSTALL
+#sudo desktop-file-install -m 644 --dir "/usr/local/share/applications/" "extra/linux/Alacritty.desktop"
+#sudo install -D -m644 "alacritty.yml" "/usr/local/share/doc/alacritty/example/alacritty.yml"
+#sudo install -D -m644 "extra/alacritty.man" "/usr/local/share/man/man1/alacritty.1"
+#sudo install -D -m644 "extra/completions/alacritty.bash" "/usr/local/share/bash-completion/completions/alacritty"
+#sudo install -D -m644 "extra/completions/_alacritty" "/usr/local/share/zsh/site-functions/_alacritty"
+#sudo install -D -m644 "extra/completions/alacritty.fish" "/usr/local/share/fish/vendor_completions.d/alacritty.fish"
+#sudo install -D -m644 "extra/linux/io.alacritty.Alacritty.appdata.xml" "/usr/local/share/appdata/io.alacritty.Alacritty.appdata.xml"
+#sudo install -D -m644 "extra/logo/alacritty-term.svg" "/usr/local/share/pixmaps/Alacritty.svg"
+#sudo install -D -m755 "target/release/alacritty" "/usr/local/bin/alacritty"
+
+sudo cargo install --prefix=$DESTDIR --libdir=$DESTDIR/lib/$MULTILIBDIR
+#sudo cargo cinstall --release --prefix=$DESTDIR --libdir=$DESTDIR/lib/$MULTILIBDIR
+
+## EXIT
+exit
+
+## ENJOY

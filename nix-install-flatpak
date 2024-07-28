@@ -1,0 +1,78 @@
+#!/bin/sh
+
+### Package: nix-install-flatpak
+### Version: v20220301.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# NIXTOOLSDIR
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+ PATH=$NIXTOOLSDIR:$PATH
+fi
+echo "*** NIXTOOLSDIR selected is $NIXTOOLSDIR."
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=main
+fi
+echo "*** GITBRANCH selected is $GITBRANCH."
+
+## VARS
+RESDIR=$NIXTOOLSDIR/resources
+DEVDIR=$NIXTOOLSDIR/upstream
+GITURL=https://github.com
+GITREPO=flatpak
+GITTREE=flatpak
+PKGDIR=$GITTREE\_$GITBRANCH
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y install build-essential coreutils libc-bin git make \
+ attr bison dh-exec docbook docbook-to-man gir1.2-appstreamglib-1.0 \
+ gir1.2-freedesktop gir1.2-gcab-1.0 gir1.2-gdkpixbuf-2.0 gir1.2-malcontent-0 \
+ gir1.2-polkit-1.0 gir1.2-soup-2.4 gtk-doc-tools libappstream-glib-dev \
+ libassuan-dev libattr1-dev libdconf-dev libgcab-1.0-0 libgcab-dev \
+ libgdk-pixbuf-2.0-dev libgirepository1.0-dev libglib2.0-doc libgpg-error-dev \
+ libgpgme-dev libmalcontent-0-dev libosp5 libostree-doc libpolkit-agent-1-dev \
+ libpolkit-gobject-1-dev libpsl-dev libseccomp-dev libsoup-gnome2.4-1 \
+ libsoup2.4-dev libsqlite3-dev libyaml-dev libzstd-dev opensp ostree \
+ python3-lxml socat libcap-dev
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## GIT
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -dfx
+git reset --hard
+git pull
+git submodule update --init --recursive --depth=1
+
+## CONFIGURE
+./autogen.sh --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu
+
+## BUILD
+make -j `nproc`
+
+## INSTALL
+sudo make install
+sudo ldconfig
+
+## EXIT
+exit
+
+## ENJOY

@@ -56,7 +56,7 @@ git submodule update --init --recursive --depth=1
 make -j `nproc`
 
 ## INSTALL
-sudo make install
+sudo make LIBDIR=lib/x86_64-linux-gnu install
 sudo ldconfig
 
 ## EXIT

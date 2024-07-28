@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-alternatives-llvm
-### Version: v20210912.2300
+### Version: v20240727.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -26,17 +26,18 @@ if [ -z $DEBIANREPO ]; then
 fi
 echo "*** DEBIANREPO selected is $DEBIANREPO."
 
-# LLVMVER
-if [ -z $LLVMVER ]; then
- LLVMVER=13
+# PKGVER
+if [ -z $PKGVER ]; then
+ PKGVER=19
 fi
-echo "*** LLVMVER selected is $LLVMVER."
+echo "*** PKGVER selected is $PKGVER."
 
 ## INSTALLDEPS
 # Debian Dependencies
 if [ $INSTALLDEPS = debian ]; then
  sudo apt-get -y install build-essential coreutils libc-bin
- sudo apt-get -y -t $DEBIANREPO install llvm llvm-$LLVMVER llvm-$LLVMVER-dev
+ sudo apt-get -y -t $DEBIANREPO install llvm-$PKGVER llvm-$PKGVER-dev \
+ libomp-$PKGVER-dev
 fi
 
 ## INSTALL
@@ -47,7 +48,14 @@ if [ $INSTALLDEPS = debian ]; then
  sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-12 12
  sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-13 13
  sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-14 14
-
+ sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-15 15
+ sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-16 16
+ sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-17 17
+ sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-18 18
+ sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-19 19
+ sudo update-alternatives --install /usr/bin/llvm-config llvm-config /opt/rocm-current/llvm/bin/llvm-config 990
+ sudo update-alternatives --install /usr/bin/llvm-config llvm-config /opt/llvm-current/bin/llvm-config 998
+ sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/local/bin/llvm-config 999
  # ALTERNATIVES
  sudo update-alternatives --config llvm-config
 fi

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-libva
-### Version: v20210813.2300
+### Version: v20210912.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -39,7 +39,7 @@ PKGDIR=$GITTREE\_$GITBRANCH
 if [ $INSTALLDEPS ]; then
  if [ $INSTALLDEPS = debian ]; then
   sudo apt-get -y install build-essential coreutils libc-bin wget git patch meson \
-  doxygen cmake
+  doxygen cmake libxfixes-dev libgl-dev
  fi
 fi
 

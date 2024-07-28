@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-gimp
-### Version: v20210813.2300
+### Version: v20210912.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: gegl, babl
@@ -37,8 +37,11 @@ PKGDIR=$GITTREE\_$GITBRANCH
 ## DEPS
 # Provide INSTALLDEPS=debian to install dependencies.
 if [ $INSTALLDEPS = debian ]; then
- sudo apt-get -y build-dep gimp
  sudo apt-get -y install build-essential coreutils libc-bin git meson \
+ intltool libaa1-dev libaom-dev libbabl-dev libbz2-dev libcurl4-gnutls-dev \
+ libdav1d-dev libde265-dev libexif-dev libgegl-dev libgs-dev libheif-dev \
+ libmng-dev libmypaint-dev libopenjp2-7-dev libslang2-dev libvmaf-dev \
+ libwmf-dev libx265-dev mypaint-brushes docbook gtk-doc-tools \
  libappstream-glib-dev libwebkit2gtk-4.0-dev gjs luajit appstream-util xvfb
 fi
 
@@ -47,26 +50,28 @@ set -e
 mkdir -p $DEVDIR
 cd $DEVDIR
 
+## CLEAN
+sudo rm -Rf $PKGDIR/tmpbuild
+
 ## GIT
 [ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
 cd $PKGDIR
-# Note: Do not use -d as we need to remove tmpbuild with sudo later.
-git clean -fx
+git clean -dfx
 git reset --hard
 git pull
 git submodule update --init --recursive --depth=1
 
-## CLEAN
-sudo rm -Rf tmpbuild
-
 ## CONFIGURE
-meson tmpbuild --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu --buildtype=release
+#meson tmpbuild --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu --buildtype=release
+./autogen.sh --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu
 
 ## BUILD
-ninja -C tmpbuild
+#ninja -C tmpbuild
+make -j `nproc`
 
 ## INSTALL
-sudo ninja -C tmpbuild install
+#sudo ninja -C tmpbuild install
+sudo make install
 sudo ldconfig
 
 ## EXIT

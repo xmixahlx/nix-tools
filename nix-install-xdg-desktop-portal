@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-xdg-desktop-portal
-### Version: v20201212.1200
+### Version: v20240326.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -12,21 +12,25 @@ if [ -z $NIXTOOLSDIR ]; then
  NIXTOOLSDIR="`pwd`"
  PATH=$NIXTOOLSDIR:$PATH
 fi
+echo "*** NIXTOOLSDIR selected is $NIXTOOLSDIR."
 
 # INSTALLDEPS
 if [ -z $INSTALLDEPS ]; then
  INSTALLDEPS=debian
 fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
 
 # GITBRANCH
 if [ -z $GITBRANCH ]; then
- GITBRANCH=master
+ GITBRANCH=main
 fi
+echo "*** GITBRANCH selected is $GITBRANCH."
 
 ## VARS
 RESDIR=$NIXTOOLSDIR/resources
 DEVDIR=$NIXTOOLSDIR/upstream
-GITREPO=https://github.com/flatpak
+GITURL=https://github.com
+GITREPO=flatpak
 GITTREE=xdg-desktop-portal
 PKGDIR=$GITTREE\_$GITBRANCH
 
@@ -35,9 +39,8 @@ PKGDIR=$GITTREE\_$GITBRANCH
 if [ $INSTALLDEPS = debian ]; then
  sudo apt-get -y install build-essential coreutils libc-bin git make \
  docbook-xml docbook-xsl gir1.2-flatpak-1.0 gir1.2-geoclue-2.0 gir1.2-json-1.0 \
- gir1.2-ostree-1.0 libflatpak-dev libflatpak0 libfuse-dev libgeoclue-2-0 \
- libgeoclue-2-dev libjson-glib-dev libostree-1-1 libostree-dev libxml2-dev \
- sgml-data xmlto xsltproc libportal-dev
+ gir1.2-ostree-1.0 libflatpak-dev libfuse-dev libgeoclue-2-dev libjson-glib-dev \
+ libostree-1-1 libostree-dev libxml2-dev sgml-data xmlto xsltproc libportal-dev
 fi
 
 ## PREP
@@ -46,21 +49,21 @@ mkdir -p $DEVDIR
 cd $DEVDIR
 
 ## GIT
-[ -d $PKGDIR ] || git clone --depth=1 $GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
 cd $PKGDIR
-git clean -f
+git clean -dfx
 git reset --hard
 git pull
+git submodule update --init --recursive --depth=1
 
 ## CONFIGURE
-./autogen.sh
-./configure --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu/
+meson tmpbuild --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu
 
 ## BUILD
-make -j `nproc`
+ninja -C tmpbuild
 
 ## INSTALL
-sudo make install
+sudo ninja -C tmpbuild install
 sudo ldconfig
 
 ## EXIT

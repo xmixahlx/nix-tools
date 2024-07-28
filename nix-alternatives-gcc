@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-alternatives-gcc
-### Version: v20210813.2300
+### Version: v20240727.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -20,36 +20,47 @@ if [ -z $INSTALLDEPS ]; then
 fi
 echo "*** INSTALLDEPS selected is $INSTALLDEPS."
 
-# DEBIANREPO
-if [ -z $DEBIANREPO ]; then
- DEBIANREPO=unstable
+# DEBVER
+if [ -z $DEBVER ]; then
+ DEBVER=unstable
 fi
-echo "*** DEBIANREPO selected is $DEBIANREPO."
+echo "*** DEBVER selected is $DEBVER."
 
-# GCCVER
-if [ -z $GCCVER ]; then
- GCCVER=11
+# PKGVER
+if [ -z $PKGVER ]; then
+ PKGVER=14
 fi
-echo "*** GCCVER selected is $GCCVER."
+echo "*** PKGVER selected is $PKGVER."
 
 ## INSTALLDEPS
 # Debian Dependencies
 if [ $INSTALLDEPS = debian ]; then
  sudo apt-get -y install build-essential coreutils libc-bin
- sudo apt-get -y install -t $DEBIANREPO gcc gcc-$GCCVER g++ g++-$GCCVER
+ sudo apt-get -y install -t $DEBVER gcc g++ gcc-$PKGVER g++-$PKGVER \
+ gcc-$PKGVER-multilib g++-$PKGVER-multilib
 fi
 
 ## INSTALL
 if [ $INSTALLDEPS = debian ]; then
  # GCC
  sudo rm /usr/bin/gcc
+ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 9
  sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 10
  sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 11
+ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 12
+ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 13
+ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 14
+ sudo update-alternatives --install /usr/bin/gcc gcc /usr/local/bin/gcc 999
 
  # G++
  sudo rm /usr/bin/g++
+ sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 9
  sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 10
  sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 11
+ sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 12
+ sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 13
+ sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 14
+ sudo update-alternatives --install /usr/bin/g++ g++ /usr/local/bin/g++ 999
 
  # ALTERNATIVES
  sudo update-alternatives --config gcc

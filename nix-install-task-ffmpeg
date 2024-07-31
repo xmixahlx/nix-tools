@@ -1,7 +1,7 @@
 #! /bin/sh
 
 ### Package: nix-install-task-ffmpeg
-### Version: v20240611.2300
+### Version: v20240728.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -14,38 +14,12 @@ if [ -z $NIXTOOLSDIR ]; then
 fi
 echo "*** NIXTOOLSDIR selected is $NIXTOOLSDIR."
 
-# CC
-if [ -z $CC ]; then
- CC="ccache gcc-14"
- export CC="$CC"
-fi
-echo "*** CC selected is $CC."
-
-# CXX
-if [ -z $CXX ]; then
- CXX="ccache g++-14"
- export CXX="$CXX"
-fi
-echo "*** CXX selected is $CXX."
-
-# BUILDCFLAGS
-if [ -z $BUILDCFLAGS ]; then
- CFLAGS="-O3 -march=native -B/usr/local/libexec/mold"
- CXXFLAGS=$CFLAGS
- export CFLAGS=$CFLAGS
- export CXXFLAGS=$CFLAGS
-fi
-echo "*** BUILDCFLAGS selected is $CFLAGS."
-
-# SVTAV1VER override with anything else to select official
+# SVTAV1VER
+# override with anything else to select official
 if [ -z $SVTAV1VER ]; then
  SVTAV1VER=PSY
 fi
 echo "*** SVTAV1VER selected is $SVTAV1VER."
-
-
-## DEPS
-sudo apt-get -y install autoconf libtool flex bison m4
 
 ## INSTALL
 nix-install-dav1d
@@ -62,19 +36,17 @@ nix-install-libdvdread
 nix-install-libdvdcss
 nix-install-lensfun
 nix-install-vmaf
-# check for svt-hevc v1.4.1 which can be utilized by x265
-[ ! -d /usr/local/svt-hevc-1.4.1 ] && GITBRANCH=1.4.1 nix-install-svt-hevc
 nix-install-svt-hevc
 # SVTAV1VER
 if [ $SVTAV1VER = PSY ];then
+ nix-install-dovi
+ nix-install-hdr10plus
  nix-install-svt-av1-psy
  else
  nix-install-svt-av1
 fi
 nix-install-x264
-# x265 does not like gcc/g++-14
-# x265 does not like being installed from master/stable
-CC="gcc-13" CXX="g++-13" GITBRANCH=3.6 nix-install-x265
+nix-install-x265
 nix-install-ffmpeg
 
 ## EXIT

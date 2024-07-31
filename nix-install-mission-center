@@ -27,9 +27,15 @@ fi
 echo "*** GITBRANCH selected is $GITBRANCH."
 
 # CC
-CC="ccache gcc-13"
-CXX="ccache g++-13"
+if [ -z $CC ]; then
+ CC="ccache gcc-14"
+fi
 echo "*** CC selected is $CC."
+
+# CXX
+if [ -z $CXX ]; then
+ CXX="ccache g++-14"
+fi
 echo "*** CXX selected is $CXX."
 
 # CFLAGSOVERRIDE

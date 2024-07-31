@@ -46,9 +46,15 @@ echo "*** CFLAGS selected is $CFLAGS."
 
 # CXXFLAGS
 if [ -z $CXXFLAGS ]; then
- CXXFLAGS="-O3 -march=native -B/usr/local/libexec/mold"
+ CXXFLAGS="$CFLAGS"
 fi
 echo "*** CXXFLAGS selected is $CXXFLAGS."
+
+# DESTDIR
+if [ -z $DESTDIR ]; then
+ DESTDIR=/usr/local
+fi
+echo "*** DESTDIR selected is $DESTDIR."
 
 # BUILDCONFIG
 # Options are basic, standard, or full

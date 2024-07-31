@@ -1,7 +1,7 @@
 #!/bin/sh
 
-### Package: nix-install-svt-av1
-### Version: v20240728.2300
+### Package: nix-install-powertop
+### Version: v20240729.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -31,17 +31,19 @@ echo "*** DESTDIR selected is $DESTDIR."
 
 ## VARS
 RESDIR=$NIXTOOLSDIR/resources
-DEVDIR=$NIXTOOLSDIR/upstream
-GITURL=https://gitlab.com
-GITREPO=aomediacodec
-GITTREE=svt-av1
+DEVDIR=/tmp/nix-tools
+GITURL=https://github.com
+GITREPO=fenrus75
+GITTREE=powertop
 PKGDIR=$GITTREE\_$GITBRANCH
+MULTILIBDIR=`gcc -dumpmachine`
 
 ## INSTALLDEPS
 # Debian Dependencies
 if [ $INSTALLDEPS = debian ]; then
- sudo apt-get -y build-dep svt-av1
- sudo apt-get -y install build-essential coreutils libc-bin git cmake
+ sudo apt-get -y build-dep powertop
+ sudo apt-get -y install build-essential coreutils libc-bin git \
+ libtracefs-dev libtraceevent-dev
 fi
 
 ## PREP
@@ -57,22 +59,25 @@ git reset --hard
 git pull
 git submodule update --init
 
-## CLEAN
-rm -Rf tmpbuild
-
 ## CONFIGURE
-mkdir tmpbuild
-cd tmpbuild
-cmake .. -DCMAKE_INSTALL_PREFIX=$DESTDIR -DCMAKE_BUILD_TYPE=Release \
--DCMAKE_INSTALL_LIBDIR=$DESTDIR/lib/x86_64-linux-gnu \
--DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+autoreconf -vifs
+./configure --prefix=$DESTDIR --libdir=$DESTDIR/lib/$MULTILIBDIR
 
 ## BUILD
 make -j `nproc`
 
+## SERVICE
+if [ $DESTDIR != /usr ]; then
+ sed -i 's+/usr+$DESTDIR+g' powertop.service
+fi
+
 ## INSTALL
 sudo make install
+sudo install -D -m 644 powertop.service $DESTDIR/lib/systemd/system/powertop.service
 sudo ldconfig
+
+## TOOL
+cd $DEVDIR/$PKGDIR
 
 ## EXIT
 exit

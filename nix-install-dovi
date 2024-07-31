@@ -1,6 +1,6 @@
 #!/bin/sh
 
-### Package: nix-install-svt-av1
+### Package: nix-install-dovi
 ### Version: v20240728.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
@@ -19,7 +19,7 @@ fi
 
 # GITBRANCH
 if [ -z $GITBRANCH ]; then
- GITBRANCH=master
+ GITBRANCH=main
 fi
 echo "*** GITBRANCH selected is $GITBRANCH."
 
@@ -31,23 +31,29 @@ echo "*** DESTDIR selected is $DESTDIR."
 
 ## VARS
 RESDIR=$NIXTOOLSDIR/resources
-DEVDIR=$NIXTOOLSDIR/upstream
-GITURL=https://gitlab.com
-GITREPO=aomediacodec
-GITTREE=svt-av1
+DEVDIR=/tmp/nix-tools
+GITURL=https://github.com
+GITREPO=quietvoid
+GITTREE=dovi_tool
 PKGDIR=$GITTREE\_$GITBRANCH
 
 ## INSTALLDEPS
 # Debian Dependencies
 if [ $INSTALLDEPS = debian ]; then
- sudo apt-get -y build-dep svt-av1
- sudo apt-get -y install build-essential coreutils libc-bin git cmake
+ sudo apt-get -y install build-essential coreutils libc-bin git \
+ fontconfig
 fi
 
 ## PREP
 set -e
 mkdir -p $DEVDIR
 cd $DEVDIR
+
+## CLEAN
+if [ -d $DEVDIR/$PKGDIR ]; then
+ sudo rm -Rf $DEVDIR/$PKGDIR/target
+ sudo rm -Rf $DEVDIR/$PKGDIR/dolby_vision/target
+fi
 
 ## GIT
 [ -d $PKGDIR ] || git clone --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
@@ -57,21 +63,37 @@ git reset --hard
 git pull
 git submodule update --init
 
-## CLEAN
-rm -Rf tmpbuild
+## UPDATE RUST
+sudo \
+env PATH=/root/.cargo/bin:$PATH \
+rustup update
 
-## CONFIGURE
-mkdir tmpbuild
-cd tmpbuild
-cmake .. -DCMAKE_INSTALL_PREFIX=$DESTDIR -DCMAKE_BUILD_TYPE=Release \
--DCMAKE_INSTALL_LIBDIR=$DESTDIR/lib/x86_64-linux-gnu \
--DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+## LIB
+cd $DEVDIR/$PKGDIR/dolby_vision
 
-## BUILD
-make -j `nproc`
+# CLEAN
+sudo \
+env PATH=/root/.cargo/bin:$PATH \
+cargo clean
 
-## INSTALL
-sudo make install
+# BUILD & INSTALL
+sudo \
+env PATH=/root/.cargo/bin:$PATH \
+cargo cinstall --release
+sudo ldconfig
+
+## TOOL
+cd $DEVDIR/$PKGDIR
+
+# CLEAN
+sudo \
+env PATH=/root/.cargo/bin:$PATH \
+cargo clean
+
+# BUILD & INSTALL
+sudo \
+env PATH=/root/.cargo/bin:$PATH \
+cargo install --path . --root $DESTDIR
 sudo ldconfig
 
 ## EXIT

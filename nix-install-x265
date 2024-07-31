@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-x265
-### Version: v20240504.2300
+### Version: v20240728.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: svt-hevc
@@ -20,31 +20,19 @@ fi
 # GITBRANCH
 # Upstream branch is master
 if [ -z $GITBRANCH ]; then
- GITBRANCH=master
+ GITBRANCH=3.6
 fi
 echo "*** GITBRANCH selected is $GITBRANCH."
 
 # CC
-if [ -z $CC ]; then
- CC="ccache gcc-13"
-fi
+# Does not support ccache or gcc-14
+CC="gcc-13"
 echo "*** CC selected is $CC."
 
 # CXX
-if [ -z $CXX ]; then
- CXX="ccache g++-13"
-fi
+# Does not support ccache or gcc-14
+CXX="g++-13"
 echo "*** CXX selected is $CXX."
-
-# SVTHEVC
-if [ -z $SVTHEVC ]; then
- SVTHEVC=yes
-fi
-echo "*** SVTHEVC selected is $SVTHEVC."
-
-if [ $SVTHEVC = yes ]; then
- SVTHEVCOPTS="-DENABLE_SVT_HEVC=1 -DSVT_HEVC_INCLUDE_DIR=/usr/local/svt-hevc_v1.4.1/include/svt-hevc/ -DSVT_HEVC_LIBRARY_DIR=/usr/local/svt-hevc_v1.4.1/lib/x86_64-linux-gnu/"
-fi
 
 ## VARS
 RESDIR=$NIXTOOLSDIR/resources
@@ -82,10 +70,13 @@ mkdir tmpbuild
 cd tmpbuild
 mkdir 8bit 10bit 12bit
 
+# Note -DENABLE_LIBVMAF=ON is currently broken
+
 # 12BIT
 cd 12bit
 cmake ../../source -DENABLE_PIC=ON -DENABLE_ASSEMBLY=ON -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
--DHIGH_BIT_DEPTH=ON -DEXPORT_C_API=OFF -DENABLE_SHARED=OFF -DENABLE_CLI=OFF -DMAIN12=ON $SVTHEVCOPTS
+-DHIGH_BIT_DEPTH=ON -DEXPORT_C_API=OFF -DENABLE_SHARED=OFF -DENABLE_CLI=OFF -DMAIN12=ON \
+-DENABLE_HDR10_PLUS=ON
 make -j `nproc`
 cp libx265.a ../8bit/libx265_main12.a
 cd ..
@@ -93,7 +84,8 @@ cd ..
 # 10BIT
 cd 10bit
 cmake ../../source -DENABLE_PIC=ON -DENABLE_ASSEMBLY=ON -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
--DHIGH_BIT_DEPTH=ON -DEXPORT_C_API=OFF -DENABLE_SHARED=OFF -DENABLE_CLI=OFF $SVTHEVCOPTS
+-DHIGH_BIT_DEPTH=ON -DEXPORT_C_API=OFF -DENABLE_SHARED=OFF -DENABLE_CLI=OFF \
+-DENABLE_HDR10_PLUS=ON
 make -j `nproc`
 cp libx265.a ../8bit/libx265_main10.a
 cd ..
@@ -103,19 +95,15 @@ cd 8bit
 cmake ../../source -DENABLE_PIC=ON -DENABLE_ASSEMBLY=ON -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
 -DEXTRA_LIB="x265_main10.a;x265_main12.a" -DEXTRA_LINK_FLAGS=-L. \
 -DLINKED_10BIT=ON -DLINKED_12BIT=ON -DENABLE_SHARED=ON \
--DLIB_INSTALL_DIR=lib/x86_64-linux-gnu $SVTHEVCOPTS
+-DLIB_INSTALL_DIR=lib/x86_64-linux-gnu \
+-DENABLE_HDR10_PLUS=ON
 make -j `nproc`
 
 ## INSTALL
 sudo make install
 
-# Not installing shared library with master ?
-if [ $GITBRANCH = master ]; then
- sudo install -D libx265.so.* /usr/local/lib/x86_64-linux-gnu/
-fi
-
-# Not installing shared library with stable ?
-if [ $GITBRANCH = stable ]; then
+# Not installing shared library with master or stable ?
+if [ $GITBRANCH = master -o stable ]; then
  sudo install -D libx265.so.* /usr/local/lib/x86_64-linux-gnu/
 fi
 

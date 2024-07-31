@@ -1,10 +1,10 @@
 #!/bin/sh
 
-### Package: nix-install-svt-av1
-### Version: v20240725.2300
+### Package: nix-install-svt-av1-psy
+### Version: v20240728.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
-### Script Dependencies: (none)
+### Script Dependencies: dovi hdr10plus
 
 ## OVERRIDES
 # NIXTOOLS
@@ -18,8 +18,9 @@ if [ -z $INSTALLDEPS ]; then
 fi
 
 # GITBRANCH
+# upstream branch is "master"
 if [ -z $GITBRANCH ]; then
- GITBRANCH=master
+ GITBRANCH=v2.1.0-A
 fi
 echo "*** GITBRANCH selected is $GITBRANCH."
 
@@ -65,7 +66,8 @@ mkdir tmpbuild
 cd tmpbuild
 cmake .. -DCMAKE_INSTALL_PREFIX=$DESTDIR -DCMAKE_BUILD_TYPE=Release \
 -DCMAKE_INSTALL_LIBDIR=$DESTDIR/lib/x86_64-linux-gnu \
--DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+-DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+-DLIBDOVI_FOUND=1 -DLIBHDR10PLUS_RS_FOUND=1
 
 ## BUILD
 make -j `nproc`

@@ -21,11 +21,17 @@ fi
 echo "*** INSTALLDEPS selected is $INSTALLDEPS."
 
 # GITBRANCH
-# Upstream is "main". Stable is currently "llvm_release_180".
+# Upstream is "main"
 if [ -z $GITBRANCH ]; then
  GITBRANCH=main
 fi
 echo "*** GITBRANCH selected is $GITBRANCH."
+
+# DESTDIR
+if [ -z $DESTDIR ]; then
+ DESTDIR=/usr/local
+fi
+echo "*** DESTDIR selected is $DESTDIR."
 
 # LLVMVER
 if [ -z $LLVMVER ]; then
@@ -66,9 +72,9 @@ git submodule update --init --recursive --depth=1
 ## CONFIGURE
 mkdir tmpbuild
 cd tmpbuild
-cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_INSTALL_LIBDIR=/usr/local/lib/x86_64-linux-gnu \
+cmake -DCMAKE_INSTALL_PREFIX=$DESTDIR -DCMAKE_INSTALL_LIBDIR=$DESTDIR/lib/x86_64-linux-gnu \
 -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
--DLLVM_EXTERNAL_PROJECTS="SPIRV-Headers" -DLLVM_EXTERNAL_SPIRV_HEADERS_SOURCE_DIR=/usr/local/include/spirv \
+-DLLVM_EXTERNAL_PROJECTS="SPIRV-Headers" -DLLVM_EXTERNAL_SPIRV_HEADERS_SOURCE_DIR=$DESTDIR/include/spirv \
 -DLLVM_DIR=/usr/include/llvm-$LLVMVER -DBASE_LLVM_VERSION=$LLVMVER ..
 
 ## BUILD

@@ -1,0 +1,3198 @@
+From 765c952c7965001a65dc58b593e313f644bd9f6b Mon Sep 17 00:00:00 2001
+From: "Geoffrey D. Bennett" <g@b4.vu>
+Date: Mon, 15 Apr 2024 01:16:57 +0930
+Subject: [PATCH] USB-Audio: WIP Add Focusrite USB interfaces
+
+Add split configs for Clarett, Vocaster, Scarlett 3rd Gen, and 4th Gen
+interfaces. For the larger interfaces, only create devices for main
+outputs (monitor and headphones) and first two inputs, otherwise the
+number of devices gets unwieldy.
+
+Signed-off-by: Geoffrey D. Bennett <g@b4.vu>
+---
+ .../Focusrite/Clarett-2Pre-HiFi.conf          | 142 ++++++++++
+ ucm2/USB-Audio/Focusrite/Clarett-2Pre.conf    |  13 +
+ .../Focusrite/Clarett-4Pre-HiFi.conf          | 176 ++++++++++++
+ ucm2/USB-Audio/Focusrite/Clarett-4Pre.conf    |  13 +
+ .../Focusrite/Clarett-8Pre-HiFi.conf          | 188 +++++++++++++
+ ucm2/USB-Audio/Focusrite/Clarett-8Pre.conf    |  13 +
+ .../Scarlett-2nd-Gen-18i20-HiFi.conf          | 188 +++++++++++++
+ .../Focusrite/Scarlett-2nd-Gen-18i20.conf     |  13 +
+ .../Focusrite/Scarlett-2nd-Gen-18i8-HiFi.conf | 180 +++++++++++++
+ .../Focusrite/Scarlett-2nd-Gen-18i8.conf      |  13 +
+ .../Focusrite/Scarlett-2nd-Gen-6i6-HiFi.conf  | 132 +++++++++
+ .../Focusrite/Scarlett-2nd-Gen-6i6.conf       |  13 +
+ .../Scarlett-3rd-Gen-18i20-HiFi.conf          | 192 +++++++++++++
+ .../Focusrite/Scarlett-3rd-Gen-18i20.conf     |  13 +
+ .../Focusrite/Scarlett-3rd-Gen-18i8-HiFi.conf | 180 +++++++++++++
+ .../Focusrite/Scarlett-3rd-Gen-18i8.conf      |  13 +
+ .../Focusrite/Scarlett-3rd-Gen-4i4-HiFi.conf  | 198 ++++++++++++++
+ .../Focusrite/Scarlett-3rd-Gen-4i4.conf       |  13 +
+ .../Focusrite/Scarlett-3rd-Gen-8i6-HiFi.conf  | 140 ++++++++++
+ .../Focusrite/Scarlett-3rd-Gen-8i6.conf       |  13 +
+ .../Focusrite/Scarlett-4th-Gen-2i2-HiFi.conf  | 105 ++++++++
+ .../Focusrite/Scarlett-4th-Gen-2i2.conf       |  13 +
+ .../Focusrite/Scarlett-4th-Gen-4i4-HiFi.conf  | 218 +++++++++++++++
+ .../Focusrite/Scarlett-4th-Gen-4i4.conf       |  13 +
+ .../Focusrite/Scarlett-4th-Gen-Solo-HiFi.conf |  87 ++++++
+ .../Focusrite/Scarlett-4th-Gen-Solo.conf      |  13 +
+ .../Focusrite/Vocaster-One-HiFi.conf          | 192 +++++++++++++
+ ucm2/USB-Audio/Focusrite/Vocaster-One.conf    |  13 +
+ .../Focusrite/Vocaster-Two-HiFi.conf          | 254 ++++++++++++++++++
+ ucm2/USB-Audio/Focusrite/Vocaster-Two.conf    |  13 +
+ ucm2/USB-Audio/USB-Audio.conf                 | 165 ++++++++++++
+ 31 files changed, 2932 insertions(+)
+ create mode 100644 ucm2/USB-Audio/Focusrite/Clarett-2Pre-HiFi.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Clarett-2Pre.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Clarett-4Pre-HiFi.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Clarett-4Pre.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Clarett-8Pre-HiFi.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Clarett-8Pre.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Scarlett-2nd-Gen-18i20-HiFi.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Scarlett-2nd-Gen-18i20.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Scarlett-2nd-Gen-18i8-HiFi.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Scarlett-2nd-Gen-18i8.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Scarlett-2nd-Gen-6i6-HiFi.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Scarlett-2nd-Gen-6i6.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-18i20-HiFi.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-18i20.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-18i8-HiFi.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-18i8.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-4i4-HiFi.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-4i4.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-8i6-HiFi.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-8i6.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Scarlett-4th-Gen-2i2-HiFi.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Scarlett-4th-Gen-2i2.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Scarlett-4th-Gen-4i4-HiFi.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Scarlett-4th-Gen-4i4.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Scarlett-4th-Gen-Solo-HiFi.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Scarlett-4th-Gen-Solo.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Vocaster-One-HiFi.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Vocaster-One.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Vocaster-Two-HiFi.conf
+ create mode 100644 ucm2/USB-Audio/Focusrite/Vocaster-Two.conf
+
+diff --git a/ucm2/USB-Audio/Focusrite/Clarett-2Pre-HiFi.conf b/ucm2/USB-Audio/Focusrite/Clarett-2Pre-HiFi.conf
+new file mode 100644
+index 00000000..4f9a47f0
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Clarett-2Pre-HiFi.conf
+@@ -0,0 +1,142 @@
++Include.pcm_split.File "/common/pcm/split.conf"
++
++Macro [
++	{
++		SplitPCM {
++			Name "clarett_2pre_stereo_out"
++			Direction Playback
++			Channels 2
++			HWChannels 4
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++		}
++	}
++	{
++		SplitPCM {
++			Name "clarett_2pre_mono_in"
++			Direction Capture
++			Channels 1
++			HWChannels 12
++			HWChannelPos0 MONO
++			HWChannelPos1 MONO
++			HWChannelPos2 MONO
++			HWChannelPos3 MONO
++			HWChannelPos4 MONO
++			HWChannelPos5 MONO
++			HWChannelPos6 MONO
++			HWChannelPos7 MONO
++			HWChannelPos8 MONO
++			HWChannelPos9 MONO
++			HWChannelPos10 MONO
++			HWChannelPos11 MONO
++		}
++	}
++	{
++		SplitPCM {
++			Name "clarett_2pre_stereo_in"
++			Direction Capture
++			Channels 2
++			HWChannels 12
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++			HWChannelPos4 FL
++			HWChannelPos5 FR
++			HWChannelPos6 FL
++			HWChannelPos7 FR
++			HWChannelPos8 FL
++			HWChannelPos9 FR
++			HWChannelPos10 FL
++			HWChannelPos11 FR
++		}
++	}
++]
++
++SectionDevice."Out1-2" {
++	Comment "Line Out 1-2"
++
++	Value {
++		PlaybackPriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "clarett_2pre_stereo_out"
++		Direction Playback
++		HWChannels 4
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."Out3-4" {
++	Comment "Line Out 3-4/Headphones"
++
++	Value {
++		PlaybackPriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "clarett_2pre_stereo_out"
++		Direction Playback
++		HWChannels 4
++		Channels 2
++		Channel0 2
++		Channel1 3
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In1" {
++	Comment "Mic/Line/Inst In 1"
++
++	Value {
++		CapturePriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "clarett_2pre_mono_in"
++		Direction Capture
++		HWChannels 12
++		Channels 1
++		Channel0 0
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In2" {
++	Comment "Mic/Line/Inst In 2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "clarett_2pre_mono_in"
++		Direction Capture
++		HWChannels 12
++		Channels 1
++		Channel0 1
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In1-2" {
++	Comment "Mic/Line/Inst In 1-2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "clarett_2pre_stereo_in"
++		Direction Capture
++		HWChannels 12
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
+diff --git a/ucm2/USB-Audio/Focusrite/Clarett-2Pre.conf b/ucm2/USB-Audio/Focusrite/Clarett-2Pre.conf
+new file mode 100644
+index 00000000..596f4663
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Clarett-2Pre.conf
+@@ -0,0 +1,13 @@
++Define {
++	DirectPlaybackChannels 4
++	DirectCaptureChannels 12
++}
++
++Comment "Focusrite Clarett 2Pre"
++
++SectionUseCase."HiFi" {
++	Comment "Default"
++	File "/USB-Audio/Focusrite/Clarett-2Pre-HiFi.conf"
++}
++
++Include.dhw.File "/common/direct.conf"
+diff --git a/ucm2/USB-Audio/Focusrite/Clarett-4Pre-HiFi.conf b/ucm2/USB-Audio/Focusrite/Clarett-4Pre-HiFi.conf
+new file mode 100644
+index 00000000..daa0a861
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Clarett-4Pre-HiFi.conf
+@@ -0,0 +1,176 @@
++Include.pcm_split.File "/common/pcm/split.conf"
++
++Macro [
++	{
++		SplitPCM {
++			Name "clarett_4pre_stereo_out"
++			Direction Playback
++			Channels 2
++			HWChannels 8
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++			HWChannelPos4 FL
++			HWChannelPos5 FR
++			HWChannelPos6 FL
++			HWChannelPos7 FR
++		}
++	}
++	{
++		SplitPCM {
++			Name "clarett_4pre_mono_in"
++			Direction Capture
++			Channels 1
++			HWChannels 18
++			HWChannelPos0 MONO
++			HWChannelPos1 MONO
++			HWChannelPos2 MONO
++			HWChannelPos3 MONO
++			HWChannelPos4 MONO
++			HWChannelPos5 MONO
++			HWChannelPos6 MONO
++			HWChannelPos7 MONO
++			HWChannelPos8 MONO
++			HWChannelPos9 MONO
++			HWChannelPos10 MONO
++			HWChannelPos11 MONO
++			HWChannelPos12 MONO
++			HWChannelPos13 MONO
++			HWChannelPos14 MONO
++			HWChannelPos15 MONO
++			HWChannelPos16 MONO
++			HWChannelPos17 MONO
++		}
++	}
++	{
++		SplitPCM {
++			Name "clarett_4pre_stereo_in"
++			Direction Capture
++			Channels 2
++			HWChannels 18
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++			HWChannelPos4 FL
++			HWChannelPos5 FR
++			HWChannelPos6 FL
++			HWChannelPos7 FR
++			HWChannelPos8 FL
++			HWChannelPos9 FR
++			HWChannelPos10 FL
++			HWChannelPos11 FR
++			HWChannelPos12 FL
++			HWChannelPos13 FR
++			HWChannelPos14 FL
++			HWChannelPos15 FR
++			HWChannelPos16 FL
++			HWChannelPos17 FR
++		}
++	}
++]
++
++SectionDevice."Out1-2" {
++	Comment "Line Out 1-2"
++
++	Value {
++		PlaybackPriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "clarett_4pre_stereo_out"
++		Direction Playback
++		HWChannels 8
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."Out3-4" {
++	Comment "Line Out 3-4/Headphones 1"
++
++	Value {
++		PlaybackPriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "clarett_4pre_stereo_out"
++		Direction Playback
++		HWChannels 8
++		Channels 2
++		Channel0 2
++		Channel1 3
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."Out5-6" {
++	Comment "Line Out 5-6/Headphones 2"
++
++	Value {
++		PlaybackPriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "clarett_4pre_stereo_out"
++		Direction Playback
++		HWChannels 8
++		Channels 2
++		Channel0 4
++		Channel1 5
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In1" {
++	Comment "Mic/Line/Inst In 1"
++
++	Value {
++		CapturePriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "clarett_4pre_mono_in"
++		Direction Capture
++		HWChannels 18
++		Channels 1
++		Channel0 0
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In2" {
++	Comment "Mic/Line/Inst In 2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "clarett_4pre_mono_in"
++		Direction Capture
++		HWChannels 18
++		Channels 1
++		Channel0 1
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In1-2" {
++	Comment "Mic/Line/Inst In 1-2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "clarett_4pre_stereo_in"
++		Direction Capture
++		HWChannels 18
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
+diff --git a/ucm2/USB-Audio/Focusrite/Clarett-4Pre.conf b/ucm2/USB-Audio/Focusrite/Clarett-4Pre.conf
+new file mode 100644
+index 00000000..4194b476
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Clarett-4Pre.conf
+@@ -0,0 +1,13 @@
++Define {
++	DirectPlaybackChannels 8
++	DirectCaptureChannels 18
++}
++
++Comment "Focusrite Clarett 4Pre"
++
++SectionUseCase."HiFi" {
++	Comment "Default"
++	File "/USB-Audio/Focusrite/Clarett-4Pre-HiFi.conf"
++}
++
++Include.dhw.File "/common/direct.conf"
+diff --git a/ucm2/USB-Audio/Focusrite/Clarett-8Pre-HiFi.conf b/ucm2/USB-Audio/Focusrite/Clarett-8Pre-HiFi.conf
+new file mode 100644
+index 00000000..f17e4ac1
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Clarett-8Pre-HiFi.conf
+@@ -0,0 +1,188 @@
++Include.pcm_split.File "/common/pcm/split.conf"
++
++Macro [
++	{
++		SplitPCM {
++			Name "clarett_8pre_stereo_out"
++			Direction Playback
++			Channels 2
++			HWChannels 20
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++			HWChannelPos4 FL
++			HWChannelPos5 FR
++			HWChannelPos6 FL
++			HWChannelPos7 FR
++			HWChannelPos8 FL
++			HWChannelPos9 FR
++			HWChannelPos10 FL
++			HWChannelPos11 FR
++			HWChannelPos12 FL
++			HWChannelPos13 FR
++			HWChannelPos14 FL
++			HWChannelPos15 FR
++			HWChannelPos16 FL
++			HWChannelPos17 FR
++			HWChannelPos18 FL
++			HWChannelPos19 FR
++		}
++	}
++	{
++		SplitPCM {
++			Name "clarett_8pre_mono_in"
++			Direction Capture
++			Channels 1
++			HWChannels 18
++			HWChannelPos0 MONO
++			HWChannelPos1 MONO
++			HWChannelPos2 MONO
++			HWChannelPos3 MONO
++			HWChannelPos4 MONO
++			HWChannelPos5 MONO
++			HWChannelPos6 MONO
++			HWChannelPos7 MONO
++			HWChannelPos8 MONO
++			HWChannelPos9 MONO
++			HWChannelPos10 MONO
++			HWChannelPos11 MONO
++			HWChannelPos12 MONO
++			HWChannelPos13 MONO
++			HWChannelPos14 MONO
++			HWChannelPos15 MONO
++			HWChannelPos16 MONO
++			HWChannelPos17 MONO
++		}
++	}
++	{
++		SplitPCM {
++			Name "clarett_8pre_stereo_in"
++			Direction Capture
++			Channels 2
++			HWChannels 18
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++			HWChannelPos4 FL
++			HWChannelPos5 FR
++			HWChannelPos6 FL
++			HWChannelPos7 FR
++			HWChannelPos8 FL
++			HWChannelPos9 FR
++			HWChannelPos10 FL
++			HWChannelPos11 FR
++			HWChannelPos12 FL
++			HWChannelPos13 FR
++			HWChannelPos14 FL
++			HWChannelPos15 FR
++			HWChannelPos16 FL
++			HWChannelPos17 FR
++		}
++	}
++]
++
++SectionDevice."Out1-2" {
++	Comment "Line Out 1-2"
++
++	Value {
++		PlaybackPriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "clarett_8pre_stereo_out"
++		Direction Playback
++		HWChannels 20
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."Out7-8" {
++	Comment "Line Out 7-8/Headphones 1"
++
++	Value {
++		PlaybackPriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "clarett_8pre_stereo_out"
++		Direction Playback
++		HWChannels 20
++		Channels 2
++		Channel0 6
++		Channel1 7
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."Out9-10" {
++	Comment "Line Out 9-10/Headphones 2"
++
++	Value {
++		PlaybackPriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "clarett_8pre_stereo_out"
++		Direction Playback
++		HWChannels 20
++		Channels 2
++		Channel0 8
++		Channel1 9
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In1" {
++	Comment "Mic/Line/Inst In 1"
++
++	Value {
++		CapturePriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "clarett_8pre_mono_in"
++		Direction Capture
++		HWChannels 18
++		Channels 1
++		Channel0 0
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In2" {
++	Comment "Mic/Line/Inst In 2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "clarett_8pre_mono_in"
++		Direction Capture
++		HWChannels 18
++		Channels 1
++		Channel0 1
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In1-2" {
++	Comment "Mic/Line/Inst In 1-2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "clarett_8pre_stereo_in"
++		Direction Capture
++		HWChannels 18
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
+diff --git a/ucm2/USB-Audio/Focusrite/Clarett-8Pre.conf b/ucm2/USB-Audio/Focusrite/Clarett-8Pre.conf
+new file mode 100644
+index 00000000..910a45cb
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Clarett-8Pre.conf
+@@ -0,0 +1,13 @@
++Define {
++	DirectPlaybackChannels 20
++	DirectCaptureChannels 18
++}
++
++Comment "Focusrite Clarett 8Pre"
++
++SectionUseCase."HiFi" {
++	Comment "Default"
++	File "/USB-Audio/Focusrite/Clarett-8Pre-HiFi.conf"
++}
++
++Include.dhw.File "/common/direct.conf"
+diff --git a/ucm2/USB-Audio/Focusrite/Scarlett-2nd-Gen-18i20-HiFi.conf b/ucm2/USB-Audio/Focusrite/Scarlett-2nd-Gen-18i20-HiFi.conf
+new file mode 100644
+index 00000000..5b76b67f
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Scarlett-2nd-Gen-18i20-HiFi.conf
+@@ -0,0 +1,188 @@
++Include.pcm_split.File "/common/pcm/split.conf"
++
++Macro [
++	{
++		SplitPCM {
++			Name "scarlett_2nd_gen_18i20_stereo_out"
++			Direction Playback
++			Channels 2
++			HWChannels 20
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++			HWChannelPos4 FL
++			HWChannelPos5 FR
++			HWChannelPos6 FL
++			HWChannelPos7 FR
++			HWChannelPos8 FL
++			HWChannelPos9 FR
++			HWChannelPos10 FL
++			HWChannelPos11 FR
++			HWChannelPos12 FL
++			HWChannelPos13 FR
++			HWChannelPos14 FL
++			HWChannelPos15 FR
++			HWChannelPos16 FL
++			HWChannelPos17 FR
++			HWChannelPos18 FL
++			HWChannelPos19 FR
++		}
++	}
++	{
++		SplitPCM {
++			Name "scarlett_2nd_gen_18i20_mono_in"
++			Direction Capture
++			Channels 1
++			HWChannels 18
++			HWChannelPos0 MONO
++			HWChannelPos1 MONO
++			HWChannelPos2 MONO
++			HWChannelPos3 MONO
++			HWChannelPos4 MONO
++			HWChannelPos5 MONO
++			HWChannelPos6 MONO
++			HWChannelPos7 MONO
++			HWChannelPos8 MONO
++			HWChannelPos9 MONO
++			HWChannelPos10 MONO
++			HWChannelPos11 MONO
++			HWChannelPos12 MONO
++			HWChannelPos13 MONO
++			HWChannelPos14 MONO
++			HWChannelPos15 MONO
++			HWChannelPos16 MONO
++			HWChannelPos17 MONO
++		}
++	}
++	{
++		SplitPCM {
++			Name "scarlett_2nd_gen_18i20_stereo_in"
++			Direction Capture
++			Channels 2
++			HWChannels 18
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++			HWChannelPos4 FL
++			HWChannelPos5 FR
++			HWChannelPos6 FL
++			HWChannelPos7 FR
++			HWChannelPos8 FL
++			HWChannelPos9 FR
++			HWChannelPos10 FL
++			HWChannelPos11 FR
++			HWChannelPos12 FL
++			HWChannelPos13 FR
++			HWChannelPos14 FL
++			HWChannelPos15 FR
++			HWChannelPos16 FL
++			HWChannelPos17 FR
++		}
++	}
++]
++
++SectionDevice."Out1-2" {
++	Comment "Line Out 1-2"
++
++	Value {
++		PlaybackPriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_2nd_gen_18i20_stereo_out"
++		Direction Playback
++		HWChannels 20
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."Out7-8" {
++	Comment "Line Out 7-8/Headphones 1"
++
++	Value {
++		PlaybackPriority 50
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_2nd_gen_18i20_stereo_out"
++		Direction Playback
++		HWChannels 20
++		Channels 2
++		Channel0 6
++		Channel1 7
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."Out9-10" {
++	Comment "Line Out 9-10/Headphones 2"
++
++	Value {
++		PlaybackPriority 50
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_2nd_gen_18i20_stereo_out"
++		Direction Playback
++		HWChannels 20
++		Channels 2
++		Channel0 8
++		Channel1 9
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In1" {
++	Comment "Mic/Line/Inst In 1"
++
++	Value {
++		CapturePriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_2nd_gen_18i20_mono_in"
++		Direction Capture
++		HWChannels 18
++		Channels 1
++		Channel0 0
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In2" {
++	Comment "Mic/Line/Inst In 2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_2nd_gen_18i20_mono_in"
++		Direction Capture
++		HWChannels 18
++		Channels 1
++		Channel0 1
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In1-2" {
++	Comment "Mic/Line/Inst In 1-2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_2nd_gen_18i20_stereo_in"
++		Direction Capture
++		HWChannels 18
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
+diff --git a/ucm2/USB-Audio/Focusrite/Scarlett-2nd-Gen-18i20.conf b/ucm2/USB-Audio/Focusrite/Scarlett-2nd-Gen-18i20.conf
+new file mode 100644
+index 00000000..535795b2
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Scarlett-2nd-Gen-18i20.conf
+@@ -0,0 +1,13 @@
++Define {
++	DirectPlaybackChannels 20
++	DirectCaptureChannels 18
++}
++
++Comment "Focusrite Scarlett 2nd Gen 18i20"
++
++SectionUseCase."HiFi" {
++	Comment "Default"
++	File "/USB-Audio/Focusrite/Scarlett-2nd-Gen-18i20-HiFi.conf"
++}
++
++Include.dhw.File "/common/direct.conf"
+diff --git a/ucm2/USB-Audio/Focusrite/Scarlett-2nd-Gen-18i8-HiFi.conf b/ucm2/USB-Audio/Focusrite/Scarlett-2nd-Gen-18i8-HiFi.conf
+new file mode 100644
+index 00000000..71b1bed2
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Scarlett-2nd-Gen-18i8-HiFi.conf
+@@ -0,0 +1,180 @@
++Include.pcm_split.File "/common/pcm/split.conf"
++
++Macro [
++	{
++		SplitPCM {
++			Name "scarlett_2nd_gen_18i8_stereo_out"
++			Direction Playback
++			Channels 2
++			HWChannels 8
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++			HWChannelPos4 FL
++			HWChannelPos5 FR
++			HWChannelPos6 FL
++			HWChannelPos7 FR
++		}
++	}
++	{
++		SplitPCM {
++			Name "scarlett_2nd_gen_18i8_mono_in"
++			Direction Capture
++			Channels 1
++			HWChannels 20
++			HWChannelPos0 MONO
++			HWChannelPos1 MONO
++			HWChannelPos2 MONO
++			HWChannelPos3 MONO
++			HWChannelPos4 MONO
++			HWChannelPos5 MONO
++			HWChannelPos6 MONO
++			HWChannelPos7 MONO
++			HWChannelPos8 MONO
++			HWChannelPos9 MONO
++			HWChannelPos10 MONO
++			HWChannelPos11 MONO
++			HWChannelPos12 MONO
++			HWChannelPos13 MONO
++			HWChannelPos14 MONO
++			HWChannelPos15 MONO
++			HWChannelPos16 MONO
++			HWChannelPos17 MONO
++			HWChannelPos18 MONO
++			HWChannelPos19 MONO
++		}
++	}
++	{
++		SplitPCM {
++			Name "scarlett_2nd_gen_18i8_stereo_in"
++			Direction Capture
++			Channels 2
++			HWChannels 20
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++			HWChannelPos4 FL
++			HWChannelPos5 FR
++			HWChannelPos6 FL
++			HWChannelPos7 FR
++			HWChannelPos8 FL
++			HWChannelPos9 FR
++			HWChannelPos10 FL
++			HWChannelPos11 FR
++			HWChannelPos12 FL
++			HWChannelPos13 FR
++			HWChannelPos14 FL
++			HWChannelPos15 FR
++			HWChannelPos16 FL
++			HWChannelPos17 FR
++			HWChannelPos18 FL
++			HWChannelPos19 FR
++		}
++	}
++]
++
++SectionDevice."Out1-2" {
++	Comment "Line Out 1-2"
++
++	Value {
++		PlaybackPriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_2nd_gen_18i8_stereo_out"
++		Direction Playback
++		HWChannels 8
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."Out3-4" {
++	Comment "Headphones 1"
++
++	Value {
++		PlaybackPriority 50
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_2nd_gen_18i8_stereo_out"
++		Direction Playback
++		HWChannels 8
++		Channels 2
++		Channel0 2
++		Channel1 3
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."Out5-6" {
++	Comment "Headphones 2"
++
++	Value {
++		PlaybackPriority 50
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_2nd_gen_18i8_stereo_out"
++		Direction Playback
++		HWChannels 8
++		Channels 2
++		Channel0 4
++		Channel1 5
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In1" {
++	Comment "Mic/Line/Inst In 1"
++
++	Value {
++		CapturePriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_2nd_gen_18i8_mono_in"
++		Direction Capture
++		HWChannels 20
++		Channels 1
++		Channel0 0
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In2" {
++	Comment "Mic/Line/Inst In 2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_2nd_gen_18i8_mono_in"
++		Direction Capture
++		HWChannels 20
++		Channels 1
++		Channel0 1
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In1-2" {
++	Comment "Mic/Line/Inst In 1-2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_2nd_gen_18i8_stereo_in"
++		Direction Capture
++		HWChannels 20
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
+diff --git a/ucm2/USB-Audio/Focusrite/Scarlett-2nd-Gen-18i8.conf b/ucm2/USB-Audio/Focusrite/Scarlett-2nd-Gen-18i8.conf
+new file mode 100644
+index 00000000..b544a281
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Scarlett-2nd-Gen-18i8.conf
+@@ -0,0 +1,13 @@
++Define {
++	DirectPlaybackChannels 8
++	DirectCaptureChannels 20
++}
++
++Comment "Focusrite Scarlett 2nd Gen 18i8"
++
++SectionUseCase."HiFi" {
++	Comment "Default"
++	File "/USB-Audio/Focusrite/Scarlett-2nd-Gen-18i8-HiFi.conf"
++}
++
++Include.dhw.File "/common/direct.conf"
+diff --git a/ucm2/USB-Audio/Focusrite/Scarlett-2nd-Gen-6i6-HiFi.conf b/ucm2/USB-Audio/Focusrite/Scarlett-2nd-Gen-6i6-HiFi.conf
+new file mode 100644
+index 00000000..3a9a2f74
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Scarlett-2nd-Gen-6i6-HiFi.conf
+@@ -0,0 +1,132 @@
++Include.pcm_split.File "/common/pcm/split.conf"
++
++Macro [
++	{
++		SplitPCM {
++			Name "scarlett_2nd_gen_6i6_stereo_out"
++			Direction Playback
++			Channels 2
++			HWChannels 6
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++			HWChannelPos4 FL
++			HWChannelPos5 FR
++		}
++	}
++	{
++		SplitPCM {
++			Name "scarlett_2nd_gen_6i6_mono_in"
++			Direction Capture
++			Channels 1
++			HWChannels 6
++			HWChannelPos0 MONO
++			HWChannelPos1 MONO
++			HWChannelPos2 MONO
++			HWChannelPos3 MONO
++			HWChannelPos4 MONO
++			HWChannelPos5 MONO
++		}
++	}
++	{
++		SplitPCM {
++			Name "scarlett_2nd_gen_6i6_stereo_in"
++			Direction Capture
++			Channels 2
++			HWChannels 6
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++			HWChannelPos4 FL
++			HWChannelPos5 FR
++		}
++	}
++]
++
++SectionDevice."Out1-2" {
++	Comment "Line Out 1-2/Headphones 1"
++
++	Value {
++		PlaybackPriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_2nd_gen_6i6_stereo_out"
++		Direction Playback
++		HWChannels 6
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."Out3-4" {
++	Comment "Line Out 3-4/Headphones 2"
++
++	Value {
++		PlaybackPriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_2nd_gen_6i6_stereo_out"
++		Direction Playback
++		HWChannels 6
++		Channels 2
++		Channel0 2
++		Channel1 3
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In1" {
++	Comment "Mic/Line/Inst In 1"
++
++	Value {
++		CapturePriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_2nd_gen_6i6_mono_in"
++		Direction Capture
++		HWChannels 6
++		Channels 1
++		Channel0 0
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In2" {
++	Comment "Mic/Line/Inst In 2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_2nd_gen_6i6_mono_in"
++		Direction Capture
++		HWChannels 6
++		Channels 1
++		Channel0 1
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In1-2" {
++	Comment "Mic/Line/Inst In 1-2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_2nd_gen_6i6_stereo_in"
++		Direction Capture
++		HWChannels 6
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
+diff --git a/ucm2/USB-Audio/Focusrite/Scarlett-2nd-Gen-6i6.conf b/ucm2/USB-Audio/Focusrite/Scarlett-2nd-Gen-6i6.conf
+new file mode 100644
+index 00000000..3b0214e3
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Scarlett-2nd-Gen-6i6.conf
+@@ -0,0 +1,13 @@
++Define {
++	DirectPlaybackChannels 6
++	DirectCaptureChannels 6
++}
++
++Comment "Focusrite Scarlett 2nd Gen 6i6"
++
++SectionUseCase."HiFi" {
++	Comment "Default"
++	File "/USB-Audio/Focusrite/Scarlett-2nd-Gen-6i6-HiFi.conf"
++}
++
++Include.dhw.File "/common/direct.conf"
+diff --git a/ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-18i20-HiFi.conf b/ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-18i20-HiFi.conf
+new file mode 100644
+index 00000000..4b068013
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-18i20-HiFi.conf
+@@ -0,0 +1,192 @@
++Include.pcm_split.File "/common/pcm/split.conf"
++
++Macro [
++	{
++		SplitPCM {
++			Name "scarlett_3rd_gen_18i20_stereo_out"
++			Direction Playback
++			Channels 2
++			HWChannels 20
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++			HWChannelPos4 FL
++			HWChannelPos5 FR
++			HWChannelPos6 FL
++			HWChannelPos7 FR
++			HWChannelPos8 FL
++			HWChannelPos9 FR
++			HWChannelPos10 FL
++			HWChannelPos11 FR
++			HWChannelPos12 FL
++			HWChannelPos13 FR
++			HWChannelPos14 FL
++			HWChannelPos15 FR
++			HWChannelPos16 FL
++			HWChannelPos17 FR
++			HWChannelPos18 FL
++			HWChannelPos19 FR
++		}
++	}
++	{
++		SplitPCM {
++			Name "scarlett_3rd_gen_18i20_mono_in"
++			Direction Capture
++			Channels 1
++			HWChannels 20
++			HWChannelPos0 MONO
++			HWChannelPos1 MONO
++			HWChannelPos2 MONO
++			HWChannelPos3 MONO
++			HWChannelPos4 MONO
++			HWChannelPos5 MONO
++			HWChannelPos6 MONO
++			HWChannelPos7 MONO
++			HWChannelPos8 MONO
++			HWChannelPos9 MONO
++			HWChannelPos10 MONO
++			HWChannelPos11 MONO
++			HWChannelPos12 MONO
++			HWChannelPos13 MONO
++			HWChannelPos14 MONO
++			HWChannelPos15 MONO
++			HWChannelPos16 MONO
++			HWChannelPos17 MONO
++			HWChannelPos18 MONO
++			HWChannelPos19 MONO
++		}
++	}
++	{
++		SplitPCM {
++			Name "scarlett_3rd_gen_18i20_stereo_in"
++			Direction Capture
++			Channels 2
++			HWChannels 20
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++			HWChannelPos4 FL
++			HWChannelPos5 FR
++			HWChannelPos6 FL
++			HWChannelPos7 FR
++			HWChannelPos8 FL
++			HWChannelPos9 FR
++			HWChannelPos10 FL
++			HWChannelPos11 FR
++			HWChannelPos12 FL
++			HWChannelPos13 FR
++			HWChannelPos14 FL
++			HWChannelPos15 FR
++			HWChannelPos16 FL
++			HWChannelPos17 FR
++			HWChannelPos18 FL
++			HWChannelPos19 FR
++		}
++	}
++]
++
++SectionDevice."Out1-2" {
++	Comment "Line Out 1-2"
++
++	Value {
++		PlaybackPriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_18i20_stereo_out"
++		Direction Playback
++		HWChannels 20
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."Out7-8" {
++	Comment "Line Out 7-8/Headphones 1"
++
++	Value {
++		PlaybackPriority 50
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_18i20_stereo_out"
++		Direction Playback
++		HWChannels 20
++		Channels 2
++		Channel0 6
++		Channel1 7
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."Out9-10" {
++	Comment "Line Out 9-10/Headphones 2"
++
++	Value {
++		PlaybackPriority 50
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_18i20_stereo_out"
++		Direction Playback
++		HWChannels 20
++		Channels 2
++		Channel0 8
++		Channel1 9
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In1" {
++	Comment "Mic/Line/Inst In 1"
++
++	Value {
++		CapturePriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_18i20_mono_in"
++		Direction Capture
++		HWChannels 20
++		Channels 1
++		Channel0 0
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In2" {
++	Comment "Mic/Line/Inst In 2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_18i20_mono_in"
++		Direction Capture
++		HWChannels 20
++		Channels 1
++		Channel0 1
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In1-2" {
++	Comment "Mic/Line/Inst In 1-2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_18i20_stereo_in"
++		Direction Capture
++		HWChannels 20
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
+diff --git a/ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-18i20.conf b/ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-18i20.conf
+new file mode 100644
+index 00000000..cc8fb049
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-18i20.conf
+@@ -0,0 +1,13 @@
++Define {
++	DirectPlaybackChannels 20
++	DirectCaptureChannels 20
++}
++
++Comment "Focusrite Scarlett 3rd Gen 18i20"
++
++SectionUseCase."HiFi" {
++	Comment "Default"
++	File "/USB-Audio/Focusrite/Scarlett-3rd-Gen-18i20-HiFi.conf"
++}
++
++Include.dhw.File "/common/direct.conf"
+diff --git a/ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-18i8-HiFi.conf b/ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-18i8-HiFi.conf
+new file mode 100644
+index 00000000..84bc4218
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-18i8-HiFi.conf
+@@ -0,0 +1,180 @@
++Include.pcm_split.File "/common/pcm/split.conf"
++
++Macro [
++	{
++		SplitPCM {
++			Name "scarlett_3rd_gen_18i8_stereo_out"
++			Direction Playback
++			Channels 2
++			HWChannels 8
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++			HWChannelPos4 FL
++			HWChannelPos5 FR
++			HWChannelPos6 FL
++			HWChannelPos7 FR
++		}
++	}
++	{
++		SplitPCM {
++			Name "scarlett_3rd_gen_18i8_mono_in"
++			Direction Capture
++			Channels 1
++			HWChannels 20
++			HWChannelPos0 MONO
++			HWChannelPos1 MONO
++			HWChannelPos2 MONO
++			HWChannelPos3 MONO
++			HWChannelPos4 MONO
++			HWChannelPos5 MONO
++			HWChannelPos6 MONO
++			HWChannelPos7 MONO
++			HWChannelPos8 MONO
++			HWChannelPos9 MONO
++			HWChannelPos10 MONO
++			HWChannelPos11 MONO
++			HWChannelPos12 MONO
++			HWChannelPos13 MONO
++			HWChannelPos14 MONO
++			HWChannelPos15 MONO
++			HWChannelPos16 MONO
++			HWChannelPos17 MONO
++			HWChannelPos18 MONO
++			HWChannelPos19 MONO
++		}
++	}
++	{
++		SplitPCM {
++			Name "scarlett_3rd_gen_18i8_stereo_in"
++			Direction Capture
++			Channels 2
++			HWChannels 20
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++			HWChannelPos4 FL
++			HWChannelPos5 FR
++			HWChannelPos6 FL
++			HWChannelPos7 FR
++			HWChannelPos8 FL
++			HWChannelPos9 FR
++			HWChannelPos10 FL
++			HWChannelPos11 FR
++			HWChannelPos12 FL
++			HWChannelPos13 FR
++			HWChannelPos14 FL
++			HWChannelPos15 FR
++			HWChannelPos16 FL
++			HWChannelPos17 FR
++			HWChannelPos18 FL
++			HWChannelPos19 FR
++		}
++	}
++]
++
++SectionDevice."Out1-2" {
++	Comment "Line Out 1-2"
++
++	Value {
++		PlaybackPriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_18i8_stereo_out"
++		Direction Playback
++		HWChannels 8
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."Out5-6" {
++	Comment "Line Out 5-6/Headphones 1"
++
++	Value {
++		PlaybackPriority 50
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_18i8_stereo_out"
++		Direction Playback
++		HWChannels 8
++		Channels 2
++		Channel0 4
++		Channel1 5
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."Out7-8" {
++	Comment "Headphones 2"
++
++	Value {
++		PlaybackPriority 50
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_18i8_stereo_out"
++		Direction Playback
++		HWChannels 8
++		Channels 2
++		Channel0 6
++		Channel1 7
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In1" {
++	Comment "Mic/Line/Inst In 1"
++
++	Value {
++		CapturePriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_18i8_mono_in"
++		Direction Capture
++		HWChannels 20
++		Channels 1
++		Channel0 0
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In2" {
++	Comment "Mic/Line/Inst In 2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_18i8_mono_in"
++		Direction Capture
++		HWChannels 20
++		Channels 1
++		Channel0 1
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In1-2" {
++	Comment "Mic/Line/Inst In 1-2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_18i8_stereo_in"
++		Direction Capture
++		HWChannels 20
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
+diff --git a/ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-18i8.conf b/ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-18i8.conf
+new file mode 100644
+index 00000000..8f8755f4
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-18i8.conf
+@@ -0,0 +1,13 @@
++Define {
++	DirectPlaybackChannels 8
++	DirectCaptureChannels 20
++}
++
++Comment "Focusrite Scarlett 3rd Gen 18i8"
++
++SectionUseCase."HiFi" {
++	Comment "Default"
++	File "/USB-Audio/Focusrite/Scarlett-3rd-Gen-18i8-HiFi.conf"
++}
++
++Include.dhw.File "/common/direct.conf"
+diff --git a/ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-4i4-HiFi.conf b/ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-4i4-HiFi.conf
+new file mode 100644
+index 00000000..df71b8a1
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-4i4-HiFi.conf
+@@ -0,0 +1,198 @@
++Include.pcm_split.File "/common/pcm/split.conf"
++
++Macro [
++	{
++		SplitPCM {
++			Name "scarlett_3rd_gen_4i4_stereo_out"
++			Direction Playback
++			Channels 2
++			HWChannels 4
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++		}
++	}
++	{
++		SplitPCM {
++			Name "scarlett_3rd_gen_4i4_mono_in"
++			Direction Capture
++			Channels 1
++			HWChannels 6
++			HWChannelPos0 MONO
++			HWChannelPos1 MONO
++			HWChannelPos2 MONO
++			HWChannelPos3 MONO
++			HWChannelPos4 MONO
++			HWChannelPos5 MONO
++		}
++	}
++	{
++		SplitPCM {
++			Name "scarlett_3rd_gen_4i4_stereo_in"
++			Direction Capture
++			Channels 2
++			HWChannels 6
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++			HWChannelPos4 FL
++			HWChannelPos5 FR
++		}
++	}
++]
++
++SectionDevice."Out1-2" {
++	Comment "Line Out 1-2"
++
++	Value {
++		PlaybackPriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_4i4_stereo_out"
++		Direction Playback
++		HWChannels 4
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."Out3-4" {
++	Comment "Line Out 3-4/Headphones"
++
++	Value {
++		PlaybackPriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_4i4_stereo_out"
++		Direction Playback
++		HWChannels 4
++		Channels 2
++		Channel0 2
++		Channel1 3
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In1" {
++	Comment "Mic/Line/Inst In 1"
++
++	Value {
++		CapturePriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_4i4_mono_in"
++		Direction Capture
++		HWChannels 6
++		Channels 1
++		Channel0 0
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In2" {
++	Comment "Mic/Line/Inst In 2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_4i4_mono_in"
++		Direction Capture
++		HWChannels 6
++		Channels 1
++		Channel0 1
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In1-2" {
++	Comment "Mic/Line/Inst In 1-2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_4i4_stereo_in"
++		Direction Capture
++		HWChannels 6
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In3" {
++	Comment "Line In 3"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_4i4_mono_in"
++		Direction Capture
++		HWChannels 6
++		Channels 1
++		Channel0 2
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In4" {
++	Comment "Line In 4"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_4i4_mono_in"
++		Direction Capture
++		HWChannels 6
++		Channels 1
++		Channel0 3
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In3-4" {
++	Comment "Line In 3-4"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_4i4_stereo_in"
++		Direction Capture
++		HWChannels 6
++		Channels 2
++		Channel0 2
++		Channel1 3
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In5-6" {
++	Comment "Loopback"
++
++	Value {
++		CapturePriority 50
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_4i4_stereo_in"
++		Direction Capture
++		HWChannels 6
++		Channels 2
++		Channel0 4
++		Channel1 5
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
+diff --git a/ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-4i4.conf b/ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-4i4.conf
+new file mode 100644
+index 00000000..a1f64657
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-4i4.conf
+@@ -0,0 +1,13 @@
++Define {
++	DirectPlaybackChannels 4
++	DirectCaptureChannels 6
++}
++
++Comment "Focusrite Scarlett 3rd Gen 4i4"
++
++SectionUseCase."HiFi" {
++	Comment "Default"
++	File "/USB-Audio/Focusrite/Scarlett-3rd-Gen-4i4-HiFi.conf"
++}
++
++Include.dhw.File "/common/direct.conf"
+diff --git a/ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-8i6-HiFi.conf b/ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-8i6-HiFi.conf
+new file mode 100644
+index 00000000..a236751e
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-8i6-HiFi.conf
+@@ -0,0 +1,140 @@
++Include.pcm_split.File "/common/pcm/split.conf"
++
++Macro [
++	{
++		SplitPCM {
++			Name "scarlett_3rd_gen_8i6_stereo_out"
++			Direction Playback
++			Channels 2
++			HWChannels 6
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++			HWChannelPos4 FL
++			HWChannelPos5 FR
++		}
++	}
++	{
++		SplitPCM {
++			Name "scarlett_3rd_gen_8i6_mono_in"
++			Direction Capture
++			Channels 1
++			HWChannels 10
++			HWChannelPos0 MONO
++			HWChannelPos1 MONO
++			HWChannelPos2 MONO
++			HWChannelPos3 MONO
++			HWChannelPos4 MONO
++			HWChannelPos5 MONO
++			HWChannelPos6 MONO
++			HWChannelPos7 MONO
++			HWChannelPos8 MONO
++			HWChannelPos9 MONO
++		}
++	}
++	{
++		SplitPCM {
++			Name "scarlett_3rd_gen_8i6_stereo_in"
++			Direction Capture
++			Channels 2
++			HWChannels 10
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++			HWChannelPos4 FL
++			HWChannelPos5 FR
++			HWChannelPos6 FL
++			HWChannelPos7 FR
++			HWChannelPos8 FL
++			HWChannelPos9 FR
++		}
++	}
++]
++
++SectionDevice."Out1-2" {
++	Comment "Line Out 1-2/Headphones 1"
++
++	Value {
++		PlaybackPriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_8i6_stereo_out"
++		Direction Playback
++		HWChannels 6
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."Out3-4" {
++	Comment "Line Out 3-4/Headphones 2"
++
++	Value {
++		PlaybackPriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_8i6_stereo_out"
++		Direction Playback
++		HWChannels 6
++		Channels 2
++		Channel0 2
++		Channel1 3
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In1" {
++	Comment "Mic/Line/Inst In 1"
++
++	Value {
++		CapturePriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_8i6_mono_in"
++		Direction Capture
++		HWChannels 10
++		Channels 1
++		Channel0 0
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In2" {
++	Comment "Mic/Line/Inst In 2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_8i6_mono_in"
++		Direction Capture
++		HWChannels 10
++		Channels 1
++		Channel0 1
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In1-2" {
++	Comment "Mic/Line/Inst In 1-2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_3rd_gen_8i6_stereo_in"
++		Direction Capture
++		HWChannels 10
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
+diff --git a/ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-8i6.conf b/ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-8i6.conf
+new file mode 100644
+index 00000000..8e61ff3d
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Scarlett-3rd-Gen-8i6.conf
+@@ -0,0 +1,13 @@
++Define {
++	DirectPlaybackChannels 6
++	DirectCaptureChannels 10
++}
++
++Comment "Focusrite Scarlett 3rd Gen 8i6"
++
++SectionUseCase."HiFi" {
++	Comment "Default"
++	File "/USB-Audio/Focusrite/Scarlett-3rd-Gen-8i6-HiFi.conf"
++}
++
++Include.dhw.File "/common/direct.conf"
+diff --git a/ucm2/USB-Audio/Focusrite/Scarlett-4th-Gen-2i2-HiFi.conf b/ucm2/USB-Audio/Focusrite/Scarlett-4th-Gen-2i2-HiFi.conf
+new file mode 100644
+index 00000000..4e36f8ef
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Scarlett-4th-Gen-2i2-HiFi.conf
+@@ -0,0 +1,105 @@
++Include.pcm_split.File "/common/pcm/split.conf"
++
++Macro [
++	{
++		SplitPCM {
++			Name "scarlett_4th_gen_2i2_mono_in"
++			Direction Capture
++			Channels 1
++			HWChannels 4
++			HWChannelPos0 MONO
++			HWChannelPos1 MONO
++			HWChannelPos2 MONO
++			HWChannelPos3 MONO
++		}
++	}
++	{
++		SplitPCM {
++			Name "scarlett_4th_gen_2i2_stereo_in"
++			Direction Capture
++			Channels 2
++			HWChannels 4
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++		}
++	}
++]
++
++SectionDevice."Out1-2" {
++	Comment "Line Out 1-2/Headphones"
++
++	Value {
++		PlaybackPriority 200
++		PlaybackPCM "hw:${CardId}"
++	}
++}
++
++SectionDevice."In1" {
++	Comment "Mic/Line/Inst In 1"
++
++	Value {
++		CapturePriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_4th_gen_2i2_mono_in"
++		Direction Capture
++		HWChannels 4
++		Channels 1
++		Channel0 0
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In2" {
++	Comment "Mic/Line/Inst In 2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_4th_gen_2i2_mono_in"
++		Direction Capture
++		HWChannels 4
++		Channels 1
++		Channel0 1
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In1-2" {
++	Comment "Mic/Line/Inst In 1-2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_4th_gen_2i2_stereo_in"
++		Direction Capture
++		HWChannels 4
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In3-4" {
++	Comment "Loopback"
++
++	Value {
++		CapturePriority 50
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_4th_gen_2i2_stereo_in"
++		Direction Capture
++		HWChannels 4
++		Channels 2
++		Channel0 2
++		Channel1 3
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
+diff --git a/ucm2/USB-Audio/Focusrite/Scarlett-4th-Gen-2i2.conf b/ucm2/USB-Audio/Focusrite/Scarlett-4th-Gen-2i2.conf
+new file mode 100644
+index 00000000..eed7b299
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Scarlett-4th-Gen-2i2.conf
+@@ -0,0 +1,13 @@
++Define {
++	DirectPlaybackChannels 2
++	DirectCaptureChannels 4
++}
++
++Comment "Focusrite Scarlett 4th Gen 2i2"
++
++SectionUseCase."HiFi" {
++	Comment "Default"
++	File "/USB-Audio/Focusrite/Scarlett-4th-Gen-2i2-HiFi.conf"
++}
++
++Include.dhw.File "/common/direct.conf"
+diff --git a/ucm2/USB-Audio/Focusrite/Scarlett-4th-Gen-4i4-HiFi.conf b/ucm2/USB-Audio/Focusrite/Scarlett-4th-Gen-4i4-HiFi.conf
+new file mode 100644
+index 00000000..4a7c0b0c
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Scarlett-4th-Gen-4i4-HiFi.conf
+@@ -0,0 +1,218 @@
++Include.pcm_split.File "/common/pcm/split.conf"
++
++Macro [
++	{
++		SplitPCM {
++			Name "scarlett_4th_gen_4i4_stereo_out"
++			Direction Playback
++			Channels 2
++			HWChannels 6
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++			HWChannelPos4 FL
++			HWChannelPos5 FR
++		}
++	}
++	{
++		SplitPCM {
++			Name "scarlett_4th_gen_4i4_mono_in"
++			Direction Capture
++			Channels 1
++			HWChannels 6
++			HWChannelPos0 MONO
++			HWChannelPos1 MONO
++			HWChannelPos2 MONO
++			HWChannelPos3 MONO
++			HWChannelPos4 MONO
++			HWChannelPos5 MONO
++		}
++	}
++	{
++		SplitPCM {
++			Name "scarlett_4th_gen_4i4_stereo_in"
++			Direction Capture
++			Channels 2
++			HWChannels 6
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++			HWChannelPos4 FL
++			HWChannelPos5 FR
++		}
++	}
++]
++
++SectionDevice."Out1-2" {
++	Comment "Line Out 1-2"
++
++	Value {
++		PlaybackPriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_4th_gen_4i4_stereo_out"
++		Direction Playback
++		HWChannels 6
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."Out3-4" {
++	Comment "Line Out 3-4"
++
++	Value {
++		PlaybackPriority 50
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_4th_gen_4i4_stereo_out"
++		Direction Playback
++		HWChannels 6
++		Channels 2
++		Channel0 2
++		Channel1 3
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."Out5-6" {
++	Comment "Headphones"
++
++	Value {
++		PlaybackPriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_4th_gen_4i4_stereo_out"
++		Direction Playback
++		HWChannels 6
++		Channels 2
++		Channel0 4
++		Channel1 5
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In1" {
++	Comment "Mic/Line/Inst In 1"
++
++	Value {
++		CapturePriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_4th_gen_4i4_mono_in"
++		Direction Capture
++		HWChannels 6
++		Channels 1
++		Channel0 0
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In2" {
++	Comment "Mic/Line/Inst In 2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_4th_gen_4i4_mono_in"
++		Direction Capture
++		HWChannels 6
++		Channels 1
++		Channel0 1
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In1-2" {
++	Comment "Mic/Line/Inst In 1-2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_4th_gen_4i4_stereo_in"
++		Direction Capture
++		HWChannels 6
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In3" {
++	Comment "Line In 3"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_4th_gen_4i4_mono_in"
++		Direction Capture
++		HWChannels 6
++		Channels 1
++		Channel0 2
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In4" {
++	Comment "Line In 4"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_4th_gen_4i4_mono_in"
++		Direction Capture
++		HWChannels 6
++		Channels 1
++		Channel0 3
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In3-4" {
++	Comment "Line In 3-4"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_4th_gen_4i4_stereo_in"
++		Direction Capture
++		HWChannels 6
++		Channels 2
++		Channel0 2
++		Channel1 3
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In5-6" {
++	Comment "Loopback"
++
++	Value {
++		CapturePriority 50
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_4th_gen_4i4_stereo_in"
++		Direction Capture
++		HWChannels 6
++		Channels 2
++		Channel0 4
++		Channel1 5
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
+diff --git a/ucm2/USB-Audio/Focusrite/Scarlett-4th-Gen-4i4.conf b/ucm2/USB-Audio/Focusrite/Scarlett-4th-Gen-4i4.conf
+new file mode 100644
+index 00000000..29edd639
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Scarlett-4th-Gen-4i4.conf
+@@ -0,0 +1,13 @@
++Define {
++	DirectPlaybackChannels 6
++	DirectCaptureChannels 6
++}
++
++Comment "Focusrite Scarlett 4th Gen 4i4"
++
++SectionUseCase."HiFi" {
++	Comment "Default"
++	File "/USB-Audio/Focusrite/Scarlett-4th-Gen-4i4-HiFi.conf"
++}
++
++Include.dhw.File "/common/direct.conf"
+diff --git a/ucm2/USB-Audio/Focusrite/Scarlett-4th-Gen-Solo-HiFi.conf b/ucm2/USB-Audio/Focusrite/Scarlett-4th-Gen-Solo-HiFi.conf
+new file mode 100644
+index 00000000..2de0f9ef
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Scarlett-4th-Gen-Solo-HiFi.conf
+@@ -0,0 +1,87 @@
++Include.pcm_split.File "/common/pcm/split.conf"
++
++Macro [
++	{
++		SplitPCM {
++			Name "scarlett_4th_gen_solo_mono_in"
++			Direction Capture
++			Channels 1
++			HWChannels 4
++			HWChannelPos0 MONO
++			HWChannelPos1 MONO
++			HWChannelPos2 MONO
++			HWChannelPos3 MONO
++		}
++	}
++	{
++		SplitPCM {
++			Name "scarlett_4th_gen_solo_stereo_in"
++			Direction Capture
++			Channels 2
++			HWChannels 4
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++		}
++	}
++]
++
++SectionDevice."Out1-2" {
++	Comment "Line Out 1-2/Headphones"
++
++	Value {
++		PlaybackPriority 200
++		PlaybackPCM "hw:${CardId}"
++	}
++}
++
++SectionDevice."In1" {
++	Comment "Line/Inst In 1"
++
++	Value {
++		CapturePriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_4th_gen_solo_mono_in"
++		Direction Capture
++		HWChannels 4
++		Channels 1
++		Channel0 0
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In2" {
++	Comment "Mic In 2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_4th_gen_solo_mono_in"
++		Direction Capture
++		HWChannels 4
++		Channels 1
++		Channel0 1
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In3-4" {
++	Comment "Loopback"
++
++	Value {
++		CapturePriority 50
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "scarlett_4th_gen_solo_stereo_in"
++		Direction Capture
++		HWChannels 4
++		Channels 2
++		Channel0 2
++		Channel1 3
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
+diff --git a/ucm2/USB-Audio/Focusrite/Scarlett-4th-Gen-Solo.conf b/ucm2/USB-Audio/Focusrite/Scarlett-4th-Gen-Solo.conf
+new file mode 100644
+index 00000000..a10dea04
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Scarlett-4th-Gen-Solo.conf
+@@ -0,0 +1,13 @@
++Define {
++	DirectPlaybackChannels 2
++	DirectCaptureChannels 4
++}
++
++Comment "Focusrite Scarlett 4th Gen Solo"
++
++SectionUseCase."HiFi" {
++	Comment "Default"
++	File "/USB-Audio/Focusrite/Scarlett-4th-Gen-Solo-HiFi.conf"
++}
++
++Include.dhw.File "/common/direct.conf"
+diff --git a/ucm2/USB-Audio/Focusrite/Vocaster-One-HiFi.conf b/ucm2/USB-Audio/Focusrite/Vocaster-One-HiFi.conf
+new file mode 100644
+index 00000000..4372a4e8
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Vocaster-One-HiFi.conf
+@@ -0,0 +1,192 @@
++Include.pcm_split.File "/common/pcm/split.conf"
++
++Macro [
++	{
++		SplitPCM {
++			Name "vocaster_one_stereo_out"
++			Direction Playback
++			Channels 2
++			HWChannels 4
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++		}
++	}
++	{
++		SplitPCM {
++			Name "vocaster_one_mono_in"
++			Direction Capture
++			Channels 1
++			HWChannels 10
++			HWChannelPos0 MONO
++			HWChannelPos1 MONO
++			HWChannelPos2 MONO
++			HWChannelPos3 MONO
++			HWChannelPos4 MONO
++			HWChannelPos5 MONO
++			HWChannelPos6 MONO
++			HWChannelPos7 MONO
++			HWChannelPos8 MONO
++			HWChannelPos9 MONO
++		}
++	}
++	{
++		SplitPCM {
++			Name "vocaster_one_stereo_in"
++			Direction Capture
++			Channels 2
++			HWChannels 10
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++			HWChannelPos4 FL
++			HWChannelPos5 FR
++			HWChannelPos6 FL
++			HWChannelPos7 FR
++			HWChannelPos8 FL
++			HWChannelPos9 FR
++		}
++	}
++]
++
++SectionDevice."Out1-2" {
++	Comment "Video Call"
++
++	Value {
++		PlaybackPriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "vocaster_one_stereo_out"
++		Direction Playback
++		HWChannels 4
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."Out3-4" {
++	Comment "Playback"
++
++	Value {
++		PlaybackPriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "vocaster_one_stereo_out"
++		Direction Playback
++		HWChannels 4
++		Channels 2
++		Channel0 2
++		Channel1 3
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In1-2" {
++	Comment "Video Call"
++
++	Value {
++		CapturePriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "vocaster_one_stereo_in"
++		Direction Capture
++		HWChannels 10
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In3-4" {
++	Comment "Show Mix"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "vocaster_one_stereo_in"
++		Direction Capture
++		HWChannels 10
++		Channels 2
++		Channel0 2
++		Channel1 3
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In5" {
++	Comment "Host Mic"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "vocaster_one_mono_in"
++		Direction Capture
++		HWChannels 10
++		Channels 1
++		Channel0 4
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In6" {
++	Comment "Aux"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "vocaster_one_mono_in"
++		Direction Capture
++		HWChannels 10
++		Channels 1
++		Channel0 5
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In7-8" {
++	Comment "Loopback 1"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "vocaster_one_stereo_in"
++		Direction Capture
++		HWChannels 10
++		Channels 2
++		Channel0 6
++		Channel1 7
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In9-10" {
++	Comment "Loopback 2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "vocaster_one_stereo_in"
++		Direction Capture
++		HWChannels 10
++		Channels 2
++		Channel0 8
++		Channel1 9
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
+diff --git a/ucm2/USB-Audio/Focusrite/Vocaster-One.conf b/ucm2/USB-Audio/Focusrite/Vocaster-One.conf
+new file mode 100644
+index 00000000..f494e515
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Vocaster-One.conf
+@@ -0,0 +1,13 @@
++Define {
++	DirectPlaybackChannels 4
++	DirectCaptureChannels 10
++}
++
++Comment "Focusrite Vocaster One"
++
++SectionUseCase."HiFi" {
++	Comment "Default"
++	File "/USB-Audio/Focusrite/Vocaster-One-HiFi.conf"
++}
++
++Include.dhw.File "/common/direct.conf"
+diff --git a/ucm2/USB-Audio/Focusrite/Vocaster-Two-HiFi.conf b/ucm2/USB-Audio/Focusrite/Vocaster-Two-HiFi.conf
+new file mode 100644
+index 00000000..f096ec0f
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Vocaster-Two-HiFi.conf
+@@ -0,0 +1,254 @@
++Include.pcm_split.File "/common/pcm/split.conf"
++
++Macro [
++	{
++		SplitPCM {
++			Name "vocaster_two_stereo_out"
++			Direction Playback
++			Channels 2
++			HWChannels 4
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++		}
++	}
++	{
++		SplitPCM {
++			Name "vocaster_two_mono_in"
++			Direction Capture
++			Channels 1
++			HWChannels 14
++			HWChannelPos0 MONO
++			HWChannelPos1 MONO
++			HWChannelPos2 MONO
++			HWChannelPos3 MONO
++			HWChannelPos4 MONO
++			HWChannelPos5 MONO
++			HWChannelPos6 MONO
++			HWChannelPos7 MONO
++			HWChannelPos8 MONO
++			HWChannelPos9 MONO
++			HWChannelPos10 MONO
++			HWChannelPos11 MONO
++			HWChannelPos12 MONO
++			HWChannelPos13 MONO
++		}
++	}
++	{
++		SplitPCM {
++			Name "vocaster_two_stereo_in"
++			Direction Capture
++			Channels 2
++			HWChannels 14
++			HWChannelPos0 FL
++			HWChannelPos1 FR
++			HWChannelPos2 FL
++			HWChannelPos3 FR
++			HWChannelPos4 FL
++			HWChannelPos5 FR
++			HWChannelPos6 FL
++			HWChannelPos7 FR
++			HWChannelPos8 FL
++			HWChannelPos9 FR
++			HWChannelPos10 FL
++			HWChannelPos11 FR
++			HWChannelPos12 FL
++			HWChannelPos13 FR
++		}
++	}
++]
++
++SectionDevice."Out1-2" {
++	Comment "Video Call"
++
++	Value {
++		PlaybackPriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "vocaster_two_stereo_out"
++		Direction Playback
++		HWChannels 4
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."Out3-4" {
++	Comment "Playback"
++
++	Value {
++		PlaybackPriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "vocaster_two_stereo_out"
++		Direction Playback
++		HWChannels 4
++		Channels 2
++		Channel0 2
++		Channel1 3
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In1-2" {
++	Comment "Video Call"
++
++	Value {
++		CapturePriority 200
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "vocaster_two_stereo_in"
++		Direction Capture
++		HWChannels 14
++		Channels 2
++		Channel0 0
++		Channel1 1
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In3-4" {
++	Comment "Show Mix"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "vocaster_two_stereo_in"
++		Direction Capture
++		HWChannels 14
++		Channels 2
++		Channel0 2
++		Channel1 3
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In5" {
++	Comment "Host Mic"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "vocaster_two_mono_in"
++		Direction Capture
++		HWChannels 14
++		Channels 1
++		Channel0 4
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In6" {
++	Comment "Guest Mic"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "vocaster_two_mono_in"
++		Direction Capture
++		HWChannels 14
++		Channels 1
++		Channel0 5
++		ChannelPos0 MONO
++	}
++}
++
++SectionDevice."In5-6" {
++	Comment "Mic In 1-2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "vocaster_two_stereo_in"
++		Direction Capture
++		HWChannels 14
++		Channels 2
++		Channel0 4
++		Channel1 5
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In7-8" {
++	Comment "Aux"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "vocaster_two_stereo_in"
++		Direction Capture
++		HWChannels 14
++		Channels 2
++		Channel0 6
++		Channel1 7
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In9-10" {
++	Comment "Bluetooth"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "vocaster_two_stereo_in"
++		Direction Capture
++		HWChannels 14
++		Channels 2
++		Channel0 8
++		Channel1 9
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In11-12" {
++	Comment "Loopback 1"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "vocaster_two_stereo_in"
++		Direction Capture
++		HWChannels 14
++		Channels 2
++		Channel0 10
++		Channel1 11
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
++
++SectionDevice."In13-14" {
++	Comment "Loopback 2"
++
++	Value {
++		CapturePriority 100
++	}
++	Macro.pcm_split.SplitPCMDevice {
++		Name "vocaster_two_stereo_in"
++		Direction Capture
++		HWChannels 14
++		Channels 2
++		Channel0 12
++		Channel1 13
++		ChannelPos0 FL
++		ChannelPos1 FR
++	}
++}
+diff --git a/ucm2/USB-Audio/Focusrite/Vocaster-Two.conf b/ucm2/USB-Audio/Focusrite/Vocaster-Two.conf
+new file mode 100644
+index 00000000..30e66c7e
+--- /dev/null
++++ b/ucm2/USB-Audio/Focusrite/Vocaster-Two.conf
+@@ -0,0 +1,13 @@
++Define {
++	DirectPlaybackChannels 4
++	DirectCaptureChannels 14
++}
++
++Comment "Focusrite Vocaster Two"
++
++SectionUseCase."HiFi" {
++	Comment "Default"
++	File "/USB-Audio/Focusrite/Vocaster-Two-HiFi.conf"
++}
++
++Include.dhw.File "/common/direct.conf"
+diff --git a/ucm2/USB-Audio/USB-Audio.conf b/ucm2/USB-Audio/USB-Audio.conf
+index 6b99f9c3..4af359cd 100644
+--- a/ucm2/USB-Audio/USB-Audio.conf
++++ b/ucm2/USB-Audio/USB-Audio.conf
+@@ -237,6 +237,171 @@ If.focusrite-scarlett-2i {
+ 	}
+ }
+ 
++If.focusrite-scarlett-2nd-gen-18i20 {
++	Condition {
++		Type RegexMatch
++		String "${CardComponents}"
++		Regex "USB1235:8201"
++	}
++	True.Define {
++		ProfileName "Focusrite/Scarlett-2nd-Gen-18i20"
++	}
++}
++
++If.focusrite-scarlett-2nd-gen-6i6 {
++	Condition {
++		Type RegexMatch
++		String "${CardComponents}"
++		Regex "USB1235:8203"
++	}
++	True.Define {
++		ProfileName "Focusrite/Scarlett-2nd-Gen-6i6"
++	}
++}
++
++If.focusrite-scarlett-2nd-gen-18i8 {
++	Condition {
++		Type RegexMatch
++		String "${CardComponents}"
++		Regex "USB1235:8204"
++	}
++	True.Define {
++		ProfileName "Focusrite/Scarlett-2nd-Gen-18i8"
++	}
++}
++
++If.focusrite-clarett-2pre {
++	Condition {
++		Type RegexMatch
++		String "${CardComponents}"
++		Regex "USB1235:(8206|820a)"
++	}
++	True.Define {
++		ProfileName "Focusrite/Clarett-2Pre"
++	}
++}
++
++If.focusrite-clarett-4pre {
++	Condition {
++		Type RegexMatch
++		String "${CardComponents}"
++		Regex "USB1235:(8207|820b)"
++	}
++	True.Define {
++		ProfileName "Focusrite/Clarett-4Pre"
++	}
++}
++
++If.focusrite-clarett-8pre {
++	Condition {
++		Type RegexMatch
++		String "${CardComponents}"
++		Regex "USB1235:(8208|820c)"
++	}
++	True.Define {
++		ProfileName "Focusrite/Clarett-8Pre"
++	}
++}
++
++If.focusrite-scarlett-3rd-gen-4i4 {
++	Condition {
++		Type RegexMatch
++		String "${CardComponents}"
++		Regex "USB1235:8212"
++	}
++	True.Define {
++		ProfileName "Focusrite/Scarlett-3rd-Gen-4i4"
++	}
++}
++
++If.focusrite-scarlett-3rd-gen-8i6 {
++	Condition {
++		Type RegexMatch
++		String "${CardComponents}"
++		Regex "USB1235:8213"
++	}
++	True.Define {
++		ProfileName "Focusrite/Scarlett-3rd-Gen-8i6"
++	}
++}
++
++If.focusrite-scarlett-3rd-gen-18i8 {
++	Condition {
++		Type RegexMatch
++		String "${CardComponents}"
++		Regex "USB1235:8214"
++	}
++	True.Define {
++		ProfileName "Focusrite/Scarlett-3rd-Gen-18i8"
++	}
++}
++
++If.focusrite-scarlett-3rd-gen-18i20 {
++	Condition {
++		Type RegexMatch
++		String "${CardComponents}"
++		Regex "USB1235:8215"
++	}
++	True.Define {
++		ProfileName "Focusrite/Scarlett-3rd-Gen-18i20"
++	}
++}
++
++If.focusrite-vocaster-one {
++	Condition {
++		Type RegexMatch
++		String "${CardComponents}"
++		Regex "USB1235:8216"
++	}
++	True.Define {
++		ProfileName "Focusrite/Vocaster-One"
++	}
++}
++
++If.focusrite-vocaster-two {
++	Condition {
++		Type RegexMatch
++		String "${CardComponents}"
++		Regex "USB1235:8217"
++	}
++	True.Define {
++		ProfileName "Focusrite/Vocaster-Two"
++	}
++}
++
++If.focusrite-scarlett-4th-gen-solo {
++	Condition {
++		Type RegexMatch
++		String "${CardComponents}"
++		Regex "USB1235:8218"
++	}
++	True.Define {
++		ProfileName "Focusrite/Scarlett-4th-Gen-Solo"
++	}
++}
++
++If.focusrite-scarlett-4th-gen-2i2 {
++	Condition {
++		Type RegexMatch
++		String "${CardComponents}"
++		Regex "USB1235:8219"
++	}
++	True.Define {
++		ProfileName "Focusrite/Scarlett-4th-Gen-2i2"
++	}
++}
++
++If.focusrite-scarlett-4th-gen-4i4 {
++	Condition {
++		Type RegexMatch
++		String "${CardComponents}"
++		Regex "USB1235:821a"
++	}
++	True.Define {
++		ProfileName "Focusrite/Scarlett-4th-Gen-4i4"
++	}
++}
++
+ If.behringer-umc202hd {
+ 	Condition {
+ 		Type String

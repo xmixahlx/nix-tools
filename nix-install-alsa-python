@@ -1,6 +1,6 @@
 #!/bin/sh
 
-### Package: nix-install-alsa-lib
+### Package: nix-install-alsa-python
 ### Version: v20240811.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
@@ -49,8 +49,8 @@ RESDIR=$NIXTOOLSDIR/resources
 DEVDIR=$NIXTOOLSDIR/upstream
 MULTILIBDIR=`gcc -dumpmachine`
 GITURL=git://git.alsa-project.org
-GITREPO=alsa-lib
-GITTREE=alsa-lib
+GITREPO=alsa-python
+GITTREE=alsa-python
 PKGDIR=$GITTREE\_$GITBRANCH
 
 ## DEPS
@@ -73,16 +73,11 @@ git reset --hard
 git pull
 git submodule update --init --recursive --depth=1
 
-## CONFIGURE
-autoreconf -vifs
-./configure --prefix=$DESTDIR --localstatedir=$LOCALSTATEDIR --sysconfdir=$SYSCONFDIR --libdir=$DESTDIR/lib/$MULTILIBDIR \
---enable-alisp --enable-mixer-modules --enable-mixer-pymods
-
 ## BUILD
-make -j `nproc`
+python3 setup.py build
 
 ## INSTALL
-sudo make install
+sudo python3 setup.py install
 sudo ldconfig
 
 ## EXIT

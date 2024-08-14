@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-alsa-ucm-conf
-### Version: v20220802.2300
+### Version: v20240811.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -26,13 +26,28 @@ if [ -z $GITBRANCH ]; then
 fi
 echo "*** GITBRANCH selected is $GITBRANCH."
 
+# DESTDIR
+if [ -z $DESTDIR ]; then
+ DESTDIR=/usr
+fi
+echo "*** DESTDIR selected is $DESTDIR."
+
+# LOCALSTATEDIR
+if [ -z $LOCALSTATEDIR ]; then
+ LOCALSTATEDIR=/var
+fi
+echo "*** LOCALSTATEDIR selected is $LOCALSTATEDIR."
+
+# SYSCONFDIR
+if [ -z $SYSCONFDIR ]; then
+ SYSCONFDIR=/etc
+fi
+echo "*** SYSCONFDIR selected is $SYSCONFDIR."
+
 ## VARS
 RESDIR=$NIXTOOLSDIR/resources
 DEVDIR=$NIXTOOLSDIR/upstream
 MULTILIBDIR=`gcc -dumpmachine`
-DESTDIR=/usr
-LOCALSTATEDIR=/var
-SYSCONFDIR=/etc
 GITURL=git://git.alsa-project.org
 GITREPO=alsa-ucm-conf
 GITTREE=alsa-ucm-conf
@@ -58,8 +73,10 @@ git reset --hard
 git pull
 git submodule update --init --recursive --depth=1
 
+## FOCUSRITE PATCH
+patch -p1 < $RESDIR/alsa-ucm-conf/ucm-focusrite-patch-20240415.patch
+
 ## INSTALL
-#sudo rm -Rf /usr/share/alsa/{ucm,ucm2}
 sudo cp -Rf ucm /usr/share/alsa/
 sudo cp -Rf ucm2 /usr/share/alsa/
 sudo ldconfig

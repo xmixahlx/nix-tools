@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-alsa-tinycompress
-### Version: v20220802.2300
+### Version: v20240811.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -26,13 +26,28 @@ if [ -z $GITBRANCH ]; then
 fi
 echo "*** GITBRANCH selected is $GITBRANCH."
 
+# DESTDIR
+if [ -z $DESTDIR ]; then
+ DESTDIR=/usr
+fi
+echo "*** DESTDIR selected is $DESTDIR."
+
+# LOCALSTATEDIR
+if [ -z $LOCALSTATEDIR ]; then
+ LOCALSTATEDIR=/var
+fi
+echo "*** LOCALSTATEDIR selected is $LOCALSTATEDIR."
+
+# SYSCONFDIR
+if [ -z $SYSCONFDIR ]; then
+ SYSCONFDIR=/etc
+fi
+echo "*** SYSCONFDIR selected is $SYSCONFDIR."
+
 ## VARS
 RESDIR=$NIXTOOLSDIR/resources
 DEVDIR=$NIXTOOLSDIR/upstream
 MULTILIBDIR=`gcc -dumpmachine`
-DESTDIR=/usr
-LOCALSTATEDIR=/var
-SYSCONFDIR=/etc
 GITURL=git://git.alsa-project.org
 GITREPO=tinycompress
 GITTREE=tinycompress

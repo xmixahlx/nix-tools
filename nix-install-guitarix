@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-guitarix
-### Version: v20211128.2300
+### Version: v20240811.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -31,17 +31,17 @@ RESDIR=$NIXTOOLSDIR/resources
 DEVDIR=$NIXTOOLSDIR/upstream
 DESTDIR=/usr/local
 MULTILIBDIR=`gcc -dumpmachine`
-GITURL=https://git.code.sf.net/p/
-GITREPO=guitarix
-GITTREE=git
-# Note: Guitarix Repo and Branch 
-PKGDIR=$GITREPO\_$GITBRANCH
+GITURL=https://github.com
+GITREPO=brummer10
+GITTREE=guitarix
+PKGDIR=$GITTREE\_$GITBRANCH
 
 ## DEPS
 # Provide INSTALLDEPS=debian to install dependencies.
 if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y build-dep guitarix
  sudo apt-get -y install build-essential coreutils libc-bin git meson \
- gi-docgen libcups2-dev
+ faust liblo-dev
 fi
 
 ## PREP
@@ -63,7 +63,7 @@ cd trunk
 ## CONFIGURE
 ./waf configure --prefix=$DESTDIR --libdir=$DESTDIR/lib/$MULTILIBDIR \
 --optimization --enable-lfs --enable-nls --shared-lib --lib-dev \
---includeresampler --includeconvolver --ladspa --new-ladspa --mod-lv2 \
+--includeresampler --includeconvolver --mod-lv2 \
 --jack-session
 
 ## BUILD

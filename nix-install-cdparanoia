@@ -1,0 +1,103 @@
+#!/bin/sh
+
+### Package: nix-install-cdparanoia
+### Version: v20240831.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# NIXTOOLSDIR
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+ PATH=$NIXTOOLSDIR:$PATH
+fi
+echo "*** NIXTOOLSDIR selected is $NIXTOOLSDIR."
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=master
+fi
+echo "*** GITBRANCH selected is $GITBRANCH."
+
+# DESTDIR
+if [ -z $DESTDIR ]; then
+ DESTDIR=/usr/local
+fi
+echo "*** DESTDIR selected is $DESTDIR."
+
+CC="ccache gcc-13"
+CPP="ccache g++-13"
+CFLAGS="-O3 -march=znver4 -mtune=znver4 -fPIC -g"
+CPPFLAGS="$CFLAGS"
+
+
+## VARS
+RESDIR=$NIXTOOLSDIR/resources
+DEVDIR=$NIXTOOLSDIR/upstream
+GITURL=https://salsa.debian.org
+GITREPO=optical-media-team
+GITTREE=cdparanoia
+PKGDIR=$GITTREE\_$GITBRANCH
+MULTILIBDIR=`gcc -dumpmachine`
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies for debian.
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y build-dep cdparanoia
+ sudo apt-get -y install build-essential coreutils libc-bin git meson
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## CLEAN
+#make clean
+
+## GIT
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -dfx
+git reset --hard
+git pull
+git submodule update --init --recursive --depth=1
+
+## PATCH
+# Debian
+patch -p1 < debian/patches/01-typos-and-spelling.patch
+patch -p1 < debian/patches/02-ide-devices.patch
+patch -p1 < debian/patches/03-gcc4.3.patch
+patch -p1 < debian/patches/04-endian.patch
+patch -p1 < debian/patches/05-kfreebsd.patch
+patch -p1 < debian/patches/06-autoconf.patch
+patch -p1 < debian/patches/07-jpmanfix.patch
+patch -p1 < debian/patches/cdparanoia-force-progress-bar.diff
+patch -p1 < debian/patches/0009-dh-autoconf-generate-config-files.patch
+
+# Overread
+patch -p1 < $RESDIR/cdparanoia/cdparanoia_overread_debian.patch
+
+## CONFIGURE
+autoreconf -vifs
+CC="$CC" CXX="$CXX" CFLAGS="$CFLAGS" CPPFLAGS="$CPPFLAGS" \
+./configure --prefix="$DESTDIR" --libdir="$DESTDIR"/lib/"$MULTILIBDIR"
+
+## BUILD
+make -j `nproc`
+
+## INSTALL
+sudo make install
+sudo ldconfig
+
+## EXIT
+exit
+
+## ENJOY

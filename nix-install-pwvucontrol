@@ -1,0 +1,95 @@
+#!/bin/sh
+
+### Package: nix-install-pwvucontrol
+### Version: v20240825.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# NIXTOOLSDIR
+if [ -z $NIXTOOLSDIR ]; then
+ NIXTOOLSDIR="`pwd`"
+ PATH=$NIXTOOLSDIR:$PATH
+fi
+echo "*** NIXTOOLSDIR selected is $NIXTOOLSDIR."
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=main
+fi
+echo "*** GITBRANCH selected is $GITBRANCH."
+
+# GITPR
+if [ -z $GITPR ]; then
+ GITPR=none
+fi
+echo "*** GITPR selected is $GITPR."
+
+# DESTDIR
+if [ -z $DESTDIR ]; then
+ DESTDIR=/usr/local
+fi
+echo "*** DESTDIR selected is $DESTDIR."
+
+## VARS
+DEVDIR=$NIXTOOLSDIR/upstream
+RESDIR=$NIXTOOLSDIR/resources
+GITURL=https://github.com
+GITREPO=saivert
+GITTREE=pwvucontrol
+PKGDIR=$GITTREE\_$GITBRANCH
+GITPRURL=$GITURL
+GITPRPATCH=$GITPRURL/$GITREPO/$GITTREE/-/merge_requests/$GITPR.patch
+
+## INSTALLDEPS
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y install build-essential coreutils libc-bin git
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## CLEAN
+sudo rm -Rf $PKGDIR/tmpbuild
+
+## GIT
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -dfx
+git reset --hard
+git pull
+git submodule update --init --recursive --depth=1
+
+## GITPR
+if [ $GITPR != none ]; then
+ rm -f $DEVDIR/$GITTREE\_$GITPR.patch
+ wget $GITPRPATCH -O $DEVDIR/$GITTREE\_$GITPR.patch
+ patch -p1 < $DEVDIR/$GITTREE\_$GITPR.patch
+fi
+
+## RUSTUP
+rustup override set nightly
+
+## CONFIGURE
+meson setup --prefix=$DESTDIR --libdir=$DESTDIR/lib/x86_64-linux-gnu --buildtype=release tmpbuild
+
+## BUILD
+ninja -C tmpbuild
+
+## INSTALL
+ninja -C tmpbuild install
+sudo ldconfig
+
+## EXIT
+exit
+
+# ENJOY

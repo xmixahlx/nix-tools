@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-xournalpp
-### Version: v20210912.2300
+### Version: v20240906.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -38,7 +38,8 @@ PKGDIR=$GITTREE\_$GITBRANCH
 # Provide INSTALLDEPS=debian to install dependencies.
 if [ $INSTALLDEPS = debian ]; then
  sudo apt-get -y install build-essential coreutils libc-bin git cmake \
- libzip-dev lua5.3 liblua5.3-dev libsndfile-dev portaudio19-dev
+ libzip-dev lua5.3 liblua5.3-dev libsndfile-dev portaudio19-dev \
+ libpoppler-glib-dev
 fi
 
 ## PREP

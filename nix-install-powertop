@@ -24,14 +24,15 @@ fi
 echo "*** GITBRANCH selected is $GITBRANCH."
 
 # DESTDIR
+# WARNING! Installation to /usr by default!
 if [ -z $DESTDIR ]; then
- DESTDIR=/usr/local
+ DESTDIR=/usr
 fi
 echo "*** DESTDIR selected is $DESTDIR."
 
 ## VARS
 RESDIR=$NIXTOOLSDIR/resources
-DEVDIR=/tmp/nix-tools
+DEVDIR=$NIXTOOLSDIR/upstream
 GITURL=https://github.com
 GITREPO=fenrus75
 GITTREE=powertop

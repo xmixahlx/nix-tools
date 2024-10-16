@@ -22,13 +22,13 @@ echo "*** INSTALLDEPS selected is $INSTALLDEPS."
 
 # DEBIANREPO
 if [ -z $DEBIANREPO ]; then
- DEBIANREPO=unstable
+ DEBIANREPO=experimental
 fi
 echo "*** DEBIANREPO selected is $DEBIANREPO."
 
 # PKGVER
 if [ -z $PKGVER ]; then
- PKGVER=19
+ PKGVER=20
 fi
 echo "*** PKGVER selected is $PKGVER."
 
@@ -44,15 +44,11 @@ fi
 if [ $INSTALLDEPS = debian ]; then
  # LLVM
  sudo rm /usr/bin/llvm-config
- sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-11 11
- sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-12 12
- sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-13 13
- sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-14 14
- sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-15 15
  sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-16 16
  sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-17 17
  sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-18 18
  sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-19 19
+ sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-20 20
  sudo update-alternatives --install /usr/bin/llvm-config llvm-config /opt/rocm-current/llvm/bin/llvm-config 990
  sudo update-alternatives --install /usr/bin/llvm-config llvm-config /opt/llvm-current/bin/llvm-config 998
  sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/local/bin/llvm-config 999

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ### Package: nix-install-xwayland
-### Version: v20240617.2300
+### Version: v20241008.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -14,7 +14,7 @@ if [ -z "$NIXTOOLSDIR" ]; then
  PATH="$NIXTOOLSDIR":"$PATH"
 fi
 
-source "$NIXTOOLSDIR"/resources/nix/environment.sh
+source "$NIXTOOLSDIR"/resources/nix-tools/environment1.sh
 
 # VARIABLES
 GITBRANCH=xwayland-24.1
@@ -41,19 +41,19 @@ if [ $INSTALLDEPS = debian ]; then
 fi
 
 # PREP
-source "$NIXTOOLSDIR"/resources/nix/prep.sh
+source "$NIXTOOLSDIR"/resources/nix-tools/prep.sh
 
 ## CLEAN
-source "$NIXTOOLSDIR"/resources/nix/clean_tmpbuild.sh
+source "$NIXTOOLSDIR"/resources/nix-tools/clean_tmpbuild.sh
 
 ## GIT
-source "$NIXTOOLSDIR"/resources/nix/git.sh
+source "$NIXTOOLSDIR"/resources/nix-tools/git.sh
 
 ## GITPR
-source "$NIXTOOLSDIR"/resources/nix/git_pr.sh
+source "$NIXTOOLSDIR"/resources/nix-tools/git_pr.sh
 
 ## CONFIGURE > BUILD > INSTALL
-source "$NIXTOOLSDIR"/resources/nix/meson.sh
+source "$NIXTOOLSDIR"/resources/nix-tools/meson.sh
 
 ## EXIT
 exit

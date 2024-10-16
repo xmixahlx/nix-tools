@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-svt-av1-psy
-### Version: v20240728.2300
+### Version: v20240825.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: dovi hdr10plus
@@ -20,7 +20,7 @@ fi
 # GITBRANCH
 # upstream branch is "master"
 if [ -z $GITBRANCH ]; then
- GITBRANCH=v2.1.0-A
+ GITBRANCH=v2.2.1-A
 fi
 echo "*** GITBRANCH selected is $GITBRANCH."
 
@@ -29,6 +29,13 @@ if [ -z $DESTDIR ]; then
  DESTDIR=/usr/local
 fi
 echo "*** DESTDIR selected is $DESTDIR."
+
+# AVX512
+# options are off or on
+if [ -z $AVX512 ]; then
+ AVX512=ON
+fi
+echo "*** AVX512 selected is $AVX512."
 
 ## VARS
 RESDIR=$NIXTOOLSDIR/resources
@@ -67,7 +74,8 @@ cd tmpbuild
 cmake .. -DCMAKE_INSTALL_PREFIX=$DESTDIR -DCMAKE_BUILD_TYPE=Release \
 -DCMAKE_INSTALL_LIBDIR=$DESTDIR/lib/x86_64-linux-gnu \
 -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
--DLIBDOVI_FOUND=1 -DLIBHDR10PLUS_RS_FOUND=1
+-DLIBDOVI_FOUND=1 -DLIBHDR10PLUS_RS_FOUND=1 \
+-DSVT_AV1_LTO=ON -DENABLE_AVX512="$AVX512"
 
 ## BUILD
 make -j `nproc`

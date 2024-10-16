@@ -47,7 +47,7 @@ echo "*** CFLAGSOVERRIDE selected is $CFLAGSOVERRIDE."
 
 # CFLAGS
 if [ $CFLAGSOVERRIDE = true ]; then
- CFLAGS="-O3 -march=native -fuse-ld=bfd"
+ CFLAGS="-O3 -march=native -march=znver4 -fuse-ld=bfd"
  CPPFLAGS="$CFLAGS"
 fi
 echo "*** CFLAGS selected is $CFLAGS."

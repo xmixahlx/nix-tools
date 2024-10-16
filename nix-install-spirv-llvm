@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-spirv-llvm
-### Version: v20240504.2300
+### Version: v20240921.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -35,7 +35,7 @@ echo "*** DESTDIR selected is $DESTDIR."
 
 # LLVMVER
 if [ -z $LLVMVER ]; then
- LLVMVER=19.1
+ LLVMVER=20
 fi
 echo "*** LLVMVER selected is $LLVMVER."
 

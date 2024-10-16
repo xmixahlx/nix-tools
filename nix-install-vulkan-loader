@@ -27,6 +27,13 @@ if [ -z $GITBRANCH ]; then
 fi
 echo "*** GITBRANCH selected is $GITBRANCH."
 
+# CC
+# Broken with gcc-14
+CC="ccache gcc-13"
+CXX="ccache g++-13"
+echo "*** CC selected is $CC."
+echo "*** CXX selected is $CXX."
+
 ## VARS
 RESDIR=$NIXTOOLSDIR/resources
 DEVDIR=$NIXTOOLSDIR/upstream

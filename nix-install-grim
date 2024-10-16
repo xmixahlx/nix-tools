@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-grim
-### Version: v20210912.2300
+### Version: v20241008.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -26,13 +26,20 @@ if [ -z $GITBRANCH ]; then
 fi
 echo "*** GITBRANCH selected is $GITBRANCH."
 
+# DESTDIR
+if [ -z $DESTDIR ]; then
+ DESTDIR=/usr/local
+fi
+echo "*** DESTDIR selected is $DESTDIR."
+
 ## VARS
 RESDIR=$NIXTOOLSDIR/resources
 DEVDIR=$NIXTOOLSDIR/upstream
-GITURL=https://github.com
-GITREPO=emersion
+GITURL=https://git.sr.ht
+GITREPO=~emersion
 GITTREE=grim
 PKGDIR=$GITTREE\_$GITBRANCH
+MULTILIBDIR=`gcc -dumpmachine`
 
 ## INSTALLDEPS
 # Debian Dependencies
@@ -50,7 +57,7 @@ cd $DEVDIR
 sudo rm -Rf $PKGDIR/tmpbuild
 
 ## GIT
-[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE --branch=$GITBRANCH $PKGDIR
 cd $PKGDIR
 git clean -dfx
 git reset --hard
@@ -58,7 +65,7 @@ git pull
 git submodule update --init --recursive --depth=1
 
 ## CONFIGURE
-meson tmpbuild --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu --buildtype=release
+meson tmpbuild --prefix="$DESTDIR" --libdir="$DESTDIR"/lib/"$MULTILIBDIR" --buildtype=release
 
 ## BUILD
 ninja -C tmpbuild

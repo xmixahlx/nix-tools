@@ -1,0 +1,21 @@
+From: jmk-foofus <jmk@foofus.net>
+Date: Sat, 20 Jan 2024 18:43:25 -0500
+Subject: fix sha224-256 compilation error
+
+---
+ lib/sha224-256.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/sha224-256.c b/lib/sha224-256.c
+index 89d7608..500dfa6 100644
+--- a/lib/sha224-256.c
++++ b/lib/sha224-256.c
+@@ -338,7 +338,7 @@ SHA256FinalBits (SHA256Context * context,
+  *   sha Error Code.
+  */
+ int
+-SHA256Result (SHA256Context * context, uint8_t Message_Digest[])
++SHA256Result (SHA256Context * context, uint8_t Message_Digest[SHA256HashSize])
+ {
+   return SHA224_256ResultN (context, Message_Digest, SHA256HashSize);
+ }

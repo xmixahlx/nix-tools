@@ -26,17 +26,12 @@ if [ -z $GITBRANCH ]; then
 fi
 echo "*** GITBRANCH selected is $GITBRANCH."
 
-# CFLAGS
-#if [ -z $CFLAGS ]; then
-# CFLAGS="-O3 -march=native"
-# CPPFLAGS="$CFLAGS"
-#fi
-#echo "*** CFLAGS selected is $CFLAGS."
-
 # CC
 # ccache broken
 CC=gcc-14
 CXX=g++-14
+export CC=$CC
+export CXX=$CXX
 echo "*** CC selected is $CC."
 echo "*** CX selected is $CXX."
 

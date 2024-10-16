@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Package: nix-install-whipper
-### Version: v20240414.2300
+### Version: v20240831.2300
 ### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
 ### License: GPLv3
 ### Script Dependencies: (none)
@@ -37,7 +37,7 @@ PKGDIR=$GITTREE\_$GITBRANCH
 ## DEPS
 # Provide INSTALLDEPS=debian to install dependencies.
 if [ $INSTALLDEPS = debian ]; then
- # sudo apt-get -y build-dep whipper
+ sudo apt-get -y build-dep whipper
  sudo apt-get -y install build-essential coreutils libc-bin git make python3 \
  cd-paranoia flac cdrdao flac sox eject python3-libdiscid python3-musicbrainzngs \
  python3-cdio python3-mutagen python3-ruamel.yaml libdiscid-dev icedax \

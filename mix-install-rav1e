@@ -1,0 +1,72 @@
+#!/bin/sh
+
+### Package: mix-install-rav1e
+### Version: v2021128.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# MIXTOOLSDIR
+if [ -z $MIXTOOLSDIR ]; then
+ MIXTOOLSDIR="`pwd`"
+ PATH=$MIXTOOLSDIR:$PATH
+fi
+echo "*** MIXTOOLSDIR selected is $MIXTOOLSDIR."
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=master
+fi
+echo "*** GITBRANCH selected is $GITBRANCH."
+
+## VARS
+DEVDIR=$MIXTOOLSDIR/upstream
+GITURL=https://github.com
+DESTDIR=/usr/local
+MULTILIBDIR=`gcc -dumpmachine`
+GITREPO=xiph
+GITTREE=rav1e
+PKGDIR=$GITTREE\_$GITBRANCH
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y install build-essential coreutils libc-bin wget
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## GIT
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+# Not using -d to retain cargo build directory for faster builds.
+git clean -fx
+git reset --hard
+git pull
+git submodule update --init --recursive --depth=1
+
+## BUILD
+#RUSTFLAGS="-C target-cpu=native" cargo build --release --features channel-api,unstable
+cargo build --release --features channel-api,unstable
+
+## INSTALL
+cargo install --path .
+#--prefix=$DESTDIR --libdir=$DESTDIR/lib/$MULTILIBDIR
+cargo cinstall --release --prefix=$DESTDIR --libdir=$DESTDIR/lib/$MULTILIBDIR
+#sudo cargo install --prefix=$DESTDIR --libdir=$DESTDIR/lib/$MULTILIBDIR
+#sudo cargo cinstall --release --prefix=$DESTDIR --libdir=$DESTDIR/lib/$MULTILIBDIR
+
+## EXIT
+exit
+
+## ENJOY

@@ -1,0 +1,74 @@
+#!/bin/sh
+
+### Package: mix-install-svt-hevc
+### Version: v20210411.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# MIXTOOLS
+if [ -z $MIXTOOLSDIR ]; then
+ MIXTOOLSDIR="`pwd`"
+fi
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+
+# GITBRANCH
+# NOTE: x265 requires svt-hevc 1.4.1
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=v1.4.1
+fi
+
+## VARS
+RESDIR=$MIXTOOLSDIR/resources
+DEVDIR=$MIXTOOLSDIR/upstream
+GITURL=https://github.com
+GITREPO=openvisualcloud
+GITTREE=svt-hevc
+PKGDIR=$GITTREE\_$GITBRANCH
+
+## INSTALLDEPS
+# Debian Dependencies
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y build-dep svt-hevc
+ sudo apt-get -y install build-essential coreutils libc-bin git cmake
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## GIT
+[ -d $PKGDIR ] || git clone --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -f
+git reset --hard
+git pull
+git submodule init
+git submodule update
+
+## CLEAN
+rm -Rf tmpbuild
+
+## CONFIGURE
+mkdir tmpbuild
+cd tmpbuild
+cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/svt-hevc-1.4.1 -DCMAKE_BUILD_TYPE=Release \
+-DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+
+## BUILD
+make -j `nproc`
+
+## INSTALL
+sudo make install
+sudo ldconfig
+
+## EXIT
+exit
+
+## ENJOY

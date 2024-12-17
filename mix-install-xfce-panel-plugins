@@ -1,0 +1,118 @@
+#!/bin/sh
+
+### Package: mix-install-xfce-panel-plugins
+### Version: v20241201.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: xfce-core
+
+## OVERRIDES
+# MIXTOOLSDIR
+if [ -z $MIXTOOLSDIR ]; then
+ MIXTOOLSDIR="`pwd`"
+ PATH=$MIXTOOLSDIR:$PATH
+fi
+echo "*** MIXTOOLSDIR selected is $MIXTOOLSDIR"
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS"
+
+# GITBRANCH is set in loop
+
+# DESTDIR
+if [ -z $DESTDIR ]; then
+ DESTDIR=/usr/local
+fi
+echo "*** DESTDIR selected is $DESTDIR."
+
+## VARS
+RESDIR=$MIXTOOLSDIR/resources
+DEVDIR=$MIXTOOLSDIR/upstream
+GITURL=https://gitlab.xfce.org
+GITREPO=panel-plugins
+# PKGDIR is set in loop
+MULTILIBDIR=`gcc -dumpmachine`
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y build-dep xfce4-battery-plugin xfce4-calculator-plugin xfce4-clipman-plugin xfce4-cpufreq-plugin \
+ xfce4-cpugraph-plugin xfce4-diskperf-plugin xfce4-docklike-plugin xfce4-embed-plugin xfce4-eyes-plugin \
+ xfce4-fsguard-plugin xfce4-generic-plugin xfce4-genmon-plugin xfce4-indicator-plugin xfce4-mailwatch-plugin \
+ xfce4-mount-plugin xfce4-mpc-plugin xfce4-netload-plugin xfce4-notes-plugin xfce4-places-plugin \
+ xfce4-pulseaudio-plugin xfce4-sensors-plugin xfce4-smartbookmark-plugin xfce4-stopwatch-plugin \
+ xfce4-systemload-plugin xfce4-time-out-plugin xfce4-timer-plugin xfce4-verve-plugin xfce4-wavelan-plugin \
+ xfce4-weather-plugin xfce4-whiskermenu-plugin xfce4-windowck-plugin xfce4-xkb-plugin
+ sudo apt-get -y install build-essential coreutils libc-bin git libaccountsservice-dev
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR/xfce/$GITREPO
+cd $DEVDIR/xfce/$GITREPO
+
+for GITTREE in xfce4-battery-plugin xfce4-calculator-plugin xfce4-clipman-plugin xfce4-cpufreq-plugin \
+xfce4-cpugraph-plugin xfce4-diskperf-plugin xfce4-docklike-plugin xfce4-eyes-plugin \
+xfce4-fsguard-plugin xfce4-genmon-plugin xfce4-indicator-plugin xfce4-mailwatch-plugin \
+xfce4-mount-plugin xfce4-mpc-plugin xfce4-netload-plugin xfce4-notes-plugin xfce4-places-plugin \
+xfce4-pulseaudio-plugin xfce4-sensors-plugin xfce4-smartbookmark-plugin xfce4-stopwatch-plugin \
+xfce4-systemload-plugin xfce4-time-out-plugin xfce4-timer-plugin xfce4-verve-plugin xfce4-wavelan-plugin \
+xfce4-weather-plugin  xfce4-whiskermenu-plugin xfce4-windowck-plugin xfce4-xkb-plugin; do
+
+ # VARS
+ # whiskermenu uses "main" branch, while others use "master".
+ if [ $GITTREE = xfce4-whiskermenu-plugin ]; then
+  GITBRANCH=main
+ else
+  GITBRANCH=master
+ fi
+ PKGDIR=$GITTREE\_$GITBRANCH
+
+ # GIT
+ [ -d $PKGDIR ] || git clone --depth=1 --recursive $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+ cd $PKGDIR
+ git clean -f
+ git reset --hard
+ git pull
+ git submodule update --init --recursive --depth=1
+
+ ## CONFIGURE
+ # AUTOTOOLS
+ # most packages use autotools
+ if [ -f autogen.sh ]; then
+  ./autogen.sh
+ fi
+ if [ -f configure ]; then
+  ./configure --prefix=$DESTDIR --libdir=$DESTDIR/lib/$MULTILIBDIR --enable-shared --disable-debug \
+  --with-pic --enable-maintainer-mode
+ fi
+
+ # CMAKE
+ # whiskermenu uses cmake
+ if [ -f CMakeLists.txt ]; then
+  rm -Rf tmpbuild
+  cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_INSTALL_LIBDIR=/usr/local/lib/x86_64-linux-gnu \
+  -DCMAKE_BUILD_TYPE=Release -B ./tmpbuild
+  cd tmpbuild
+ fi
+
+ ## BUILD
+ # both autotools and cmake use make
+ make -j `nproc`
+
+ ## INSTALL
+ sudo make install
+ sudo ldconfig
+
+ ## DONE
+ # complete the loop
+ cd $DEVDIR/xfce/$GITREPO
+ done
+
+## EXIT
+exit
+
+## ENJOY

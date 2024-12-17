@@ -1,0 +1,82 @@
+#!/bin/sh
+
+### Package: mix-install-zstd
+### Version: v20210912.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# MIXTOOLS
+if [ -z $MIXTOOLSDIR ]; then
+ MIXTOOLSDIR="`pwd`"
+fi
+echo "*** MIXTOOLSDIR selected is $MIXTOOLSDIR."
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
+
+# GITBRANCH
+# default branch is dev
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=dev
+fi
+echo "*** GITBRANCH selected is $GITBRANCH."
+
+# DESTDIR
+if [ -z $DESTDIR ]; then
+ DESTDIR=/usr
+fi
+echo "*** DESTDIR selected is $DESTDIR."
+
+## VARS
+RESDIR=$MIXTOOLSDIR/resources
+DEVDIR=$MIXTOOLSDIR/upstream
+MULTILIBDIR=`gcc -dumpmachine`
+GITURL=https://github.com/
+GITREPO=facebook
+GITTREE=zstd
+PKGDIR=$GITTREE\_$GITBRANCH
+
+## INSTALLDEPS
+# Debian Dependencies
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y install build-essential coreutils libc-bin git meson \
+ zlib1g-dev liblz4-dev liblzma-dev
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## CLEAN
+rm -Rf $PKGDIR/build/meson/tmpbuild
+
+## GIT
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -dfx
+git reset --hard
+git pull
+git submodule update --init --recursive --depth=1
+
+## CONFIGURE
+cd build/meson
+meson tmpbuild --prefix=$DESTDIR --libdir=$DESTDIR/lib/$MULTILIBDIR --buildtype=release \
+-Dlegacy_level=1
+
+## BUILD
+ninja -C tmpbuild
+
+## INSTALL
+sudo ninja -C tmpbuild install
+sudo ldconfig
+
+## EXIT
+exit
+
+## ENJOY

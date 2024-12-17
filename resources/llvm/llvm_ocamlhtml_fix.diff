@@ -1,0 +1,13 @@
+--- docs/cmake_install.cmake.orig	2024-12-16 15:17:14.699435667 -0800
++++ docs/cmake_install.cmake	2024-12-16 15:17:35.755450890 -0800
+@@ -42,10 +42,6 @@
+   set(CMAKE_OBJDUMP "/usr/local/bin/llvm-objdump")
+ endif()
+ 
+-if(CMAKE_INSTALL_COMPONENT STREQUAL "ocamldoc-html" OR NOT CMAKE_INSTALL_COMPONENT)
+-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/doc/LLVM/llvm/ocaml-html" TYPE DIRECTORY FILES "/tmp/mix-tools/llvm-project_main/tmpbuild/docs/ocamldoc/html/.")
+-endif()
+-
+ string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
+        "${CMAKE_INSTALL_MANIFEST_FILES}")
+ if(CMAKE_INSTALL_LOCAL_ONLY)

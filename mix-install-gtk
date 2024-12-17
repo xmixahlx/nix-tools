@@ -1,0 +1,85 @@
+#!/bin/sh
+
+### Package: mix-install-gtk
+### Version: v20240326.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# MIXTOOLSDIR
+if [ -z $MIXTOOLSDIR ]; then
+ MIXTOOLSDIR="`pwd`"
+ PATH=$MIXTOOLSDIR:$PATH
+fi
+echo "*** MIXTOOLSDIR selected is $MIXTOOLSDIR."
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
+
+# GITBRANCH
+# Upstream is main
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=main
+fi
+echo "*** GITBRANCH selected is $GITBRANCH."
+
+# DESTDIR
+if [ -z $DESTDIR ]; then
+ DESTDIR=/usr/local
+fi
+echo "*** DESTDIR selected is $DESTDIR."
+
+## VARS
+RESDIR=$MIXTOOLSDIR/resources
+DEVDIR=$MIXTOOLSDIR/upstream
+MULTILIBDIR=`gcc -dumpmachine`
+GITURL=https://gitlab.gnome.org
+GITREPO=gnome
+GITTREE=gtk
+PKGDIR=$GITTREE\_$GITBRANCH
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y build-dep gtk4
+ sudo apt-get -y install build-essential coreutils libc-bin git meson \
+ gi-docgen libcups2-dev
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## CLEAN
+sudo rm -Rf $PKGDIR/tmpbuild
+
+## GIT
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -dfx
+git reset --hard
+git pull
+git submodule update --init --recursive --depth=1
+
+## CONFIGURE
+meson tmpbuild --prefix=$DESTDIR --libdir=$DESTDIR/lib/$MULTILIBDIR --buildtype=release \
+-Dbroadway-backend=true -Dvulkan=enabled -Dcloudproviders=enabled \
+-Dtracker=enabled -Dcolord=enabled -Dman-pages=true
+#-Dmedia-ffmpeg=enabled
+
+## BUILD
+ninja -C tmpbuild
+
+## INSTALL
+sudo ninja -C tmpbuild install
+sudo ldconfig
+
+## EXIT
+exit
+
+## ENJOY

@@ -1,0 +1,115 @@
+#!/bin/sh
+
+### Package: mix-install-xfce-apps
+### Version: v20241118.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: xfce-core
+
+## OVERRIDES
+# MIXTOOLSDIR
+if [ -z $MIXTOOLSDIR ]; then
+ MIXTOOLSDIR="`pwd`"
+ PATH=$MIXTOOLSDIR:$PATH
+fi
+echo "*** MIXTOOLSDIR selected is $MIXTOOLSDIR"
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS"
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=master
+fi
+echo "*** GITBRANCH selected is $GITBRANCH"
+
+## VARS
+RESDIR=$MIXTOOLSDIR/resources
+DEVDIR=$MIXTOOLSDIR/upstream
+GITURL=https://gitlab.xfce.org
+GITREPO=apps
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y build-dep catfish gigolo mousepad orage parole ristretto xfburn xfce4-dict \
+ xfce4-notifyd xfce4-panel-profiles xfce4-screensaver xfce4-screenshooter xfce4-taskmanager \
+ xfce4-terminal
+ sudo apt-get -y install build-essential coreutils libc-bin git \
+ libkeybinder-3.0-dev libmpd-dev libcanberra-gtk3-dev libzeitgeist-2.0-dev
+fi
+
+# build: catfish xfce4-panel-profiles
+# missing: xfce4-mixer xfce4-panel-profiles xfce4-volumed-pulse xfdashboard xfmpc
+
+## PREP
+set -e
+mkdir -p $DEVDIR/xfce/$GITREPO
+cd $DEVDIR/xfce/$GITREPO
+
+## GIT LOOP
+for GITTREE in catfish gigolo mousepad orage parole ristretto xfburn xfce4-dict xfce4-mixer \
+xfce4-notifyd xfce4-panel-profiles xfce4-screensaver xfce4-screenshooter xfce4-taskmanager \
+xfce4-terminal xfce4-volumed-pulse xfdashboard xfmpc; do
+
+
+ # VARS
+ PKGDIR=$GITTREE\_$GITBRANCH
+
+ # GIT
+ [ -d $PKGDIR ] || git clone --depth=1 --recursive $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+ cd $PKGDIR
+ git clean -f
+ git reset --hard
+ git pull
+ git submodule update --init --recursive --depth=1
+
+ ## CONFIGURE
+ # catfish uses meson
+ if [ "$GITTREE" = catfish ]; then
+  meson setup tmpbuild --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu --buildtype=release
+ else
+  if [ -f autogen.sh ]; then
+   ./autogen.sh
+  fi
+  # xfce4-panel-profiles uses a custom configure script, not autotools
+  if [ "$GITTREE" = xfce4-panel-profiles ]; then
+   ./configure --prefix=/usr/local
+  else
+   ./configure --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu --enable-shared --disable-debug \
+   --with-pic --enable-maintainer-mode
+  fi
+ fi
+ ## BUILD
+ # catfish uses meson
+ if [ "$GITTREE" = catfish ]; then
+  ninja -C tmpbuild
+ else
+  make -j `nproc`
+ fi
+
+ ## INSTALL
+ # catfish uses meson
+ if [ "$GITTREE" = catfish ]; then
+  sudo ninja -C tmpbuild install
+ else
+  sudo make install
+ fi
+ sudo ldconfig
+
+ ## XFCE4-SCREENSAVER INSTALL
+ if [ $GITTREE = xfce4-screensaver ]; then
+  [ -L /etc/pam.d/xfce4-screensaver ] || sudo ln -s /usr/local/etc/pam.d/xfce4-screensaver /etc/pam.d/xfce4-screensaver
+ fi
+
+ ## DONE
+ cd $DEVDIR/xfce/$GITREPO
+ done
+
+## EXIT
+exit
+
+## ENJOY

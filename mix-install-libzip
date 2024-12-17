@@ -1,0 +1,90 @@
+#!/bin/sh
+
+### Package: mix-install-libzip
+### Version: v20240414.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: wlroots wayland wayland-protocols
+
+## OVERRIDES
+# MIXTOOLS
+if [ -z $MIXTOOLSDIR ]; then
+ MIXTOOLSDIR="`pwd`"
+ PATH=$MIXTOOLSDIR:$PATH
+fi
+echo "*** MIXTOOLSDIR selected is $MIXTOOLSDIR."
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
+
+# GITBRANCH
+# Upstream branch is "main".
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=main
+fi
+echo "*** GITBRANCH selected is $GITBRANCH."
+
+## VARS
+RESDIR=$MIXTOOLSDIR/resources
+DEVDIR=$MIXTOOLSDIR/upstream
+GITURL=https://github.com
+GITREPO=nih-at
+GITTREE=libzip
+GITPRURL=https://patch-diff.githubusercontent.com
+GITPRPATCH=$GITPRURL/raw/$GITREPO/$GITTREE/pull/$GITPR.patch
+PKGDIR=$GITTREE\_$GITBRANCH
+
+## INSTALLDEPS
+# Debian Dependencies
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y install build-essential coreutils libc-bin git cmake \
+ zlib bzip2 liblzma zstd libopenssl
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## CLEAN
+sudo rm -Rf $PKGDIR/tmpbuild
+
+## GIT
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -dfx
+git reset --hard
+git pull
+git submodule update --init --recursive --depth=1
+
+## GITPR
+if [ $GITPR ]; then
+ rm -f $DEVDIR/$GITTREE\_$GITPR.patch
+ wget $GITPRPATCH -O $DEVDIR/$GITTREE\_$GITPR.patch
+ patch -p1 < $DEVDIR/$GITTREE\_$GITPR.patch
+fi
+
+## CONFIGURE
+cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/usr/local -S . -B ./tmpbuild
+
+#mkdir build
+#cd build
+#cmake ..
+#make
+#make test
+#make install
+
+## BUILD
+cmake --build ./tmpbuild --config Release --target all -j`nproc 2>/dev/null || getconf NPROCESSORS_CONF`
+
+## INSTALL
+sudo cmake --install ./tmpbuild
+sudo ldconfig
+
+## EXIT
+exit
+
+## ENJOY

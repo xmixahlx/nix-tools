@@ -1,0 +1,80 @@
+#!/bin/sh
+
+### Package: mix-install-gimp
+### Version: v20210912.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: gegl, babl
+
+## OVERRIDES
+# MIXTOOLSDIR
+if [ -z $MIXTOOLSDIR ]; then
+ MIXTOOLSDIR="`pwd`"
+ PATH=$MIXTOOLSDIR:$PATH
+fi
+echo "*** MIXTOOLSDIR selected is $MIXTOOLSDIR."
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=master
+fi
+echo "*** GITBRANCH selected is $GITBRANCH."
+
+## VARS
+RESDIR=$MIXTOOLSDIR/resources
+DEVDIR=$MIXTOOLSDIR/upstream
+GITURL=https://gitlab.gnome.org
+GITREPO=gnome
+GITTREE=gimp
+PKGDIR=$GITTREE\_$GITBRANCH
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y install build-essential coreutils libc-bin git meson \
+ intltool libaa1-dev libaom-dev libbabl-dev libbz2-dev libcurl4-gnutls-dev \
+ libdav1d-dev libde265-dev libexif-dev libgegl-dev libgs-dev libheif-dev \
+ libmng-dev libmypaint-dev libopenjp2-7-dev libslang2-dev libvmaf-dev \
+ libwmf-dev libx265-dev mypaint-brushes docbook gtk-doc-tools \
+ libappstream-glib-dev libwebkit2gtk-4.0-dev gjs luajit appstream-util xvfb
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## CLEAN
+sudo rm -Rf $PKGDIR/tmpbuild
+
+## GIT
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -dfx
+git reset --hard
+git pull
+git submodule update --init --recursive --depth=1
+
+## CONFIGURE
+#meson tmpbuild --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu --buildtype=release
+./autogen.sh --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu
+
+## BUILD
+#ninja -C tmpbuild
+make -j `nproc`
+
+## INSTALL
+#sudo ninja -C tmpbuild install
+sudo make install
+sudo ldconfig
+
+## EXIT
+exit
+
+## ENJOY

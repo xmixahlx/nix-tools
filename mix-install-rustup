@@ -1,0 +1,42 @@
+#!/bin/sh
+
+### Package: mix-install-rustup
+### Version: v20241101.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## MIXTOOLSDIR
+if [ -z $MIXTOOLSDIR ]; then
+ MIXTOOLSDIR="`pwd`"
+fi
+echo "*** MIXTOOLSDIR selected is $MIXTOOLSDIR.\n"
+
+## OVERRIDES
+# Override debian.
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS.\n"
+
+echo "*** Uninstalling rustc, cargo, and rustup if installed."
+## DEBIAN OPTIONS LOOP
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y --purge remove rustc cargo rustup
+ sudo apt-get -y autoremove
+fi
+
+## INSTALL
+echo "*** Installing rustup for user."
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh \
+-s -- -q -y --default-toolchain nightly
+
+## CONFIGURE
+rustup toolchain install nightly
+rustup component add rust-src
+rustup default nightly
+
+## EXIT
+exit
+
+## ENJOY

@@ -1,0 +1,107 @@
+#!/bin/sh
+
+### Package: mix-install-svt-av1-psy
+### Version: v20241101.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: dovi hdr10plus
+
+## OVERRIDES
+# MIXTOOLS
+if [ -z $MIXTOOLSDIR ]; then
+ MIXTOOLSDIR="`pwd`"
+fi
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+
+# GITBRANCH
+# upstream branch is "master"
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=master
+fi
+echo "*** GITBRANCH selected is $GITBRANCH."
+
+# DESTDIR
+if [ -z $DESTDIR ]; then
+ DESTDIR=/usr/local
+fi
+echo "*** DESTDIR selected is $DESTDIR."
+
+# AVX512
+# options are off or on
+if [ -z $AVX512 ]; then
+ AVX512=ON
+fi
+echo "*** AVX512 selected is $AVX512."
+
+# DOVI
+# options are off or on
+if [ -z $DOVI ]; then
+ DOVI=1
+fi
+echo "*** DOVI selected is $DOVI."
+
+# HDR10PLUS
+# options are off or on
+if [ -z $HDR10PLUS ]; then
+ HDR10PLUS=1
+fi
+echo "*** HDR10PLUS selected is $HDR10PLUS."
+
+
+
+## VARS
+RESDIR=$MIXTOOLSDIR/resources
+DEVDIR=$MIXTOOLSDIR/upstream
+GITURL=https://github.com
+GITREPO=gianni-rosato
+GITTREE=svt-av1-psy
+PKGDIR=$GITTREE\_$GITBRANCH
+MULTILIBDIR=`gcc -dumpmachine`
+
+## INSTALLDEPS
+# Debian Dependencies
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y build-dep svt-av1
+ sudo apt-get -y install build-essential coreutils libc-bin git cmake
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## GIT
+[ -d $PKGDIR ] || git clone --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -dfx
+git reset --hard
+git pull
+git submodule update --init
+
+## CLEAN
+rm -Rf tmpbuild
+
+## CONFIGURE
+mkdir tmpbuild
+cd tmpbuild
+cmake .. -DCMAKE_INSTALL_PREFIX=$DESTDIR -DCMAKE_BUILD_TYPE=Release \
+-DCMAKE_INSTALL_LIBDIR=$DESTDIR/lib/$MULTILIBDIR \
+-DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+-DLIBDOVI_FOUND="$DOVI" -DLIBHDR10PLUS_RS_FOUND="$HDR10PLUS" \
+-DSVT_AV1_LTO=ON -DENABLE_AVX512="$AVX512"
+
+## BUILD
+make -j `nproc`
+
+## INSTALL
+sudo make install
+sudo ldconfig
+
+## EXIT
+exit
+
+## ENJOY

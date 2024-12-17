@@ -1,0 +1,4 @@
+41c41
+< 	pkg_check_modules(WEBKIT2 REQUIRED webkit2gtk-4.0)
+---
+> 	pkg_check_modules(WEBKIT2 REQUIRED webkit2gtk-4.1)

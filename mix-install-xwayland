@@ -1,0 +1,61 @@
+#!/bin/bash
+
+### Package: mix-install-xwayland
+### Version: v20241008.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+### Script Conflicts: xserver-xorg
+
+## ENVIRONMENT
+# MIXTOOLS
+if [ -z "$MIXTOOLSDIR" ]; then
+ MIXTOOLSDIR="`pwd`"
+ PATH="$MIXTOOLSDIR":"$PATH"
+fi
+
+source "$MIXTOOLSDIR"/resources/mix-tools/environment1.sh
+
+# VARIABLES
+GITBRANCH=xwayland-24.1
+GITURL=https://gitlab.freedesktop.org
+GITREPO=xorg
+GITTREE=xserver
+
+# ENVIRONMENT REPORT
+source "$MIXTOOLSDIR"/resources/mix-tools/environment_report.sh
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y build-dep xwayland
+ sudo apt-get -y install build-essential coreutils libc-bin git meson \
+ libaudit-dev libbsd-dev libcap-ng-dev libdmx-dev libdmx1 \
+ libfontenc-dev libgbm-dev libgcrypt20-dev libmd-dev \
+ libxaw7-dev libxcb-icccm4-dev libxcb-image0-dev libxcb-keysyms1-dev \
+ libxcb-render-util0-dev libxcb-util-dev libxcb-util0-dev libxcb-xf86dri0 \
+ libxcb-xf86dri0-dev libxcb-xkb-dev libxcb-xv0 libxcb-xv0-dev libxfont-dev \
+ libxfont2 libxkbfile-dev libxmu-dev libxmu-headers libxmuu-dev libxpm-dev \
+ libxres-dev libxres1 libxkbcommon-dev x11-apps libtirpc-dev \
+ libei-dev liboeffis-dev fop
+fi
+
+# PREP
+source "$MIXTOOLSDIR"/resources/mix-tools/prep.sh
+
+## CLEAN
+source "$MIXTOOLSDIR"/resources/mix-tools/clean_tmpbuild.sh
+
+## GIT
+source "$MIXTOOLSDIR"/resources/mix-tools/git.sh
+
+## GITPR
+source "$MIXTOOLSDIR"/resources/mix-tools/git_pr.sh
+
+## CONFIGURE > BUILD > INSTALL
+source "$MIXTOOLSDIR"/resources/mix-tools/meson.sh
+
+## EXIT
+exit
+
+## ENJOY

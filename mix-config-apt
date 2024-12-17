@@ -1,0 +1,69 @@
+#!/bin/sh
+
+### Package: mix-config-apt
+### Version: v20210509.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## MIXTOOLSDIR
+if [ -z $MIXTOOLSDIR ]; then
+ MIXTOOLSDIR="`pwd`"
+fi
+echo "*** MIXTOOLSDIR selected is $MIXTOOLSDIR.\n"
+
+## VARS
+DATE=`date +%Y%m%d%H%M%S`
+RESDIR=$MIXTOOLSDIR/resources
+
+## OVERRIDES
+# Override debian.
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS.\n"
+
+## DEBIAN OPTIONS LOOP
+if [ $INSTALLDEPS = debian ]; then
+ # Provide buster, bullseye, or sid.
+ if [ $DEBRELEASE = stable -o testing -o unstable ]; then
+   echo "\n*** DEBRELEASE selected is $DEBRELEASE.\n"
+  else
+   echo "\n*** DEBRELEASE must be passed on commandline as stable, testing, or unstable.\n"
+   exit
+ fi
+ if [ -z $DEBRELEASE ]; then
+  echo "\n*** DEBRELEASE must be passed on commandline as stable, testing, or unstable.\n"
+  exit
+ fi
+
+ # Override yes with no to NOT use deb-multimedia.org packages.
+ if [ -z $DEBMULTIMEDIA ]; then
+  DEBMULTIMEDIA=yes
+ fi
+ echo "\n*** DEBMULTIMEDIA selected is $DEBMULTIMEDIA.\n"
+fi
+
+## DEBIAN CONFIG
+if [ $INSTALLDEPS = debian ]; then
+ ## APTCONFIG
+ sudo install -Dm644 $RESDIR/apt/preferences.$DEBRELEASE /etc/apt/preferences
+ sudo install -Dm644 $RESDIR/apt/sources.list.$DEBRELEASE /etc/apt/sources.list
+
+ ## DEBIAN MULTIMEDIA
+ if [ $DEBMULTIMEDIA = yes ]; then
+  sudo mkdir -p /etc/apt/sources.list.d/
+  sudo install -Dm644 $RESDIR/apt/deb-multimedia.list.$DEBRELEASE /etc/apt/sources.list.d/deb-multimedia-$DEBRELEASE.list
+  sudo apt-get -y update -oAcquire::AllowInsecureRepositories=true
+  sudo apt-get -y install deb-multimedia-keyring --allow-unauthenticated
+ fi
+
+ ## APT DIST-UPGRADE
+ sudo apt-get -y update
+ sudo apt-get -y dist-upgrade
+fi
+
+## EXIT
+exit
+
+## ENJOY

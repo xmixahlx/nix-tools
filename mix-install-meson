@@ -1,0 +1,78 @@
+#!/bin/sh
+
+### Package: mix-install-meson
+### Version: v20220319.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# MIXTOOLSDIR
+if [ -z $MIXTOOLSDIR ]; then
+ MIXTOOLSDIR="`pwd`"
+ PATH=$MIXTOOLSDIR:$PATH
+fi
+echo "*** MIXTOOLSDIR selected is $MIXTOOLSDIR."
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=master
+fi
+echo "*** GITBRANCH selected is $GITBRANCH."
+
+## VARS
+DEVDIR=$MIXTOOLSDIR/upstream
+GITURL=https://github.com
+GITREPO=mesonbuild
+GITTREE=meson
+PKGDIR=$GITTREE\_$GITBRANCH
+GITPRURL=$GITURL
+GITPRPATCH=$GITPRURL/$GITREPO/$GITTREE/-/merge_requests/$GITPR.patch
+
+## INSTALLDEPS
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y install build-essential coreutils libc-bin git meson
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## CLEAN
+sudo rm -Rf $PKGDIR/tmpbuild
+sudo rm -Rf $PKGDIR/dist
+sudo rm -Rf $PKGDIR/meson.egg-info
+
+## GIT
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -dfx
+git reset --hard
+git pull
+git submodule update --init --recursive --depth=1
+
+## GITPR
+if [ $GITPR ]; then
+ rm -f $DEVDIR/$GITTREE\_$GITPR.patch
+ wget $GITPRPATCH -O $DEVDIR/$GITTREE\_$GITPR.patch
+ patch -p1 < $DEVDIR/$GITTREE\_$GITPR.patch
+fi
+
+## BUILD
+python3 setup.py build
+
+## INSTALL
+sudo python3 setup.py install
+sudo ldconfig
+
+## EXIT
+exit
+
+# ENJOY

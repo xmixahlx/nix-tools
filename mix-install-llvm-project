@@ -1,0 +1,106 @@
+#!/bin/sh
+
+### Package: mix-install-llvm-project
+### Version: v20241201.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# MIXTOOLSDIR
+if [ -z $MIXTOOLSDIR ]; then
+ MIXTOOLSDIR="`pwd`"
+ PATH=$MIXTOOLSDIR:$PATH
+fi
+echo "*** MIXTOOLSDIR selected is $MIXTOOLSDIR."
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=main
+fi
+echo "*** GITBRANCH selected is $GITBRANCH."
+
+# SUFFIX
+#if [ -z $SUFFIX ]; then
+# SUFFIX=20
+#fi
+#echo "*** SUFFIX selected is $SUFFIX."
+
+# DESTDIR
+if [ -z $DESTDIR ]; then
+ DESTDIR=/usr/local
+fi
+echo "*** DESTDIR selected is $DESTDIR."
+
+# CC
+if [ -z $CC ]; then
+ CC="/usr/local/bin/clang"
+fi
+echo "*** CC selected is $CC."
+
+# CC
+if [ -z $CXX ]; then
+ CXX="/usr/local/bin/clang++"
+fi
+echo "*** CXX selected is $CXX."
+
+## VARS
+RESDIR=$MIXTOOLSDIR/resources
+DEVDIR=$MIXTOOLSDIR/upstream
+BUILDDIR=/tmp/mix-tools
+GITURL=https://github.com
+GITREPO=llvm
+GITTREE=llvm-project
+PKGDIR=$GITTREE\_$GITBRANCH
+MULTILIBDIR=`gcc -dumpmachine`
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y install build-essential coreutils libc-bin git make cmake
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+mkdir -p $BUILDDIR
+cd $DEVDIR
+
+## CLEAN
+sudo rm -Rf $BUILDDIR/$PKGDIR/tmpbuild
+
+## GIT
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -dfx
+git reset --hard
+git pull
+git submodule update --init --recursive --depth=1
+
+## CONFIGURE
+cmake -S llvm -B $BUILDDIR/$PKGDIR/tmpbuild -G Ninja \
+-DCMAKE_INSTALL_PREFIX=$DESTDIR -DCMAKE_INSTALL_LIBDIR=$DESTDIR/lib/$MULTILIBDIR \
+-DCMAKE_C_COMPILER="$CC" -DCMAKE_CXX_COMPILER="$CXX" \
+-DCMAKE_BUILD_TYPE=Release -DLLVM_CCACHE_BUILD=On \
+-DLLVM_BUILD_LLVM_DYLIB=true -DLLVM_ENABLE_RTTI=true \
+-DLLVM_ENABLE_PROJECTS="bolt;clang;clang-tools-extra;compiler-rt;libclc;lld;lldb;mlir;openmp;polly;pstl;flang" \
+-DLLVM_ENABLE_RUNTIMES="libc;libcxx;libcxxabi;libunwind" \
+-DLLVM_USE_LINKER=mold -DLLVM_INSTALL_UTILS=ON
+
+## BUILD
+ninja -C "$BUILDDIR/$PKGDIR/tmpbuild"
+
+## INSTALL
+sudo ninja -C "$BUILDDIR/$PKGDIR/tmpbuild" install
+sudo ldconfig
+
+## EXIT
+exit
+
+## ENJOY

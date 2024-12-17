@@ -1,0 +1,93 @@
+#!/bin/sh
+
+### Package: mix-install-blender
+### Version: v20210912.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# MIXTOOLSDIR
+if [ -z $MIXTOOLSDIR ]; then
+ MIXTOOLSDIR="`pwd`"
+ PATH=$MIXTOOLSDIR:$PATH
+fi
+echo "*** MIXTOOLSDIR selected is $MIXTOOLSDIR"
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS"
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=master
+fi
+echo "*** GITBRANCH selected is $GITBRANCH"
+
+## VARS
+RESDIR=$MIXTOOLSDIR/resources
+DEVDIR=$MIXTOOLSDIR/upstream
+GITURL=https://github.com
+GITREPO=blender
+GITTREE=blender
+PKGDIR=$GITTREE\_$GITBRANCH
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y install build-essential coreutils libc-bin git cmake \
+ libembree-dev freeglut3-dev libopencolorio-dev openimageio-tools libpotrace-dev \
+ libhpdf-dev
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+cd $PKGDIR
+
+## CLEAN
+sudo rm -Rf tmpbuild
+
+## GIT
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+git clean -dfx
+git reset --hard
+git pull
+git submodule update --init --recursive --depth=1
+
+## PATCH
+#for file in $RESDIR/blender/patches/00*.patch;do patch -p1 < $file;done
+
+## CONFIGURE
+mkdir tmpbuild
+cd tmpbuild
+cmake -DCMAKE_INSTALL_PREFIX=/usr/local \
+-DCMAKE_BUILD_TYPE=release \
+-DCMAKE_SKIP_RPATH=ON \
+-DFREETYPE_INCLUDE_DIRS="/usr/include/freetype2" \
+-DWITH_COMPILER_CCACHE=YES \
+-DWITH_DOC_MANPAGE=ON \
+-DWITH_INSTALL_PORTABLE=OFF \
+-DWITH_SYSTEM_GLEW=OFF \
+-DWITH_GL_EGL=ON \
+..
+
+#-DWITH_OPENCOLORIO=ON \
+#-DWITH_OPENIMAGEDENOISE=ON \
+#-DWITH_FFTW3=ON \
+
+
+## BUILD
+make -j `nproc`
+
+## INSTALL
+sudo make install
+sudo ldconfig
+
+## EXIT
+exit
+
+## ENJOY

@@ -1,0 +1,72 @@
+#!/bin/sh
+
+### Package: mix-install-wf-shell
+### Version: v20210411.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: wayfire
+
+## OVERRIDES
+# MIXTOOLS
+if [ -z $MIXTOOLSDIR ]; then
+ MIXTOOLSDIR="`pwd`"
+fi
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=master
+fi
+
+## VARS
+RESDIR=$MIXTOOLSDIR/resources
+DEVDIR=$MIXTOOLSDIR/upstream
+GITURL=https://github.com
+GITREPO=wayfirewm
+GITTREE=wf-shell
+PKGDIR=$GITTREE\_$GITBRANCH
+
+## INSTALLDEPS
+# Debian Dependencies
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y install build-essential coreutils libc-bin git meson
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## GIT
+[ -d $PKGDIR ] || git clone --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -f
+git reset --hard
+git pull
+git submodule init
+git submodule update
+
+## CLEAN
+rm -Rf tmpbuild
+
+## CONFIGURE
+meson tmpbuild -Dprefix=/usr/local -Dbuildtype=release --libdir=/usr/local/lib/x86_64-linux-gnu
+
+## BUILD
+ninja -C tmpbuild
+
+## INSTALL
+sudo ninja -C tmpbuild install
+sudo mkdir -p /usr/local/etc/wf-shell
+sudo install -m 644 wf-shell.ini.example /usr/local/etc/wf-shell/wf-shell.ini
+[ -f ~/.config/wf-shell.ini ] || cp wf-shell.ini.example ~/.config/wf-shell.ini
+sudo ldconfig
+
+## EXIT
+exit
+
+## ENJOY

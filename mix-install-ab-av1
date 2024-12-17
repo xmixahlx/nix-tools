@@ -1,0 +1,95 @@
+#!/bin/sh
+
+### Package: mix-install-ab-av1
+### Version: v20241101.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# MIXTOOLSDIR
+if [ -z $MIXTOOLSDIR ]; then
+ MIXTOOLSDIR="`pwd`"
+ PATH=$MIXTOOLSDIR:$PATH
+fi
+echo "*** MIXTOOLSDIR selected is $MIXTOOLSDIR."
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=main
+fi
+echo "*** GITBRANCH selected is $GITBRANCH."
+
+# GITPR
+if [ -z $GITPR ]; then
+ GITPR=none
+fi
+echo "*** GITPR selected is $GITPR."
+
+# DESTDIR
+if [ -z $DESTDIR ]; then
+ DESTDIR=/usr/local
+fi
+echo "*** DESTDIR selected is $DESTDIR."
+
+## VARS
+DEVDIR=$MIXTOOLSDIR/upstream
+RESDIR=$MIXTOOLSDIR/resources
+GITURL=https://github.com
+GITREPO=alexheretic
+GITTREE=ab-av1
+PKGDIR=$GITTREE\_$GITBRANCH
+GITPRURL=$GITURL
+GITPRPATCH=$GITPRURL/$GITREPO/$GITTREE/-/merge_requests/$GITPR.patch
+MULTILIBDIR=`gcc -dumpmachine`
+
+## INSTALLDEPS
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y install build-essential coreutils libc-bin git
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## GIT
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+sudo rm -Rf tmpbuild
+git clean -dfx
+git reset --hard
+git pull
+git submodule update --init --recursive --depth=1
+
+## GITPR
+if [ $GITPR != none ]; then
+ rm -f $DEVDIR/$GITTREE\_$GITPR.patch
+ wget $GITPRPATCH -O $DEVDIR/$GITTREE\_$GITPR.patch
+ patch -p1 < $DEVDIR/$GITTREE\_$GITPR.patch
+fi
+
+## BUILD
+cargo build --release
+
+## COMPLETIONS
+./target/release/ab-av1 print-completions "bash" > completions_bash.txt
+./target/release/ab-av1 print-completions "fish" > completions_fish.txt
+./target/release/ab-av1 print-completions "zsh" > completions_zsh.txt
+
+## INSTALL
+sudo install -D -m0755 target/release/ab-av1 $DESTDIR/bin/ab-av1
+sudo install -D -m0644 completions_bash.txt $DESTDIR/share/bash-completion/completions/ab-av1
+sudo install -D -m0644 completions_bash.txt $DESTDIR/share/fish/completions/ab-av1.fish
+sudo install -D -m0644 completions_bash.txt $DESTDIR/share/zsh/site-functions/_ab-av1
+
+## EXIT
+exit
+
+# ENJOY

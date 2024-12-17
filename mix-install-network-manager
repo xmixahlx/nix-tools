@@ -1,0 +1,88 @@
+#!/bin/sh
+
+### Package: mix-install-network-manager
+### Version: v20220122.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# MIXTOOLSDIR
+if [ -z $MIXTOOLSDIR ]; then
+ MIXTOOLSDIR="`pwd`"
+fi
+echo "*** MIXTOOLSDIR selected is $MIXTOOLSDIR."
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
+
+# GITBRANCH
+# Upstream branch is master
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=master
+fi
+echo "*** GITBRANCH selected is $GITBRANCH."
+
+## VARS
+RESDIR=$MIXTOOLSDIR/resources
+DEVDIR=$MIXTOOLSDIR/upstream
+GITURL=https://gitlab.freedesktop.org
+GITREPO=network-manager
+GITTREE=network-manager
+PKGDIR=$GITTREE\_$GITBRANCH
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS = debian ]; then
+# sudo apt-get -y build-dep bluez
+ sudo apt-get -y install build-essential coreutils libc-bin make
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## GIT
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -dfx
+git reset --hard
+git pull
+git submodule update --init --recursive --depth=1
+
+## CONFIGURE
+./bootstrap
+./configure --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu \
+--exec-prefix=/usr --sysconfdir=/etc --localstatedir=/var
+
+## BUILD
+make -j `nproc`
+
+## INSTALL
+sudo make install
+sudo ldconfig
+
+## EXIT
+exit
+
+## ENJOY
+
+--enable-threads --enable-library --enable-test --enable-nfc --enable-sap --enable-a2dp \
+--enable-avrcp --enable-network --enable-hid --enable-hog --enable-health \
+--enable-tools --enable-monitor --enable-udev --enable-cups --enable-mesh --enable-midi \
+--enable-obex --enable-btpclient --enable-external-ell --enable-client \
+--enable-systemd --enable-datafiles --enable-manpages --enable-testing \
+--enable-experimental --enable-deprecated --enable-sixaxis --enable-hid2hci --enable-logger --enable-admin
+
+## RESTART
+sudo systemctl daemon-reload
+sudo systemctl stop bluetooth
+sudo systemctl disable bluetooth
+sudo systemctl enable bluetooth
+sudo systemctl start bluetooth
+sudo systemctl daemon-reload
+

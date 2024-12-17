@@ -1,0 +1,100 @@
+#!/bin/sh
+
+### Package: mix-install-bluez-alsa
+### Version: v20241101.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: bluez, alsa-lib
+
+## OVERRIDES
+# MIXTOOLSDIR
+if [ -z $MIXTOOLSDIR ]; then
+ MIXTOOLSDIR="`pwd`"
+fi
+echo "*** MIXTOOLSDIR selected is $MIXTOOLSDIR."
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
+
+# GITBRANCH
+# Upstream is "master". Releases are "v#.#.#" etc.
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=master
+fi
+echo "*** GITBRANCH selected is $GITBRANCH."
+
+# DESTDIR
+if [ -z $DESTDIR ]; then
+ DESTDIR=/usr
+fi
+echo "*** DESTDIR selected is $DESTDIR."
+
+# SYSCONFDIR
+if [ -z $SYSCONFDIR ]; then
+ SYSCONFDIR=/etc
+fi
+echo "*** SYSCONFDIR selected is $SYSCONFDIR."
+
+# LOCALSTATEDIR
+if [ -z $LOCALSTATEDIR ]; then
+ LOCALSTATEDIR=/var
+fi
+echo "*** LOCALSTATEDIR selected is $LOCALSTATEDIR."
+
+## VARS
+RESDIR=$MIXTOOLSDIR/resources
+DEVDIR=$MIXTOOLSDIR/upstream
+GITURL=https://github.com
+GITREPO=arkq
+GITTREE=bluez-alsa
+PKGDIR=$GITTREE\_$GITBRANCH
+MULTILIBDIR=`gcc -dumpmachine`
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS = debian ]; then
+# sudo apt-get -y build-dep blueman
+ sudo apt-get -y install build-essential coreutils libc-bin
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## GIT
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -dfx
+git reset --hard
+git pull
+git submodule update --init --recursive --depth=1
+
+## CONFIGURE
+autoreconf -vifs
+mkdir tmpbuild
+cd tmpbuild
+../configure --prefix=$DESTDIR --libdir=$DESTDIR/lib/$MULTILIBDIR \
+--localstatedir=$LOCALSTATEDIR --sysconfdir=$SYSCONFDIR \
+--enable-aac --enable-aptx --enable-faststream \
+--enable-ldac --enable-midi --enable-mp3lame --enable-mpg123 \
+--enable-msbc--enable-opus --enable-ofono --enable-systemd --enable-upower \
+--enable-rfcomm --enable-a2dpconf --enable-hcitop --enable-manpages 
+
+# --enable-lc3plus --enable-lc3-swb --enable-aptx-hd
+
+
+## BUILD
+make -j `nproc`
+
+## INSTALL
+sudo make install
+sudo ldconfig
+
+## EXIT
+exit
+
+## ENJOY

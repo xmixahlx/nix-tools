@@ -1,0 +1,73 @@
+#!/bin/sh
+
+### Package: mix-install-whipper
+### Version: v20240831.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# MIXTOOLSDIR
+if [ -z $MIXTOOLSDIR ]; then
+ MIXTOOLSDIR="`pwd`"
+ PATH=$MIXTOOLSDIR:$PATH
+fi
+echo "*** MIXTOOLSDIR selected is $MIXTOOLSDIR."
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=develop
+fi
+echo "*** GITBRANCH selected is $GITBRANCH."
+
+## VARS
+RESDIR=$MIXTOOLSDIR/resources
+DEVDIR=$MIXTOOLSDIR/upstream
+GITURL=https://github.com
+GITREPO=whipper-team
+GITTREE=whipper
+PKGDIR=$GITTREE\_$GITBRANCH
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y build-dep whipper
+ sudo apt-get -y install build-essential coreutils libc-bin git make python3 \
+ cd-paranoia flac cdrdao flac sox eject python3-libdiscid python3-musicbrainzngs \
+ python3-cdio python3-mutagen python3-ruamel.yaml libdiscid-dev icedax \
+ vorbis-tools libsox-fmt-all python3-pip python3-discid libsndfile-dev
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## CLEAN
+sudo rm -Rf $PKGDIR/build
+sudo rm -Rf $PKGDIR/dist
+sudo rm -Rf $PKGDIR/whipper.egg-info
+sudo rm -Rf $PKGDIR/.eggs
+
+## GIT
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -dfx
+git reset --hard
+git pull
+git submodule update --init --recursive --depth=1
+
+## INSTALL
+sudo python3 setup.py install
+sudo pip3 install discid
+
+## EXIT
+exit
+
+## ENJOY

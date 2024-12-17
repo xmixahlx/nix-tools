@@ -1,0 +1,86 @@
+#!/bin/sh
+
+### Package: mix-install-powertop
+### Version: v20240729.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# MIXTOOLS
+if [ -z $MIXTOOLSDIR ]; then
+ MIXTOOLSDIR="`pwd`"
+fi
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=master
+fi
+echo "*** GITBRANCH selected is $GITBRANCH."
+
+# DESTDIR
+# WARNING! Installation to /usr by default!
+if [ -z $DESTDIR ]; then
+ DESTDIR=/usr
+fi
+echo "*** DESTDIR selected is $DESTDIR."
+
+## VARS
+RESDIR=$MIXTOOLSDIR/resources
+DEVDIR=$MIXTOOLSDIR/upstream
+GITURL=https://github.com
+GITREPO=fenrus75
+GITTREE=powertop
+PKGDIR=$GITTREE\_$GITBRANCH
+MULTILIBDIR=`gcc -dumpmachine`
+
+## INSTALLDEPS
+# Debian Dependencies
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y build-dep powertop
+ sudo apt-get -y install build-essential coreutils libc-bin git \
+ libtracefs-dev libtraceevent-dev
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## GIT
+[ -d $PKGDIR ] || git clone --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -dfx
+git reset --hard
+git pull
+git submodule update --init
+
+## CONFIGURE
+autoreconf -vifs
+./configure --prefix=$DESTDIR --libdir=$DESTDIR/lib/$MULTILIBDIR
+
+## BUILD
+make -j `nproc`
+
+## SERVICE
+if [ $DESTDIR != /usr ]; then
+ sed -i 's+/usr+$DESTDIR+g' powertop.service
+fi
+
+## INSTALL
+sudo make install
+sudo install -D -m 644 powertop.service $DESTDIR/lib/systemd/system/powertop.service
+sudo ldconfig
+
+## TOOL
+cd $DEVDIR/$PKGDIR
+
+## EXIT
+exit
+
+## ENJOY

@@ -1,0 +1,97 @@
+#!/bin/sh
+
+### Package: mix-install-spirv-llvm
+### Version: v20241208.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# MIXTOOLSDIR
+if [ -z "$MIXTOOLSDIR" ]; then
+ MIXTOOLSDIR="`pwd`"
+ PATH="$MIXTOOLSDIR:$PATH"
+fi
+echo "*** MIXTOOLSDIR selected is $MIXTOOLSDIR."
+
+# INSTALLDEPS
+if [ -z "$INSTALLDEPS" ]; then
+ INSTALLDEPS="debian"
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
+
+# GITBRANCH
+# Upstream is "main" and release branches use "llvm_release_???" like "llvm_release_190".
+if [ -z "$GITBRANCH" ]; then
+ GITBRANCH="main"
+fi
+echo "*** GITBRANCH selected is $GITBRANCH."
+
+# DESTDIR
+if [ -z "$DESTDIR" ]; then
+ DESTDIR="/usr/local"
+fi
+echo "*** DESTDIR selected is $DESTDIR."
+
+# LLVMVER
+# Options include 20.0.0 or 19.1.3, etc.
+if [ -z "$LLVMVER" ]; then
+ LLVMVER="20"
+fi
+echo "*** LLVMVER selected is $LLVMVER."
+
+# LLVMDIR
+if [ -z "$LLVMDIR" ]; then
+ LLVMDIR="/usr/local/include/llvm"
+fi
+echo "*** LLVMDIR selected is $LLVMDIR."
+
+## VARS
+RESDIR="$MIXTOOLSDIR/resources"
+DEVDIR="$MIXTOOLSDIR/upstream"
+GITURL=https://github.com
+GITREPO=khronosgroup
+GITTREE=spirv-llvm-translator
+PKGDIR=$GITTREE\_$GITBRANCH
+MULTILIBDIR=`gcc -dumpmachine`
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ "$INSTALLDEPS" = "debian" ]; then
+ sudo apt-get -y install build-essential coreutils libc-bin git make cmake
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## CLEAN
+sudo rm -Rf $PKGDIR/tmpbuild
+
+## GIT
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -dfx
+git reset --hard
+git pull
+git submodule update --init --recursive --depth=1
+
+## CONFIGURE
+cmake -DCMAKE_INSTALL_PREFIX=$DESTDIR -DCMAKE_INSTALL_LIBDIR=$DESTDIR/lib/$MULTILIBDIR \
+-DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+-DLLVM_EXTERNAL_PROJECTS="SPIRV-Headers" -DLLVM_EXTERNAL_SPIRV_HEADERS_SOURCE_DIR=$DESTDIR/include/spirv \
+-DLLVM_DIR="$LLVMDIR" -DBASE_LLVM_VERSION="$LLVMVER" \
+-B ./tmpbuild -G Ninja
+
+## BUILD
+ninja -C tmpbuild
+
+## INSTALL
+sudo ninja -C tmpbuild install
+sudo ldconfig
+
+## EXIT
+exit
+
+## ENJOY

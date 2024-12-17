@@ -1,0 +1,132 @@
+#!/bin/sh
+
+### Package: mix-install-xfce-xfce
+### Version: v20241201.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# MIXTOOLSDIR
+if [ -z $MIXTOOLSDIR ]; then
+ MIXTOOLSDIR="`pwd`"
+ PATH=$MIXTOOLSDIR:$PATH
+fi
+echo "*** MIXTOOLSDIR selected is $MIXTOOLSDIR"
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS"
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=master
+fi
+echo "*** GITBRANCH selected is $GITBRANCH"
+
+## VARS
+RESDIR=$MIXTOOLSDIR/resources
+DEVDIR=$MIXTOOLSDIR/upstream
+GITURL=https://gitlab.xfce.org
+GITREPO=xfce
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y build-dep xfce4-dev-tools xfce4-settings exo garcon libxfce4ui libxfce4util thunar \
+ thunar-volman tumbler xfce4-appfinder xfce4-panel xfce4-power-manager xfce4-session xfconf xfdesktop4 xfwm4 \
+ libxfce4windowing-dev
+ sudo apt-get -y install build-essential coreutils libc-bin git
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR/xfce/$GITREPO
+cd $DEVDIR/xfce/$GITREPO
+
+## LOG
+LOG=$DEVDIR/xfce/$GITREPO.log
+echo start > $LOG
+
+## GIT
+for GITTREE in xfce4-dev-tools libxfce4util xfconf libxfce4ui garcon exo xfce4-panel thunar \
+xfce4-settings xfce4-session xfdesktop xfwm4 xfce4-appfinder tumbler thunar-volman xfce4-power-manager; do
+
+ PKGDIR=$GITTREE\_$GITBRANCH
+ echo $PKGDIR >> $LOG
+
+ # check for libxfce4windowing since it uses main branch
+ if [ $GITTREE = libxfce4windowing ]; then
+  GITBRANCH="main"
+ fi
+
+ [ -d $PKGDIR ] || git clone --depth=1 --recursive $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+ cd $PKGDIR
+ git clean -f
+ git reset --hard
+ git pull
+ git submodule update --init --recursive --depth=1
+
+ ## CLEAN
+ [ ! -f Makefile ] || make clean
+
+ ## PATCH xfce4-panel
+ # xfce4-panel has removed a language file?
+ #if [ $GITTREE = xfce4-panel ]; then
+ # patch -p1 < $RESDIR/xfce4-panel_linguas.patch po/LINGUAS
+ #fi
+ # xfdesktop has removed a language file?
+ #if [ $GITTREE = xfdesktop ]; then
+ # patch -p1 < $RESDIR/xfdesktop_linguas.patch po/LINGUAS
+ #fi
+
+ ## CONFIGURE
+ # libxfce4windowing uses meson
+ if [ $GITTREE = libxfce4windowing ]; then
+  meson setup tmpbuild --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu --buildtype=release
+ else
+  if [ -f autogen.sh ]; then
+   ./autogen.sh
+   ./configure --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu --enable-shared --with-pic \
+   --disable-debug --enable-maintainer-mode --enable-upower-glib --enable-sound-settings --enable-poswin
+   # xfce4-settings
+   #--enable-upower-glib --enable-sound-settings \
+   # xfwm4
+   #--enable-poswin
+  fi
+ fi
+
+ ## BUILD
+ # libxfce4windowing uses meson
+ if [ $GITTREE = libxfce4windowing ]; then
+  ninja -C tmpbuild
+ else
+  make -j `nproc`
+ fi
+
+ ## INSTALL
+ # libxfce4windowing uses meson
+ if [ $GITTREE = libxfce4windowing ]; then
+  sudo ninja -C tmpbuild install
+ else
+  sudo make install
+  sudo ldconfig
+ fi
+ echo done >> $LOG
+
+ ## DONE
+ cd $DEVDIR/xfce/$GITREPO
+ done
+
+## UPDATE-ALTERNATIVES
+if [ $INSTALLDEPS = debian ]; then
+ sudo update-alternatives --install /usr/bin/x-window-manager x-window-manager /usr/local/bin/startxfce4 999
+ sudo update-alternatives --config x-window-manager
+fi
+
+## EXIT
+exit
+
+## ENJOY

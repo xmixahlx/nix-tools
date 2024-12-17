@@ -1,0 +1,166 @@
+#!/bin/sh
+
+### Package: mix-install-mesa
+### Version: v20241201.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# MIXTOOLSDIR
+if [ -z $MIXTOOLSDIR ]; then
+ MIXTOOLSDIR="`pwd`"
+ PATH=$MIXTOOLSDIR:$PATH
+fi
+echo "*** MIXTOOLSDIR selected is $MIXTOOLSDIR."
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
+
+# GITBRANCH
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=main
+fi
+echo "*** GITBRANCH selected is $GITBRANCH."
+
+# GITPR
+if [ -z $GITPR ]; then
+ GITPR=none
+fi
+echo "*** GITPR selected is $GITPR."
+
+# DESTDIR
+if [ -z $DESTDIR ]; then
+ DESTDIR=/usr/local
+fi
+echo "*** DESTDIR selected is $DESTDIR."
+
+# VULKANDRIVERS
+if [ -z $VULKANDRIVERS ];then
+ VULKANDRIVERS="amd,swrast"
+fi
+echo "*** VULKANDRIVERS selected is $VULKANDRIVERS."
+
+# GALLIUMDRIVERS
+if [ -z $GALLIUMDRIVERS ];then
+ GALLIUMDRIVERS="radeonsi,zink,swrast"
+fi
+echo "*** GALLIUMDRIVERS selected is $GALLIUMDRIVERS."
+
+# OPENCL
+# options are enabled or disabled
+if [ -z $OPENCL ];then
+ OPENCL="disabled"
+fi
+echo "*** OPENCL selected is $OPENCL."
+
+# RUSTICL
+# options are true or false
+if [ -z $RUSTICL ];then
+ RUSTICL="true"
+fi
+echo "*** RUSTICL selected is $RUSTICL."
+
+# NINE
+# options are true or false
+if [ -z $NINE ];then
+ NINE="true"
+fi
+echo "*** NINE selected is $NINE."
+
+# OSMESA
+# options are true or false
+if [ -z $OSMESA ];then
+ OSMESA="true"
+fi
+echo "*** OSMESA selected is $OSMESA."
+
+# LLVMVER
+# options are true or false or local
+if [ -z $LLVMVER ];then
+ LLVMVER="local"
+fi
+echo "*** LLVMVER selected is $LLVMVER."
+
+## VARS
+RESDIR=$MIXTOOLSDIR/resources
+DEVDIR=$MIXTOOLSDIR/upstream
+GITURL=https://gitlab.freedesktop.org
+GITREPO=mesa
+GITTREE=mesa
+PKGDIR=$GITTREE\_$GITBRANCH
+GITPRURL=$GITURL
+GITPRPATCH=$GITPRURL/$GITREPO/$GITTREE/-/merge_requests/$GITPR.patch
+MULTILIBDIR=`gcc -dumpmachine`
+
+## INSTALLDEPS
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y install build-essential coreutils libc-bin git meson \
+ libunwind-dev libxvmc-dev libxv-dev libxcb-xinput-dev libxcb-damage0-dev \
+ libomxil-bellagio-dev libvdpau-dev python3-mako bison byacc flex libxcb-glx0-dev \
+ libxcb-dri2-0-dev libxcb-dri3-dev directx-headers-dev flex glslang-tools \
+ libsensors-dev libset-scalar-perl libvdpau-dev libxcb-dri2-0-dev libxcb-present-dev \
+ libxcb-randr0-dev libxcb-shape0-dev libxcb-sync-dev libxcb-xfixes0-dev \
+ libxshmfence-dev spirv-tools libclc-18-dev libelf-dev libx11-xcb-dev \
+ directx-headers-dev dwz ed gettext glslang-tools groff-base \
+ intltool-debian libarchive-zip-perl libelf-dev libfile-stripnondeterminism-perl \
+ libglvnd-core-dev libglvnd-dev libopengl-dev libopengl0 \
+ libsensors-dev libset-scalar-perl libsub-override-perl \
+ libuchardet0 libvdpau-dev libvdpau1 libvulkan-dev \
+ libx11-xcb-dev libxcb-dri2-0-dev libxcb-dri3-dev libxcb-glx0-dev libxcb-present-dev \
+ libxcb-randr0-dev libxcb-shape0-dev libxcb-sync-dev libxcb-xfixes0-dev \
+ libxrandr-dev libxshmfence-dev libxxf86vm-dev libzstd-dev \
+ man-db python3-mako python3-markupsafe quilt spirv-tools bindgen \
+ libclang-cpp18-dev lua5.4 liblua5.4-dev
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## CLEAN
+sudo rm -Rf $PKGDIR/tmpbuild
+
+## GIT
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -dfx
+git reset --hard
+git pull
+git submodule update --init --recursive --depth=1
+
+## GITPR
+if [ $GITPR != none ]; then
+ rm -f $DEVDIR/$GITTREE\_$GITPR.patch
+ wget $GITPRPATCH -O $DEVDIR/$GITTREE\_$GITPR.patch
+ patch -p1 < $DEVDIR/$GITTREE\_$GITPR.patch
+fi
+
+## WORKAROUNDS
+cp $RESDIR/mesa/custom-llvm-$LLVMVER.ini .
+cp $RESDIR/mesa/clangd .clangd
+
+## CONFIGURE
+meson tmpbuild --prefix=$DESTDIR --libdir=$DESTDIR/lib/$MULTILIBDIR --buildtype=release \
+-Dgallium-drivers="$GALLIUMDRIVERS" -Dgallium-extra-hud=true -Dgallium-nine="$NINE" \
+-Dgallium-opencl="$OPENCL" -Dgallium-rusticl="$RUSTICL" -Dvulkan-drivers="$VULKANDRIVERS" \
+-Dvulkan-layers=overlay -Dspirv-to-dxil=true -Dosmesa="$OSMESA" -Dtools=drm-shim \
+-Dteflon=true -Dgpuvis=true -Dvulkan-beta=true -Dvideo-codecs=all \
+-Dgallium-d3d12-video=enabled -Drust_std=2021 \
+--native-file=custom-llvm-"$LLVMVER".ini
+
+## BUILD
+ninja -C tmpbuild
+
+## INSTALL
+sudo ninja -C tmpbuild install
+sudo ldconfig
+
+## EXIT
+exit
+
+## ENJOY

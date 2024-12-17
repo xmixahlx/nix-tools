@@ -1,0 +1,128 @@
+#!/bin/sh
+
+### Package: mix-install-ffmpeg-lsmashsource
+### Version: v20241101.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# MIXTOOLSDIR
+if [ -z $MIXTOOLSDIR ]; then
+ MIXTOOLSDIR="`pwd`"
+ PATH=$MIXTOOLSDIR:$PATH
+fi
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
+
+# GITBRANCH
+# Upstream branch is master
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=custom-patches-for-lsmashsource
+fi
+echo "*** GITBRANCH selected is $GITBRANCH."
+
+# DESTDIR
+if [ -z $DESTDIR ]; then
+# DESTDIR=/usr/local/ffmpeg-lsmashsource
+ DESTDIR=/usr/local
+fi
+echo "*** DESTDIR selected is $DESTDIR."
+
+# BUILDCONFIG
+# Options are basic or full
+if [ -z $BUILDCONFIG ]; then
+ BUILDCONFIG=full
+fi
+echo "*** BUILDCONFIG selected is $BUILDCONFIG."
+
+## VARS
+DATE=`date +%Y%m%d%H%M%S`
+RESDIR=$MIXTOOLSDIR/resources
+DEVDIR=$MIXTOOLSDIR/upstream
+GITURL=https://github.com
+GITREPO=HomeOfAviSynthPlusEvolution
+GITTREE=ffmpeg
+PKGDIR=$GITTREE\_$GITBRANCH
+MULTILIBDIR=`gcc -dumpmachine`
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS = debian ]; then
+  sudo apt-get -y build-dep ffmpeg
+  sudo apt-get -y install build-essential coreutils libc-bin wget tar bzip2 patch make \
+  libudev-dev libdrm-dev libvpl-dev liblc3-dev libqrencode-dev libssh-dev libtls-dev \
+  libpocketsphinx-dev
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## GIT
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO/$GITTREE.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -dfx
+git reset --hard HEAD
+git pull
+git submodule update --init --depth=1
+
+## CONFIGURE
+# options are minimal and full
+if [ $BUILDCONFIG = minimal ]; then
+ echo "*** BUILDCONFIG selected is $BUILDCONFIG."
+ ./configure --prefix=$DESTDIR --libdir=$DESTDIR/lib/$MULTILIBDIR --shlibdir=$DESTDIR/lib/$MULTILIBDIR \
+ --enable-gpl --enable-version3 --enable-nonfree  --enable-shared --enable-pic --disable-debug \
+ --cc="$CC" --cxx="$CXX" --extra-cflags="$CFLAGS" --extra-cxxflags="$CXXFLAGS"
+fi
+if [ $BUILDCONFIG = full ]; then
+ echo "\n*** Using full BUILDCONFIG.\n"
+ ./configure --prefix=$DESTDIR --libdir=$DESTDIR/lib/$MULTILIBDIR --shlibdir=$DESTDIR/lib/$MULTILIBDIR \
+ --enable-gpl --enable-version3 --enable-nonfree  --enable-shared --enable-pic --disable-debug \
+ --cc="$CC" --cxx="$CXX" --extra-cflags="$CFLAGS" --extra-cxxflags="$CXXFLAGS" \
+ --enable-chromaprint --enable-frei0r --enable-gcrypt --enable-gmp --enable-gnutls \
+ --enable-ladspa --enable-lcms2 --enable-libaom --enable-libaribb24 --enable-libaribcaption \
+ --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca \
+ --enable-libcdio --enable-libcodec2 --enable-libdav1d --enable-libdavs2 --enable-libdc1394 \
+ --enable-libfdk-aac --enable-libflite --enable-libfontconfig \
+ --enable-libfreetype --enable-libfribidi --enable-libharfbuzz --enable-libgme \
+ --enable-libgsm --enable-libiec61883 --enable-libilbc --enable-libjack --enable-libjxl \
+ --enable-libklvanc --enable-libkvazaar --enable-liblensfun \
+ --enable-libmodplug --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb \
+ --enable-libopenh264 --enable-libopenjpeg --enable-libopenmpt \
+ --enable-libopus --enable-libplacebo --enable-libpulse \
+ --enable-librabbitmq --enable-librav1e --enable-librist --enable-librsvg \
+ --enable-librist --enable-librsvg --enable-librubberband --enable-librtmp --enable-libshaderc \
+ --enable-libshine --enable-libsmbclient --enable-libsnappy --enable-libsoxr --enable-libspeex \
+ --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract \
+ --enable-libtheora --enable-libtls --enable-libtwolame --enable-libuavs3d \
+ --enable-libv4l2 --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis \
+ --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 \
+ --enable-libxavs2 --enable-libxcb \
+ --enable-libxcb-shm --enable-libxcb-xfixes --enable-libxcb-shape --enable-libxvid --enable-libxml2 \
+ --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 \
+ --enable-libmysofa --enable-openal --enable-opencl --enable-opengl \
+ --enable-pocketsphinx --enable-vapoursynth --enable-libvpl --enable-omx \
+ --enable-libdvdnav --enable-libdvdread --enable-libqrencode --enable-libquirc
+fi
+
+# 7.1
+# --enable-libvvenc
+
+
+## BUILD
+make -j `nproc`
+
+## INSTALL
+sudo make install
+sudo ldconfig
+
+## EXIT
+exit
+
+## ENJOY

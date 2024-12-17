@@ -1,0 +1,90 @@
+#!/bin/sh
+
+### Package: mix-install-alsa-oss
+### Version: v20241101.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# MIXTOOLSDIR
+if [ -z $MIXTOOLSDIR ]; then
+ MIXTOOLSDIR="`pwd`"
+fi
+echo "*** MIXTOOLSDIR selected is $MIXTOOLSDIR."
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
+
+# GITBRANCH
+# Upstream is "master". Releases are "v#.#.#" etc.
+if [ -z $GITBRANCH ]; then
+ GITBRANCH=master
+fi
+echo "*** GITBRANCH selected is $GITBRANCH."
+
+# DESTDIR
+if [ -z $DESTDIR ]; then
+ DESTDIR=/usr
+fi
+echo "*** DESTDIR selected is $DESTDIR."
+
+# LOCALSTATEDIR
+if [ -z $LOCALSTATEDIR ]; then
+ LOCALSTATEDIR=/var
+fi
+echo "*** LOCALSTATEDIR selected is $LOCALSTATEDIR."
+
+# SYSCONFDIR
+if [ -z $SYSCONFDIR ]; then
+ SYSCONFDIR=/etc
+fi
+echo "*** SYSCONFDIR selected is $SYSCONFDIR."
+
+## VARS
+RESDIR=$MIXTOOLSDIR/resources
+DEVDIR=$MIXTOOLSDIR/upstream
+MULTILIBDIR=`gcc -dumpmachine`
+GITURL=git://git.alsa-project.org
+GITREPO=alsa-lib
+GITTREE=alsa-oss
+PKGDIR=$GITTREE\_$GITBRANCH
+
+## DEPS
+# Provide INSTALLDEPS=debian to install dependencies.
+if [ $INSTALLDEPS = debian ]; then
+# sudo apt-get -y build-dep blueman
+ sudo apt-get -y install build-essential coreutils libc-bin
+fi
+
+## PREP
+set -e
+mkdir -p $DEVDIR
+cd $DEVDIR
+
+## GIT
+[ -d $PKGDIR ] || git clone --recursive --depth=1 $GITURL/$GITREPO.git --branch=$GITBRANCH $PKGDIR
+cd $PKGDIR
+git clean -dfx
+git reset --hard
+git pull
+git submodule update --init --recursive --depth=1
+
+## CONFIGURE
+autoreconf -vifs
+./configure --prefix=$DESTDIR --localstatedir=$LOCALSTATEDIR --sysconfdir=$SYSCONFDIR --libdir=$DESTDIR/lib/$MULTILIBDIR
+
+## BUILD
+make -j `nproc`
+
+## INSTALL
+sudo make install
+sudo ldconfig
+
+## EXIT
+exit
+
+## ENJOY

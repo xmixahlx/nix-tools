@@ -1,0 +1,130 @@
+#!/bin/sh
+
+### Package: mix-alternatives-clang
+### Version: v20241201.2300
+### Author: Michael Gan "xmixahlx" michaelbgan@gmail.com
+### License: GPLv3
+### Script Dependencies: (none)
+
+## OVERRIDES
+# MIXTOOLS
+if [ -z $MIXTOOLSDIR ]; then
+ MIXTOOLSDIR="`pwd`"
+ PATH=$MIXTOOLSDIR:$PATH
+fi
+echo "*** MIXTOOLSDIR selected is $MIXTOOLSDIR."
+
+# INSTALLDEPS
+if [ -z $INSTALLDEPS ]; then
+ INSTALLDEPS=debian
+fi
+echo "*** INSTALLDEPS selected is $INSTALLDEPS."
+
+# DEBIANREPO
+if [ -z $DEBIANREPO ]; then
+ DEBIANREPO=unstable
+fi
+echo "*** DEBIANREPO selected is $DEBIANREPO."
+
+# PKGVER
+if [ -z $PKGVER ]; then
+ PKGVER=19
+fi
+echo "*** PKGVER selected is $PKGVER."
+
+## INSTALLDEPS
+# Debian Dependencies
+if [ $INSTALLDEPS = debian ]; then
+ sudo apt-get -y install build-essential coreutils libc-bin
+ sudo apt-get -y -t $DEBIANREPO install clang clang-format clang-tidy clang-tools libclang-dev \
+ libclang-cpp-dev clang-$PKGVER clang-tidy-$PKGVER clang-format-$PKGVER clang-tools-$PKGVER \
+ libclang-$PKGVER-dev libclang-cpp$PKGVER-dev
+fi
+
+## UPDATE-ALTERNATIVES
+if [ $INSTALLDEPS = debian ]; then
+ # CLANG
+ sudo rm /usr/bin/clang
+ sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-16 16
+ sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-17 17
+ sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-18 18
+ sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-19 19
+ sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-20 20
+ sudo update-alternatives --install /usr/bin/clang clang /opt/rocm-current/llvm/bin/clang 996
+ sudo update-alternatives --install /usr/bin/clang clang /opt/llvm-current/bin/clang 997
+ sudo update-alternatives --install /usr/bin/clang clang /usr/local/llvm-current/bin/clang 998
+ sudo update-alternatives --install /usr/bin/clang clang /usr/local/bin/clang 999
+
+ # CLANG++
+ sudo rm /usr/bin/clang++
+ sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-16 16
+ sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-17 17
+ sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-18 18
+ sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-19 19
+ sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-20 20
+ sudo update-alternatives --install /usr/bin/clang++ clang++ /opt/rocm-current/llvm/bin/clang++ 996
+ sudo update-alternatives --install /usr/bin/clang++ clang++ /opt/llvm-current/bin/clang++ 997
+ sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/local/llvm-current/bin/clang++ 998
+ sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/local/bin/clang++ 999
+
+ # CLANG-FORMAT
+ sudo rm /usr/bin/clang-format
+ sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-16 16
+ sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-17 17
+ sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-18 18
+ sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-19 19
+ sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-20 20
+ sudo update-alternatives --install /usr/bin/clang-format clang-format /opt/rocm-current/llvm/bin/clang-format 996
+ sudo update-alternatives --install /usr/bin/clang-format clang-format /opt/llvm-current/bin/clang-format 997
+ sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/local/llvm-current/bin/clang-format 998
+ sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/local/bin/clang-format 999
+
+ # CLANG-FORMAT-DIFF
+ sudo rm /usr/bin/clang-format-diff
+ sudo update-alternatives --install /usr/bin/clang-format-diff clang-format-diff /usr/bin/clang-format-diff-16 16
+ sudo update-alternatives --install /usr/bin/clang-format-diff clang-format-diff /usr/bin/clang-format-diff-17 17
+ sudo update-alternatives --install /usr/bin/clang-format-diff clang-format-diff /usr/bin/clang-format-diff-18 18
+ sudo update-alternatives --install /usr/bin/clang-format-diff clang-format-diff /usr/bin/clang-format-diff-19 19
+ sudo update-alternatives --install /usr/bin/clang-format-diff clang-format-diff /usr/bin/clang-format-diff-20 20
+ sudo update-alternatives --install /usr/bin/clang-format-diff clang-format-diff /opt/rocm-current/llvm/bin/clang-format 996
+ sudo update-alternatives --install /usr/bin/clang-format-diff clang-format-diff /opt/llvm-current/bin/clang-format 997
+ sudo update-alternatives --install /usr/bin/clang-format-diff clang-format-diff /usr/local/llvm-current/bin/clang-format 998
+ sudo update-alternatives --install /usr/bin/clang-format-diff clang-format-diff /usr/local/bin/clang-format 999
+
+ # CLANG-TIDY
+ sudo rm /usr/bin/clang-tidy
+ sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-16 16
+ sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-17 17
+ sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-18 18
+ sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-19 19
+ sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-20 20
+ sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /opt/rocm-current/llvm/bin/clang-tidy 996
+ sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /opt/llvm-current/bin/clang-tidy 997
+ sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/local/llvm-current/bin/clang-tidy 998
+ sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/local/bin/clang-tidy 999
+
+ # CLANG-TIDY-DIFF
+ sudo rm /usr/bin/clang-tidy-diff
+ sudo update-alternatives --install /usr/bin/clang-tidy-diff clang-tidy-diff /usr/bin/clang-tidy-diff-16.py 16
+ sudo update-alternatives --install /usr/bin/clang-tidy-diff clang-tidy-diff /usr/bin/clang-tidy-diff-17.py 17
+ sudo update-alternatives --install /usr/bin/clang-tidy-diff clang-tidy-diff /usr/bin/clang-tidy-diff-18.py 18
+ sudo update-alternatives --install /usr/bin/clang-tidy-diff clang-tidy-diff /usr/bin/clang-tidy-diff-19.py 19
+ sudo update-alternatives --install /usr/bin/clang-tidy-diff clang-tidy-diff /usr/bin/clang-tidy-diff-20.py 20
+ sudo update-alternatives --install /usr/bin/clang-tidy-diff clang-tidy-diff /opt/rocm-current/llvm/bin/clang-tidy 996
+ sudo update-alternatives --install /usr/bin/clang-tidy-diff clang-tidy-diff /opt/llvm-current/bin/clang-tidy 997
+ sudo update-alternatives --install /usr/bin/clang-tidy-diff clang-tidy-diff /usr/local/llvm-current/bin/clang-tidy 998
+ sudo update-alternatives --install /usr/bin/clang-tidy-diff clang-tidy-diff /usr/local/bin/clang-tidy 999
+
+ # ALTERNATIVES
+ sudo update-alternatives --config clang
+ sudo update-alternatives --config clang++
+ sudo update-alternatives --config clang-format
+ sudo update-alternatives --config clang-format-diff
+ sudo update-alternatives --config clang-tidy
+ sudo update-alternatives --config clang-tidy-diff
+fi
+
+## EXIT
+exit
+
+## ENJOY
